@@ -1,15 +1,22 @@
 {
   "name": "project",
   "version": "1.0.0",
-  "main": "src/app.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node src/app.js"
+    "start": "npx nodemon"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.5",
     "express": "^4.21.1",
+    "express-session": "^1.18.1",
+    "jsdom": "^25.0.1",
+    "mongoose": "^8.7.3",
+    "nodemon": "^3.1.7",
     "uuid": "^11.0.2"
   }
 }
