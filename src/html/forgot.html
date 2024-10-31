@@ -11,20 +11,43 @@
 
     <body>
         <div class = "wrapper">
-            <form action="">
+            <form action="" onsubmit="return handleSubmit();">
                 <a href="index.html">
                     <img src="images/companylogo.png" alt="logo">
                 </a>
+             
                 <div class="forgot-text">
-                    <p>Enter your email to recieve a link to reset your password.</p> 
+                    <p id="forgot-text">Enter your email to recieve a link to reset your password.</p> 
                 </div>
                 <div class="input-box">
                     <input type="text" placeholder="Email" required?>
                     <i class='bx bxs-user'></i> 
+                
                 </div>
-                <button type="submit" class="btn">Send Email</button>
+                <button type="submit" class="btn" id="submit-btn">Send Email</button>
 
             </form>
         </div>
+        <script> 
+            let step = 1;
+            function handleSubmit() {
+                if(step == 1) {
+                    changeText();
+                    step++;
+                }
+                else {
+                    window.location.href = "forgot2.html"
+                }
+                return false;
+            }
+            function changeText() {
+                document.getElementById("forgot-text").innerText = "Enter the 6 digit code you recieved from your email.";
+                document.querySelector(".input-box input").placeholder = "Code";
+                document.querySelector(".input-box input").value = "";
+                document.querySelector(".input-box input").type = "number";
+                document.querySelector(".input-box input").maxLength = 6;
+                document.getElementById("submit-btn").innerText = "Reset Password"
+            }
+        </script>
     </body>
 </html>
