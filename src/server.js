@@ -11,15 +11,15 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const CONNECTION = process.env.CONNECTION;
 
-//defaults to 'candidate'
+// Schema with unique constraint on username
 const userSchema = new mongoose.Schema({
     email: { type: String, unique: true },
-    username: String,
+    username: { type: String, unique: true, required: true }, // Username must be unique and required
     password: String,
     first_name: String,
     last_name: String,
     role: { type: String, default: 'candidate' },
-    isAdmin: { type: Boolean, default: false }, // indicates if the user is an admin
+    isAdmin: { type: Boolean, default: false }, // Indicates if the user is an admin
     created_at: { type: Date, default: Date.now },
     last_login: Date
 });
@@ -30,17 +30,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
 app.use(express.static(path.join(__dirname, 'html')));
 
-// serve the signup page
+// Serve the signup page
 app.get('/signup.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'html', 'signup.html'));
 });
 
-// handle signup form submission
+// Handle signup form submission
 app.post('/signup.html', async (req, res) => {
     const { email, password, first_name, last_name, username } = req.body;
 
-    // determine role and isAdmin based on some condition
-    const isAdmin = email === 'admin@example.com'; // example condition
+    // Determine role and isAdmin based on some condition
+    const isAdmin = email === 'admin@example.com'; // Example condition
     const role = isAdmin ? 'admin' : 'candidate';
 
     const newUser = new User({
@@ -58,11 +58,18 @@ app.post('/signup.html', async (req, res) => {
         res.redirect('/index.html');
     } catch (error) {
         console.error(error);
-        res.status(400).send('User already exists or an error occurred');
+
+        // Handle duplicate key errors for both email and username
+        if (error.code === 11000) {
+            const duplicateField = error.keyValue.username ? 'Username' : 'Email';
+            res.status(400).send(`${duplicateField} already exists`);
+        } else {
+            res.status(400).send('An error occurred');
+        }
     }
 });
 
-// handle login form submission
+// Handle login form submission
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -72,16 +79,16 @@ app.post('/login', async (req, res) => {
             return res.status(400).send('Invalid email or password');
         }
 
-        // store user info in session
+        // Store user info in session
         req.session.userId = user._id;
         req.session.role = user.role;
         req.session.isAdmin = user.isAdmin;
 
-        // update last login time
+        // Update last login time
         user.last_login = new Date();
         await user.save();
 
-        // redirect based on isAdmin
+        // Redirect based on isAdmin
         if (user.isAdmin) {
             res.redirect('/admin_dashboard.html');
         } else {
