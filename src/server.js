@@ -4,6 +4,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const session = require('express-session');
+const bcrypt = require('bcryptjs');
 
 dotenv.config();
 
@@ -22,6 +23,22 @@ const userSchema = new mongoose.Schema({
     isAdmin: { type: Boolean, default: false }, // Indicates if the user is an admin
     created_at: { type: Date, default: Date.now },
     last_login: Date
+});
+
+// Hash password before saving it to the database
+userSchema.pre('save', async function(next) {
+    if (this.isModified('password')) { // Only hash the password if it's been modified
+        try {
+            const salt = await bcrypt.genSalt(10);  // Generate a salt (higher number means more secure but also slower, stick with 8-13)
+            const hashedPassword = await bcrypt.hash(this.password, salt);  // Hash the password
+            this.password = hashedPassword;  // Store the hashed password
+            next();
+        } catch (err) {
+            next(err);
+        }
+    } else {
+        next();  // Proceed without modifying password if not changed
+    }
 });
 
 const User = mongoose.model('User', userSchema, 'users');
@@ -45,7 +62,7 @@ app.post('/signup.html', async (req, res) => {
 
     const newUser = new User({
         email,
-        password,
+        password,    // Password will be hashed
         username,
         first_name,
         last_name,
@@ -75,7 +92,13 @@ app.post('/login', async (req, res) => {
 
     try {
         const user = await User.findOne({ email });
-        if (!user || user.password !== password) {
+        if (!user) {
+            return res.status(400).send('Invalid email or password');
+        }
+
+        // Compare provided password with the hashed password in the database
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
             return res.status(400).send('Invalid email or password');
         }
 
