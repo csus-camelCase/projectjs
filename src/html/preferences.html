@@ -181,10 +181,56 @@
         </div>
     </div>
     <script>
-        document.getElementById('logout-btn').addEventListener('click', function () {
-            // Redirect to login page after someone clicks on logout button
-            window.location.href = "index.html";
+        document.addEventListener("DOMContentLoaded", function() {
+            // Function to fetch job preferences from the backend
+            function fetchJobPreferences() {
+                fetch('http://localhost:3001/api/job-preferences')      //i think i should make '3001' into 'PORT' somehow but i'd need to ask team
+                    .then(response => response.json())
+                    .then(data => {
+                        const jobGrid = document.querySelector('.job-grid');
+    
+                        // Clear any existing job items
+                        jobGrid.innerHTML = '';
+    
+                        // Add each job to the job grid
+                        data.forEach((job, index) => {
+                            const jobItem = document.createElement('div');
+                            jobItem.classList.add('job-item');
+    
+                            // Create the checkbox element
+                            const jobCheckbox = document.createElement('input');
+                            jobCheckbox.type = 'checkbox';
+                            jobCheckbox.id = `job${index + 1}`;
+                            jobCheckbox.value = job.name; // store job name as value
+                            
+                            // Create the label for the checkbox
+                            const jobLabel = document.createElement('label');
+                            jobLabel.setAttribute('for', jobCheckbox.id);
+                            jobLabel.textContent = job.name; // job name from the backend
+    
+                            // Append checkbox and label to job item
+                            jobItem.appendChild(jobCheckbox);
+                            jobItem.appendChild(jobLabel);
+    
+                            // Append job item to the job grid
+                            jobGrid.appendChild(jobItem);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching job preferences:', error);
+                    });
+            }
+    
+            // Call the fetch function when the page loads
+            fetchJobPreferences();
+    
+            // Handle the logout action
+            document.getElementById('logout-btn').addEventListener('click', function () {
+                // Redirect to login page after someone clicks on logout button
+                window.location.href = "index.html";
+            });
         });
     </script>
+    
 </body>
 </html>

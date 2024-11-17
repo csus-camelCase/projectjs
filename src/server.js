@@ -12,7 +12,15 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const CONNECTION = process.env.CONNECTION;
 
-// Schema with unique constraint on username
+// MongoDB Job Schema for job preferences
+const jobSchema = new mongoose.Schema({
+    name: { type: String, required: true, unique: true },
+    description: { type: String, default: '' }
+});
+
+const Job = mongoose.model('Job', jobSchema, 'jobs');
+
+// User schema with unique constraint on username
 const userSchema = new mongoose.Schema({
     email: { type: String, unique: true },
     username: { type: String, unique: true, required: true }, // Username must be unique and required
@@ -123,6 +131,51 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// Serve the user dashboard
+app.get('/user_dashboard.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'html', 'user_dashboard.html'));
+});
+
+// Serve the admin dashboard
+app.get('/admin_dashboard.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'html', 'admin_dashboard.html'));
+});
+
+// Admin: Add new job preferences to the database
+app.post('/api/job-preferences', async (req, res) => {
+    const { name, description } = req.body;
+
+    const newJob = new Job({
+        name,
+        description
+    });
+
+    try {
+        await newJob.save();
+        res.status(201).json(newJob); // Send back the created job preference
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error adding job preference');
+    }
+});
+
+// Admin: Fetch all job preferences
+app.get('/api/job-preferences', async (req, res) => {
+    try {
+        const jobPreferences = await Job.find(); // Fetch all job preferences
+        res.json(jobPreferences); // Send job preferences as JSON
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error fetching job preferences');
+    }
+});
+
+// Serve the preferences page
+app.get('/preferences.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'html', 'preferences.html'));
+});
+
+// Start the server and connect to MongoDB
 const start = async () => {
     try {
         await mongoose.connect(CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true });
