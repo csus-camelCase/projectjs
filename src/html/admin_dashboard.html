@@ -4,9 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Welcome, Admin!</h1>
-    <p>You are logged in as an admin.</p>
+    <div class="dashboard-wrapper">
+        <!-- Header Section -->
+        <header>
+            <img src="images/companylogo.png" alt="System1Search Logo">
+            <nav>
+                <ul>
+                    <li><a href="#">Dashboard</a></li>
+                    <li><a href="#">Manage Users</a></li>
+                    <li><a href="#">Settings</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Main Content Section -->
+        <main>
+            <h1>Welcome, Admin!</h1>
+            <p>You are logged in as an admin.</p>
+
+            <!-- Event Scheduling Section -->
+            <div class="prototype-section">
+                <h2>Schedule Events</h2>
+                <p>Use this section to schedule events for users. These events will be added to their Google Calendar and show up on their dashboard.</p>
+                <button onclick="alert('Prototype: This button will open the event creation interface.')">Create Event</button>
+            </div>
+
+            <!-- Manage Users Section -->
+            <div class="prototype-section">
+                <h2>Manage Users</h2>
+                <p>View and manage user accounts, assign roles, or deactivate users.</p>
+                <button onclick="alert('Prototype: This button will open the user management interface.')">Manage Users</button>
+            </div>
+        </main>
+
+        <!-- Footer Section -->
+        <footer>
+            <p>© 2024 System1Search. All rights reserved.</p>
+        </footer>
+    </div>
 </body>
 </html>
