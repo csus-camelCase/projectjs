@@ -51,6 +51,19 @@ userSchema.pre('save', async function(next) {
 
 const User = mongoose.model('User', userSchema, 'users');
 
+// Profile schema
+const profileSchema = new mongoose.Schema({
+    user_id: { type: mongoose.ObjectId },
+    full_name: String,
+    experience: [Object],
+    skills: [String],
+    education: [Object],
+    preferences: [String],
+    resume_url: String,
+    status: String
+});
+const Profile = new mongoose.model('Profile', profileSchema, 'profiles');
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
 app.use(express.static(path.join(__dirname, 'html')));
@@ -91,6 +104,30 @@ app.post('/signup.html', async (req, res) => {
         } else {
             res.status(400).send('An error occurred');
         }
+    }
+});
+
+// Handle signup2 form submission
+app.post('/signup2.html', async (req, res) => {
+    const { resume, zipcode, degree } = req.body;
+
+    const newProfile = new Profile({
+        user_id: ObjectId('77777777'),
+        full_name: "joe",
+        experience: [ null ],
+        skills: [ "horse" ],
+        education: [ null ],
+        preferences: [ "notReal" ],
+        resume_url: "https://s3.amazonaws.com/your-bucket/resumes/johndoe.pdf",
+        status: "never"
+    });
+
+    try {
+        await newProfile.save();
+        res.redirect('/index.html');
+    } catch (error) {
+        console.error(error);
+        res.status(400).send('An error occurred');
     }
 });
 
