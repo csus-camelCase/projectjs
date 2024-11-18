@@ -87,6 +87,12 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'html'));
 
 // Routes
+// Serve index.ejs for /
+app.get('/', (req, res) => {
+    const email = req.cookies.email || ''; // Pre-fill email if "Remember Me" was checked
+    res.render('index.ejs', { email });
+});
+
 app.get('/index.html', (req, res) => {
     const email = req.cookies.email || '';
     res.render('index.ejs', { email });
