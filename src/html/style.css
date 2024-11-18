@@ -81,7 +81,51 @@ img{
     color: white;
     font-weight: 600;
 }
+/* Resume Label Styling */
+.wrapper .input-box label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #333;
+}
 
+/* File Input Styling */
+.wrapper .input-box input[type="file"] {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid black;
+    border-radius: 30px;
+    font-size: 16px;
+    outline: none;
+}
+
+/* Dropdown Box Styling */
+.wrapper .dropdown-box {
+    position: relative;
+}
+
+.wrapper .dropdown-box select {
+    width: 100%;
+    height: 50px;
+    background: transparent;
+    border: 2px solid black;
+    border-radius: 40px;
+    font-size: 16px;
+    color: black;
+    padding: 10px 20px;
+    appearance: none; /* Removes default arrow */
+    outline: none;
+}
+
+.wrapper .dropdown-box i {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: black;
+}
 .wrapper .forgot {
     display: flex;
     justify-content: space-between;
@@ -117,83 +161,23 @@ img{
 .sign-up p a:hover {
     text-decoration: underline;
 }
-
-/* Dashboard Wrapper */
-.dashboard-wrapper {
-    max-width: 800px;
+/* Specific styling for the file input icon alignment */
+.wrapper .input-box.file-upload {
+    position: relative;
     width: 100%;
-    margin: 20px auto;
-    background: rgba(255, 255, 255, 0.15); /* Slightly darker for contrast */
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    padding: 20px;
+    margin: 30px 0;
 }
 
-/* Header Section */
-header img {
-    max-height: 80px;
+.wrapper .input-box.file-upload input[type="file"] {
+    padding-right: 50px; /* Leave space for icon on the right */
 }
 
-header nav ul li a {
-    text-decoration: none;
-    color: #333; /* Dark text for better contrast */
-    font-weight: bold;
-    transition: color 0.3s;
-}
-
-header nav ul li a:hover {
-    color: #ff5733; /* Subtle hover effect */
-}
-
-/* Main Content */
-main {
-    text-align: center;
-    color: #333; /* Darker text color */
-}
-
-/* Cards Section */
-.cards {
-    display: flex;
-    gap: 20px;
-    margin-top: 20px;
-    justify-content: center;
-}
-
-.card {
-    flex: 1;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.8); /* Light background for contrast */
-    border-radius: 10px;
-    color: #333; /* Dark text */
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.card h2 {
-    margin-bottom: 10px;
-    font-size: 1.5em;
-    color: #8B0000; /* Highlight headers */
-}
-
-.card p {
-    font-size: 14px;
-    color: #555; /* Subtle text for secondary info */
-}
-
-.card button {
-    margin-top: 10px;
-    padding: 10px 20px;
-    border: none;
-    background: #8B0000; /* Stronger red for button */
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.3s, color 0.3s;
-}
-
-.card button:hover {
-    background: #ffcccb; /* Lighter hover color */
+.wrapper .input-box.file-upload i {
+    position: absolute;
+    right: 20px;
+    top: 100%;
+    transform: translateY(-50%);
+    font-size: 20px;
     color: black;
 }
 

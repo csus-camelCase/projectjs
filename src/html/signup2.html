@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Setup Profile - system1seachsac</title>
+        <link rel="stylesheet" href="style.css">
+        <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    </head>
+    <body>
+        <div class="wrapper">
+            <form action="/submit_setup" method="post" enctype="multipart/form-data">
+                <img src="images/companylogo.png" alt="logo">
+
+                <div class="input-box file-upload">
+                    <label for="resume">Upload Resume</label>
+                    <input type="file" id="resume" name="resume" required>
+                    <i class='bx bxs-file'></i>
+                </div>
+                
+                <div class="input-box">
+                    <input type="text" name="zipcode" placeholder="Zip Code" required>
+                    <i class='bx bxs-map'></i>
+                </div>
+                
+                <div class="input-box dropdown-box">
+                    <select name="degree" required>
+                        <option value="" disabled selected>Select Degree Level</option>
+                        <option value="high_school">High School</option>
+                        <option value="associate">Associate Degree</option>
+                        <option value="bachelor">Bachelor's Degree</option>
+                        <option value="master">Master's Degree</option>
+                        <option value="phd">Doctorate</option>
+                    </select>
+                    <i class='bx bxs-graduation'></i>
+                </div>
+                
+                <button type="submit" class="btn">Save and Continue</button>
+            </form>
+        </div>
+    </body>
+</html>
