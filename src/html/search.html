@@ -1,0 +1,129 @@
+!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Candidate Search</title>
+        <link rel="stylesheet" href="style.css">
+        <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f4f4f4;
+            }
+            .wrapper {
+                max-width: 900px;
+                margin: 50px auto;
+                padding: 20px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            }
+            h2 {
+                text-align: center;
+                margin-bottom: 20px;
+                color: #333;
+            }
+            .search-bar {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+            .search-bar input {
+                width: 80%;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 16px;
+            }
+            .search-bar button {
+                padding: 10px 15px;
+                border: none;
+                background-color: #4CAF50;
+                color: white;
+                font-size: 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-left: 5px;
+            }
+            .search-bar button:hover {
+                background-color: #45a049;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+            table, th, td {
+                border: 1px solid #ddd;
+            }
+            th, td {
+                padding: 10px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrapper">
+            <h2>Search Candidates</h2>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search by name, email, or preferences">
+                <button onclick="searchCandidates()">Search</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Preferences</th>
+                    </tr>
+                </thead>
+                <tbody id="candidateTable">
+                    <!-- Candidate rows will go here -->
+                    <tr>
+                        <td>Jane</td>
+                        <td>Doe</td>
+                        <td>jane.doe@example.com</td>
+                        <td>Active</td>
+                        <td>Remote Work</td>
+                    </tr>
+                    <tr>
+                        <td>John</td>
+                        <td>Smith</td>
+                        <td>john.smith@example.com</td>
+                        <td>Inactive</td>
+                        <td>Full-Time Onsite</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <script>
+            function searchCandidates() {
+                const input = document.getElementById("searchInput").value.toLowerCase();
+                const table = document.getElementById("candidateTable");
+                const rows = table.getElementsByTagName("tr");
+
+                for (let i = 0; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName("td");
+                    let match = false;
+                    for (let j = 0; j < cells.length; j++) {
+                        if (cells[j].innerHTML.toLowerCase().includes(input)) {
+                            match = true;
+                            break;
+                        }
+                    }
+                    rows[i].style.display = match ? "" : "none";
+                }
+            }
+        </script>
+    </body>
+</html>
