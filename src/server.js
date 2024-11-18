@@ -57,7 +57,7 @@ app.use(express.static(path.join(__dirname, 'html')));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.set('view engine', 'ejs');
+app.set('view engine', 'ejs');  //used to update the index.ejs
 app.set('views', path.join(__dirname, 'html'));
 
 //Serve the login page
