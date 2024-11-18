@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Top bar with search functionality -->
+        <div class="top-bar">
+            <div class="input-box">
+                <input type="text" id="search-bar" placeholder="Search Preferences">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+
+        <!-- Candidate selection grid -->
+        <div class="container">
+            <h1>Select Candidates</h1>
+            <p class="subtext">Search and add candidates based on preferences.</p>
+            
+            <div class="job-grid" id="candidate-grid">
+                <div class="job-item">
+                    <input type="checkbox" id="candidate1">
+                    <label for="candidate1">Candidate 1</label>
+                </div>
+                <div class="job-item">
+                    <input type="checkbox" id="candidate2">
+                    <label for="candidate2">Candidate 2</label>
+                </div>
+                <div class="job-item">
+                    <input type="checkbox" id="candidate3">
+                    <label for="candidate3">Candidate 3</label>
+                </div>
+                <div class="job-item">
+                    <input type="checkbox" id="candidate4">
+                    <label for="candidate4">Candidate 4</label>
+                </div>
+                <div class="job-item">
+                    <input type="checkbox" id="candidate5">
+                    <label for="candidate5">Candidate 5</label>
+                </div>
+                <!-- More candidates can be added dynamically -->
+            </div>
+            
+            <!-- Action Buttons -->
+            <button class="btn">Add Selected Candidates</button>
+        </div>
+    </div>
+
+    <!-- Script to handle search functionality -->
+    <script>
+        const searchBar = document.getElementById('search-bar');
+        const candidateGrid = document.getElementById('candidate-grid');
+        const candidates = Array.from(candidateGrid.children);
+
+        searchBar.addEventListener('input', function () {
+            const searchQuery = searchBar.value.toLowerCase();
+            candidates.forEach(candidate => {
+                const candidateName = candidate.textContent.toLowerCase();
+                candidate.style.display = candidateName.includes(searchQuery) ? 'block' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>
