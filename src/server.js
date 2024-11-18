@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
+const cookieParser = require('cookie-parser');
+const ejs = require('ejs');
 
 dotenv.config();
 
@@ -67,6 +69,18 @@ const Profile = new mongoose.model('Profile', profileSchema, 'profiles');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
 app.use(express.static(path.join(__dirname, 'html')));
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+app.set('view engine', 'ejs');  //used to update the index.ejs
+app.set('views', path.join(__dirname, 'html'));
+
+//Serve the login page
+app.get('/', (req, res) => {
+    // Check if there's a "email" cookie and pass it to the HTML
+    const email = req.cookies.email || '';
+    res.render('index.ejs', { email: email });
+});
 
 // Serve the signup page
 app.get('/signup.html', (req, res) => {
@@ -133,7 +147,8 @@ app.post('/signup2.html', async (req, res) => {
 
 // Handle login form submission
 app.post('/login', async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, rememberMe } = req.body;
+
 
     try {
         const user = await User.findOne({ email });
@@ -156,6 +171,13 @@ app.post('/login', async (req, res) => {
         user.last_login = new Date();
         await user.save();
 
+        //remember me function saves username
+        if (rememberMe === 'on') {
+            res.cookie('email', email, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true }); // 30 days
+        } else {
+            res.clearCookie('email');  // Clear cookie if "Remember Me" is unchecked
+        }    
+
         // Redirect based on isAdmin
         if (user.isAdmin) {
             res.redirect('/admin_dashboard.html');
@@ -170,7 +192,7 @@ app.post('/login', async (req, res) => {
 
 // Serve the user dashboard
 app.get('/user_dashboard.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'html', 'user_dashboard.html'));
+    res.sendFile(path.join(__dirname, 'html', 'preferences.html'));
 });
 
 // Serve the admin dashboard
