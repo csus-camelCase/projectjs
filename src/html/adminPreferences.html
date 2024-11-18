@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF -8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <title> Admin Preference Page system1seachsac</title>
+        <link rel="stylesheet" href="style.css">
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        <style> 
+            .form-group { 
+                margin-bottom: 15px; 
+            } 
+            label { 
+                display: block; 
+                margin-bottom: 5px; 
+            } 
+            input[type="text"], textarea { 
+                width: 100%; 
+                padding: 8px; 
+                box-sizing: border-box; 
+            } 
+            button { 
+                padding: 5px 10px; 
+                background: rgb(69,0,0);
+                background: linear-gradient(90deg, rgba(69,0,0,1) 0%, rgba(184,21,21,0.802784222737819) 50%, rgba(255,0,0,0.2946635730858469) 100%);; 
+                color: white ;
+                border: 2px solid black,;
+                border-radius: 40px; 
+                border: none; 
+                cursor: pointer;
+            } 
+        </style>
+    </head>
+
+    <body> 
+        <div class="wrapper"> 
+            <a href="index.html">
+                <img src="images/companylogo.png" alt="logo">
+            </a>
+        <br>
+        </br>
+            <h1>Edit Candidate Preferences</h1>
+            <form id="preferencesForm"> 
+                <div class="form-group"> 
+                    <label for="preferenceName">Type in a preference to add:</label> 
+                    <input type="text" id="preferenceName" name="preferenceName" required> 
+                </div> 
+                <button type="button" id="addPreferenceButton">Add Preference</button> 
+            </form> 
+            <div class="preferences-list" id="preferencesList"></div> 
+            <h2>Selected Preferences</h2> 
+            <div class="selected-preferences" id="selectedPreferences"></div> 
+        </div> 
+        
+        <script> 
+            const preferencesList = document.getElementById('preferencesList'); 
+            const selectedPreferences = document.getElementById('selectedPreferences'); 
+            const addPreferenceButton = document.getElementById('addPreferenceButton'); 
+            const preferenceNameInput = document.getElementById('preferenceName'); 
+            
+            addPreferenceButton.addEventListener('click', function() { 
+                const preferenceName = preferenceNameInput.value.trim(); 
+                if (preferenceName) { 
+                    const preferenceItem = document.createElement('div'); 
+                    preferenceItem.className = 'preference-item'; 
+                    preferenceItem.innerHTML = ` 
+                        <input type="checkbox" name="preference" value="${preferenceName}"> 
+                        <span>${preferenceName}</span> 
+                        <button type="button" class="delete-button">Delete</button> 
+                    `; 
+                    preferencesList.appendChild(preferenceItem); 
+                    preferenceNameInput.value = ''; 
+                    
+                    const deleteButton = preferenceItem.querySelector('.delete-button'); 
+                    deleteButton.addEventListener('click', function() { 
+                        preferencesList.removeChild(preferenceItem); 
+                        updateSelectedPreferences(); 
+                    }); 
+                    
+                    const checkbox = preferenceItem.querySelector('input[type="checkbox"]'); 
+                    checkbox.addEventListener('change', function() { 
+                        updateSelectedPreferences(); 
+                    }); 
+                } 
+            }); 
+            
+            function updateSelectedPreferences() { 
+                selectedPreferences.innerHTML = ''; 
+                const selectedItems = preferencesList.querySelectorAll('input[type="checkbox"]:checked'); 
+                selectedItems.forEach(item => { 
+                    const selectedItem = document.createElement('div'); 
+                    selectedItem.textContent = item.value; 
+                    selectedPreferences.appendChild(selectedItem); 
+                }); 
+            } 
+        </script>
+    </body>
+</html>
