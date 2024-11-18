@@ -4,9 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Dashboard</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Welcome, User!</h1>
-    <p>You are logged in as a regular user.</p>
+    <div class="dashboard-wrapper">
+        <!-- Header Section -->
+        <header>
+            <img src="images/companylogo.png" alt="System1Search Logo">
+            <nav>
+                <ul>
+                    <li><a href="#">Dashboard</a></li>
+                    <li><a href="#">Profile</a></li>
+                    <li><a href="#">Settings</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Main Content Section -->
+        <main>
+            <h1>Welcome, User!</h1>
+            <p>You are logged in as a regular user.</p>
+
+            <!-- Upcoming Events Section -->
+            <div class="cards">
+                <div class="card">
+                    <h2>Upcoming Events</h2>
+                    <p>No events scheduled.</p>
+                    <p>Once scheduled by a recruiter, events will show up here.</p>
+                </div>
+
+                <!-- Tasks Section -->
+                <div class="card">
+                    <h2>Your Tasks</h2>
+                    <p>Complete your profile to help recruiters match you with opportunities.</p>
+                    <button onclick="location.href='/profile.html'">Go to Profile</button>
+                </div>
+            </div>
+
+            <!-- Dedicated Calendar Section -->
+            <div class="prototype-section">
+                <h2>Your Calendar</h2>
+                <p>View all your scheduled events on your Google Calendar.</p>
+                <button onclick="location.href='https://calendar.google.com'">Open Google Calendar</button>
+            </div>
+        </main>
+
+        <!-- Footer Section -->
+        <footer>
+            <p>© 2024 System1Search. All rights reserved.</p>
+        </footer>
+    </div>
 </body>
 </html>

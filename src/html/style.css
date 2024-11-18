@@ -117,3 +117,129 @@ img{
 .sign-up p a:hover {
     text-decoration: underline;
 }
+
+/* Dashboard Wrapper */
+.dashboard-wrapper {
+    max-width: 800px;
+    width: 100%;
+    margin: 20px auto;
+    background: rgba(255, 255, 255, 0.15); /* Slightly darker for contrast */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+}
+
+/* Header Section */
+header img {
+    max-height: 80px;
+}
+
+header nav ul li a {
+    text-decoration: none;
+    color: #333; /* Dark text for better contrast */
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+header nav ul li a:hover {
+    color: #ff5733; /* Subtle hover effect */
+}
+
+/* Main Content */
+main {
+    text-align: center;
+    color: #333; /* Darker text color */
+}
+
+/* Cards Section */
+.cards {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.card {
+    flex: 1;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.8); /* Light background for contrast */
+    border-radius: 10px;
+    color: #333; /* Dark text */
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.card h2 {
+    margin-bottom: 10px;
+    font-size: 1.5em;
+    color: #8B0000; /* Highlight headers */
+}
+
+.card p {
+    font-size: 14px;
+    color: #555; /* Subtle text for secondary info */
+}
+
+.card button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    border: none;
+    background: #8B0000; /* Stronger red for button */
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s, color 0.3s;
+}
+
+.card button:hover {
+    background: #ffcccb; /* Lighter hover color */
+    color: black;
+}
+
+/* Calendar Section */
+.prototype-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    color: #333;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.prototype-section h2 {
+    font-size: 1.5em;
+    color: #8B0000;
+    margin-bottom: 10px;
+}
+
+.prototype-section p {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.prototype-section button {
+    padding: 10px 20px;
+    border: none;
+    background: #8B0000;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s, color 0.3s;
+}
+
+.prototype-section button:hover {
+    background: #ffcccb;
+    color: black;
+}
+
+/* Footer Section */
+footer {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 12px;
+    color: #333;
+}
