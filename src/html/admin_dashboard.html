@@ -15,6 +15,7 @@
                 <ul>
                     <li><a href="#">Dashboard</a></li>
                     <li><a href="#">Manage Users</a></li>
+                    <li><a href="#">Job Postings</a></li>
                     <li><a href="#">Settings</a></li>
                     <li><a href="/logout">Logout</a></li>
                 </ul>
@@ -27,17 +28,33 @@
             <p>You are logged in as an admin.</p>
 
             <!-- Event Scheduling Section -->
-            <div class="prototype-section">
-                <h2>Schedule Events</h2>
-                <p>Use this section to schedule events for users. These events will be added to their Google Calendar and show up on their dashboard.</p>
-                <button onclick="alert('Prototype: This button will open the event creation interface.')">Create Event</button>
+            <div class="cards">
+                <div class="card">
+                    <h2>Schedule Events</h2>
+                    <p>Use this section to schedule events for users. These events will be added to their Google Calendar and show up on their dashboard.</p>
+                    <button onclick="location.href='/schedule-event.html'">Create Event</button>
+                </div>
+
+                <!-- Manage Users Section -->
+                <div class="card">
+                    <h2>Manage Users</h2>
+                    <p>View and manage user accounts, assign roles, or deactivate users.</p>
+                    <button onclick="location.href='/manage-users.html'">Manage Users</button>
+                </div>
             </div>
 
-            <!-- Manage Users Section -->
+            <!-- Job Postings Section -->
             <div class="prototype-section">
-                <h2>Manage Users</h2>
-                <p>View and manage user accounts, assign roles, or deactivate users.</p>
-                <button onclick="alert('Prototype: This button will open the user management interface.')">Manage Users</button>
+                <h2>Job Postings</h2>
+                <p>Create and manage job postings to notify suitable candidates.</p>
+                <button onclick="location.href='/job-postings.html'">Manage Jobs</button>
+            </div>
+
+            <!-- Email Notifications Section -->
+            <div class="prototype-section">
+                <h2>Email Notifications</h2>
+                <p>Send custom email notifications to specific users based on their profile and job fit.</p>
+                <button onclick="location.href='/send-emails.html'">Send Emails</button>
             </div>
         </main>
 

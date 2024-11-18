@@ -243,3 +243,42 @@ footer {
     font-size: 12px;
     color: #333;
 }
+
+.wide-card.job-search {
+    margin-top: 20px;
+    padding: 30px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.wide-card.job-search h2 {
+    margin-bottom: 15px;
+    font-size: 1.8rem;
+    color: #333;
+}
+
+.wide-card.job-search p {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.wide-card.job-search button {
+    background: #8b0000;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.wide-card.job-search button:hover {
+    background: #b22222;
+    color: #fff;
+    transform: scale(1.05);
+}
