@@ -14,6 +14,7 @@
             <nav>
                 <ul>
                     <li><a href="#">Dashboard</a></li>
+                    <li><a href="#">Calendar</a></li>
                     <li><a href="#">Profile</a></li>
                     <li><a href="#">Settings</a></li>
                     <li><a href="/logout">Logout</a></li>
@@ -26,15 +27,16 @@
             <h1>Welcome, User!</h1>
             <p>You are logged in as a regular user.</p>
 
-            <!-- Upcoming Events Section -->
+            <!-- Upcoming Events and Tasks Section -->
             <div class="cards">
                 <div class="card">
                     <h2>Upcoming Events</h2>
-                    <p>No events scheduled.</p>
-                    <p>Once scheduled by a recruiter, events will show up here.</p>
+                    <div id="events-container">
+                        <!-- Placeholder for no events -->
+                        <p id="no-events-message">No events scheduled. Once scheduled by a recruiter, events will show up here.</p>
+                    </div>
                 </div>
 
-                <!-- Tasks Section -->
                 <div class="card">
                     <h2>Your Tasks</h2>
                     <p>Complete your profile to help recruiters match you with opportunities.</p>
@@ -42,18 +44,62 @@
                 </div>
             </div>
 
-            <!-- Dedicated Calendar Section -->
-            <div class="prototype-section">
-                <h2>Your Calendar</h2>
-                <p>View all your scheduled events on your Google Calendar.</p>
-                <button onclick="location.href='https://calendar.google.com'">Open Google Calendar</button>
+            <!-- Job Search Section -->
+            <div class="wide-card job-search">
+                <h2>Search for Jobs</h2>
+                <p>Find job postings that match your profile and interests.</p>
+                <button onclick="location.href='/job-search.html'">Search Jobs</button>
             </div>
         </main>
 
         <!-- Footer Section -->
         <footer>
-            <p>© 2024 System1Search. All rights reserved.</p>
+            <p>&copy; 2024 System1Search. All rights reserved.</p>
         </footer>
     </div>
+
+    <!-- Script for Dynamic Events Loading -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const eventsContainer = document.getElementById("events-container");
+            const noEventsMessage = document.getElementById("no-events-message");
+
+            // Replace with API call or data fetch logic
+            const events = [
+                {
+                    title: "Interview with ABC Corp",
+                    date: "November 20, 2024",
+                    time: "3:00 PM",
+                    location: "Zoom",
+                    calendarLink: "https://calendar.google.com"
+                },
+                {
+                    title: "Follow-Up Meeting",
+                    date: "November 25, 2024",
+                    time: "10:00 AM",
+                    location: "Office HQ",
+                    calendarLink: "https://calendar.google.com"
+                }
+            ];
+
+            if (events.length > 0) {
+                noEventsMessage.style.display = "none"; // Hide the no-events message
+
+                events.forEach(event => {
+                    const eventDiv = document.createElement("div");
+                    eventDiv.classList.add("event");
+
+                    eventDiv.innerHTML = `
+                        <p><strong>${event.title}</strong></p>
+                        <p>${event.date} | ${event.time}</p>
+                        <p>Location: ${event.location}</p>
+                        <a href="${event.calendarLink}" target="_blank">View in Google Calendar</a>
+                    `;
+
+                    eventsContainer.appendChild(eventDiv);
+                });
+            }
+        });
+    </script>
 </body>
 </html>
