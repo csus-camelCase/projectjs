@@ -175,16 +175,16 @@
                 <div class="job-item"><input type="checkbox" id="job20"><label for="job20">Job Name</label></div>
             </div>
 
-
+            <button class="save-button">Save Preferences</button>
 
             <button class="skip-button">Skip</button>
         </div>
     </div>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Function to fetch job preferences from the backend
-            function fetchJobPreferences() {
-                fetch('http://localhost:3001/api/job-preferences')      //i think i should make '3001' into 'PORT' somehow but i'd need to ask team
+        document.addEventListener("DOMContentLoaded", function () {
+            // Function to fetch jobs from the backend
+            function fetchJobs() {
+                fetch('/api/jobs') // Call the backend API to fetch jobs
                     .then(response => response.json())
                     .then(data => {
                         const jobGrid = document.querySelector('.job-grid');
@@ -201,12 +201,12 @@
                             const jobCheckbox = document.createElement('input');
                             jobCheckbox.type = 'checkbox';
                             jobCheckbox.id = `job${index + 1}`;
-                            jobCheckbox.value = job.name; // store job name as value
-                            
+                            jobCheckbox.value = job._id; // Store job ID as value
+    
                             // Create the label for the checkbox
                             const jobLabel = document.createElement('label');
                             jobLabel.setAttribute('for', jobCheckbox.id);
-                            jobLabel.textContent = job.name; // job name from the backend
+                            jobLabel.textContent = job.title; // Use job title as the label text
     
                             // Append checkbox and label to job item
                             jobItem.appendChild(jobCheckbox);
@@ -217,12 +217,12 @@
                         });
                     })
                     .catch(error => {
-                        console.error('Error fetching job preferences:', error);
+                        console.error('Error fetching jobs:', error);
                     });
             }
     
             // Call the fetch function when the page loads
-            fetchJobPreferences();
+            fetchJobs();
     
             // Handle the logout action
             document.getElementById('logout-btn').addEventListener('click', function () {
@@ -230,7 +230,7 @@
                 window.location.href = "index.html";
             });
         });
-    </script>
+    </script>    
     
 </body>
 </html>

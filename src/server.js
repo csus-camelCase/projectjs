@@ -174,8 +174,6 @@ app.post('/submit_setup', upload.single('resume'), async (req, res) => {
     }
 });
 
-
-
 app.post('/login', async (req, res) => {
     const { email, password, rememberMe } = req.body;
 
@@ -218,6 +216,40 @@ app.get('/admin_dashboard.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'html', 'admin_dashboard.html'));
 });
 
+// Route for preferences.html
+app.get('/preferences.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'html', 'preferences.html'));
+});
+
+app.get('/settings.html', async (req, res) => {
+    const userId = req.session.userId; // Assuming user is logged in
+
+    try {
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        // Render settings.html with user information
+        res.render('settings.ejs', { user });
+    } catch (error) {
+        console.error('Error fetching user information:', error);
+        res.status(500).send('An error occurred while loading the settings page');
+    }
+});
+
+// Route to fetch jobs from the database
+app.get('/api/jobs', async (req, res) => {
+    try {
+        const jobs = await Job.find(); // Fetch all jobs from the 'jobs' collection
+        res.json(jobs); // Send jobs as JSON to the frontend
+    } catch (error) {
+        console.error('Error fetching jobs:', error);
+        res.status(500).send('Error fetching jobs');
+    }
+});
+
 app.post('/api/job-preferences', async (req, res) => {
     const { name, description } = req.body;
 
@@ -247,6 +279,35 @@ app.get('/api/job-preferences', async (req, res) => {
 
 app.get('/preferences.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'html', 'preferences.html'));
+});
+
+app.post('/submit_settings', async (req, res) => {
+    const { first_name, last_name, email } = req.body;
+    const userId = req.session.userId; 
+
+    try {
+        // Update user information in the database
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { first_name, last_name, email },
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedUser) {
+            return res.status(404).send('User not found');
+        }
+
+        // Update profile full name if a corresponding profile exists
+        await Profile.findOneAndUpdate(
+            { user_id: userId },
+            { full_name: `${first_name} ${last_name}` }
+        );
+
+        res.redirect('/preferences.html'); // Redirect back to preferences page
+    } catch (error) {
+        console.error('Error updating user settings:', error);
+        res.status(500).send('An error occurred while updating your settings');
+    }
 });
 
 // Start the Server
