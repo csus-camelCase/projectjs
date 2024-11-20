@@ -277,6 +277,33 @@ app.get('/api/job-preferences', async (req, res) => {
     }
 });
 
+app.post('/api/save-preferences', async (req, res) => {
+    const userId = req.session.userId; // Ensure user is logged in
+    const { preferences } = req.body; // Preferences from frontend
+
+    if (!userId) {
+        return res.status(401).send('Unauthorized');
+    }
+
+    try {
+        // Update the user's preferences in their profile
+        const updatedProfile = await Profile.findOneAndUpdate(
+            { user_id: userId },
+            { preferences }, // Save preferences
+            { new: true } // Return updated document
+        );
+
+        if (!updatedProfile) {
+            return res.status(404).send('User profile not found');
+        }
+
+        res.status(200).send('Preferences saved successfully');
+    } catch (error) {
+        console.error('Error saving preferences:', error);
+        res.status(500).send('An error occurred while saving preferences');
+    }
+});
+
 app.get('/preferences.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'html', 'preferences.html'));
 });
