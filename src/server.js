@@ -174,109 +174,18 @@ app.post('/submit_setup', upload.single('resume'), async (req, res) => {
     }
 });
 
-app.post('/login', async (req, res) => {
-    const { email, password, rememberMe } = req.body;
-
-    try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).send('Invalid email or password');
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).send('Invalid email or password');
-        }
-
-        req.session.userId = user._id;
-        req.session.role = user.role;
-        req.session.isAdmin = user.isAdmin;
-
-        user.last_login = new Date();
-        await user.save();
-
-        if (rememberMe === 'on') {
-            res.cookie('email', email, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
-        } else {
-            res.clearCookie('email');
-        }
-
-        res.redirect(user.isAdmin ? '/admin_dashboard.html' : '/user_dashboard.html');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal server error');
-    }
-});
-
-app.get('/user_dashboard.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'html', 'preferences.html'));
-});
-
-app.get('/admin_dashboard.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'html', 'admin_dashboard.html'));
-});
-
-// Route for preferences.html
-app.get('/preferences.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'html', 'preferences.html'));
-});
-
-app.get('/settings.html', async (req, res) => {
-    const userId = req.session.userId; // Assuming user is logged in
-
-    try {
-        const user = await User.findById(userId);
-
-        if (!user) {
-            return res.status(404).send('User not found');
-        }
-
-        // Render settings.html with user information
-        res.render('settings.ejs', { user });
-    } catch (error) {
-        console.error('Error fetching user information:', error);
-        res.status(500).send('An error occurred while loading the settings page');
-    }
-});
-
-// Route to fetch jobs from the database
+// API: Fetch all jobs
 app.get('/api/jobs', async (req, res) => {
     try {
-        const jobs = await Job.find(); // Fetch all jobs from the 'jobs' collection
-        res.json(jobs); // Send jobs as JSON to the frontend
+        const jobs = await Job.find(); // Fetch all jobs from the database
+        res.json(jobs);
     } catch (error) {
         console.error('Error fetching jobs:', error);
         res.status(500).send('Error fetching jobs');
     }
 });
 
-app.post('/api/job-preferences', async (req, res) => {
-    const { name, description } = req.body;
-
-    const newJob = new Job({
-        name,
-        description,
-    });
-
-    try {
-        await newJob.save();
-        res.status(201).json(newJob);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error adding job preference');
-    }
-});
-
-app.get('/api/job-preferences', async (req, res) => {
-    try {
-        const jobPreferences = await Job.find();
-        res.json(jobPreferences);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error fetching job preferences');
-    }
-});
-
+// API: Save job preferences
 app.post('/api/save-preferences', async (req, res) => {
     const userId = req.session.userId; // Ensure user is logged in
     const { preferences } = req.body; // Preferences from frontend
@@ -301,6 +210,24 @@ app.post('/api/save-preferences', async (req, res) => {
     } catch (error) {
         console.error('Error saving preferences:', error);
         res.status(500).send('An error occurred while saving preferences');
+    }
+});
+
+// API: Job preferences management
+app.post('/api/job-preferences', async (req, res) => {
+    const { name, description } = req.body;
+
+    const newJob = new Job({
+        name,
+        description,
+    });
+
+    try {
+        await newJob.save();
+        res.status(201).json(newJob);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error adding job preference');
     }
 });
 
