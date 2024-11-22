@@ -130,36 +130,6 @@ app.post('/signup.html', async (req, res) => {
         }
     }
 });
-// Get all job preferences
-app.get('/api/job-preferences', async (req, res) => {
-    try {
-        const jobs = await Job.find();
-        res.json(jobs);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Failed to fetch job preferences' });
-    }
-});
-// Add a new job preference
-app.post('/api/job-preferences', async (req, res) => {
-    const { name } = req.body;
-
-    if (!name) {
-        return res.status(400).json({ error: 'Job name is required' });
-    }
-
-    try {
-        const newJob = new Job({ name });
-        await newJob.save();
-        res.status(201).json({ message: 'Job preference added successfully', job: newJob });
-    } catch (error) {
-        if (error.code === 11000) {
-            return res.status(400).json({ error: 'Job preference already exists' });
-        }
-        console.error(error);
-        res.status(500).json({ error: 'Failed to add job preference' });
-    }
-});
 
 // Handle /submit_setup POST request
 app.post('/submit_setup', upload.single('resume'), async (req, res) => {
@@ -204,58 +174,95 @@ app.post('/submit_setup', upload.single('resume'), async (req, res) => {
     }
 });
 
-
-
-app.post('/login', async (req, res) => {
-    const { email, password, rememberMe } = req.body;
-
+// API: Fetch all jobs
+app.get('/api/jobs', async (req, res) => {
     try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).send('Invalid email or password');
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).send('Invalid email or password');
-        }
-
-        req.session.userId = user._id;
-        req.session.role = user.role;
-        req.session.isAdmin = user.isAdmin;
-
-        user.last_login = new Date();
-        await user.save();
-
-        if (rememberMe === 'on') {
-            res.cookie('email', email, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
-        } else {
-            res.clearCookie('email');
-        }
-
-        res.redirect(user.isAdmin ? '/admin_dashboard.html' : '/user_dashboard.html');
+        const jobs = await Job.find(); // Fetch all jobs from the database
+        res.json(jobs);
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal server error');
+        console.error('Error fetching jobs:', error);
+        res.status(500).send('Error fetching jobs');
     }
 });
 
-app.get('/user_dashboard.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'html', 'preferences.html'));
+// API: Save job preferences
+app.post('/api/save-preferences', async (req, res) => {
+    const userId = req.session.userId; // Ensure user is logged in
+    const { preferences } = req.body; // Preferences from frontend
+
+    if (!userId) {
+        return res.status(401).send('Unauthorized');
+    }
+
+    try {
+        // Update the user's preferences in their profile
+        const updatedProfile = await Profile.findOneAndUpdate(
+            { user_id: userId },
+            { preferences }, // Save preferences
+            { new: true } // Return updated document
+        );
+
+        if (!updatedProfile) {
+            return res.status(404).send('User profile not found');
+        }
+
+        res.status(200).send('Preferences saved successfully');
+    } catch (error) {
+        console.error('Error saving preferences:', error);
+        res.status(500).send('An error occurred while saving preferences');
+    }
 });
 
-app.get('/admin_dashboard.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'html', 'admin_dashboard.html'));
+// API: Job preferences management
+app.post('/api/job-preferences', async (req, res) => {
+    const { name, description } = req.body;
+
+    const newJob = new Job({
+        name,
+        description,
+    });
+
+    try {
+        await newJob.save();
+        res.status(201).json(newJob);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error adding job preference');
+    }
 });
 
-
-
-
-/*
 app.get('/preferences.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'html', 'preferences.html'));
 });
-*/
+
+app.post('/submit_settings', async (req, res) => {
+    const { first_name, last_name, email } = req.body;
+    const userId = req.session.userId; 
+
+    try {
+        // Update user information in the database
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { first_name, last_name, email },
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedUser) {
+            return res.status(404).send('User not found');
+        }
+
+        // Update profile full name if a corresponding profile exists
+        await Profile.findOneAndUpdate(
+            { user_id: userId },
+            { full_name: `${first_name} ${last_name}` }
+        );
+
+        res.redirect('/preferences.html'); // Redirect back to preferences page
+    } catch (error) {
+        console.error('Error updating user settings:', error);
+        res.status(500).send('An error occurred while updating your settings');
+    }
+});
 
 // Start the Server
 app.listen(PORT, () => {

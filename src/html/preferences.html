@@ -175,62 +175,72 @@
                 <div class="job-item"><input type="checkbox" id="job20"><label for="job20">Job Name</label></div>
             </div>
 
-
+            <button class="save-button">Save Preferences</button>
 
             <button class="skip-button">Skip</button>
         </div>
     </div>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Function to fetch job preferences from the backend
-            function fetchJobPreferences() {
-                fetch('http://localhost:3001/api/job-preferences')      //i think i should make '3001' into 'PORT' somehow but i'd need to ask team
-                    .then(response => response.json())
-                    .then(data => {
-                        const jobGrid = document.querySelector('.job-grid');
-    
-                        // Clear any existing job items
-                        jobGrid.innerHTML = '';
-    
-                        // Add each job to the job grid
-                        data.forEach((job, index) => {
-                            const jobItem = document.createElement('div');
-                            jobItem.classList.add('job-item');
-    
-                            // Create the checkbox element
-                            const jobCheckbox = document.createElement('input');
-                            jobCheckbox.type = 'checkbox';
-                            jobCheckbox.id = `job${index + 1}`;
-                            jobCheckbox.value = job.name; // store job name as value
-                            
-                            // Create the label for the checkbox
-                            const jobLabel = document.createElement('label');
-                            jobLabel.setAttribute('for', jobCheckbox.id);
-                            jobLabel.textContent = job.name; // job name from the backend
-    
-                            // Append checkbox and label to job item
-                            jobItem.appendChild(jobCheckbox);
-                            jobItem.appendChild(jobLabel);
-    
-                            // Append job item to the job grid
-                            jobGrid.appendChild(jobItem);
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error fetching job preferences:', error);
+document.addEventListener("DOMContentLoaded", function () {
+    function fetchJobs() {
+        fetch('/api/jobs') // Fetch all jobs from backend
+            .then(response => response.json())
+            .then(data => {
+                const jobGrid = document.querySelector('.job-grid');
+
+                jobGrid.innerHTML = ''; // Clear existing job items
+
+                data.forEach((job, index) => {
+                    const jobItem = document.createElement('div');
+                    jobItem.classList.add('job-item');
+
+                    // Create checkbox for each job
+                    const jobCheckbox = document.createElement('input');
+                    jobCheckbox.type = 'checkbox';
+                    jobCheckbox.id = `job${index + 1}`;
+                    jobCheckbox.value = JSON.stringify({ // Pass job data as value
+                        title: job.title,
+                        location: job.location,
+                        job_type: job.job_type,
                     });
-            }
-    
-            // Call the fetch function when the page loads
-            fetchJobPreferences();
-    
-            // Handle the logout action
-            document.getElementById('logout-btn').addEventListener('click', function () {
-                // Redirect to login page after someone clicks on logout button
-                window.location.href = "index.html";
-            });
-        });
-    </script>
+
+                    // Create label for the job
+                    const jobLabel = document.createElement('label');
+                    jobLabel.setAttribute('for', jobCheckbox.id);
+                    jobLabel.textContent = job.title;
+
+                    jobItem.appendChild(jobCheckbox);
+                    jobItem.appendChild(jobLabel);
+                    jobGrid.appendChild(jobItem);
+                });
+            })
+            .catch(error => console.error('Error fetching jobs:', error));
+    }
+
+    fetchJobs();
+
+    // Save preferences when the Save button is clicked
+    document.querySelector('.save-button').addEventListener('click', () => {
+        const selectedJobs = Array.from(document.querySelectorAll('.job-grid input[type="checkbox"]:checked'))
+            .map(input => JSON.parse(input.value)); // Parse selected job data
+
+        fetch('/api/save-preferences', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ preferences: selectedJobs }),
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Preferences saved successfully!');
+                } else {
+                    alert('Failed to save preferences.');
+                }
+            })
+            .catch(error => console.error('Error saving preferences:', error));
+    });
+});
+
+    </script>  
     
 </body>
 </html>
