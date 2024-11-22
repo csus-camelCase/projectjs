@@ -130,6 +130,36 @@ app.post('/signup.html', async (req, res) => {
         }
     }
 });
+// Get all job preferences
+app.get('/api/job-preferences', async (req, res) => {
+    try {
+        const jobs = await Job.find();
+        res.json(jobs);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch job preferences' });
+    }
+});
+// Add a new job preference
+app.post('/api/job-preferences', async (req, res) => {
+    const { name } = req.body;
+
+    if (!name) {
+        return res.status(400).json({ error: 'Job name is required' });
+    }
+
+    try {
+        const newJob = new Job({ name });
+        await newJob.save();
+        res.status(201).json({ message: 'Job preference added successfully', job: newJob });
+    } catch (error) {
+        if (error.code === 11000) {
+            return res.status(400).json({ error: 'Job preference already exists' });
+        }
+        console.error(error);
+        res.status(500).json({ error: 'Failed to add job preference' });
+    }
+});
 
 // Handle /submit_setup POST request
 app.post('/submit_setup', upload.single('resume'), async (req, res) => {
@@ -218,36 +248,14 @@ app.get('/admin_dashboard.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'html', 'admin_dashboard.html'));
 });
 
-app.post('/api/job-preferences', async (req, res) => {
-    const { name, description } = req.body;
 
-    const newJob = new Job({
-        name,
-        description,
-    });
 
-    try {
-        await newJob.save();
-        res.status(201).json(newJob);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error adding job preference');
-    }
-});
 
-app.get('/api/job-preferences', async (req, res) => {
-    try {
-        const jobPreferences = await Job.find();
-        res.json(jobPreferences);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error fetching job preferences');
-    }
-});
-
+/*
 app.get('/preferences.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'html', 'preferences.html'));
 });
+*/
 
 // Start the Server
 app.listen(PORT, () => {

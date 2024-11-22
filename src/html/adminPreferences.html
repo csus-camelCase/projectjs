@@ -59,6 +59,87 @@
             const addPreferenceButton = document.getElementById('addPreferenceButton'); 
             const preferenceNameInput = document.getElementById('preferenceName'); 
             
+            // Fetch existing preferences from the server on page load
+            async function fetchPreferences() {
+                try {
+                    const response = await fetch('/api/job-preferences');
+                    const data = await response.json();
+                    data.forEach(job => {
+                        createPreferenceItem(job.name);
+                    });
+                } catch (error) {
+                    console.error('Failed to fetch preferences:', error);
+                }
+            }
+
+            // Add a new preference
+            async function addPreferenceToServer(preferenceName) {
+                try {
+                    const response = await fetch('/api/job-preferences', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ name: preferenceName }),
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        alert(`Error: ${errorData.error}`);
+                    }
+                } catch (error) {
+                    console.error('Failed to add preference:', error);
+                }
+            }
+
+            // Create a preference item in the UI
+            function createPreferenceItem(preferenceName) {
+                const preferenceItem = document.createElement('div');
+                preferenceItem.className = 'preference-item';
+                preferenceItem.innerHTML = `
+                    <input type="checkbox" name="preference" value="${preferenceName}">
+                    <span>${preferenceName}</span>
+                    <button type="button" class="delete-button">Delete</button>
+                `;
+                preferencesList.appendChild(preferenceItem);
+
+                const deleteButton = preferenceItem.querySelector('.delete-button');
+                deleteButton.addEventListener('click', function () {
+                    preferencesList.removeChild(preferenceItem);
+                    updateSelectedPreferences();
+                });
+
+                const checkbox = preferenceItem.querySelector('input[type="checkbox"]');
+                checkbox.addEventListener('change', function () {
+                    updateSelectedPreferences();
+                });
+            }
+
+            // Update selected preferences
+            function updateSelectedPreferences() {
+                selectedPreferences.innerHTML = '';
+                const selectedItems = preferencesList.querySelectorAll('input[type="checkbox"]:checked');
+                selectedItems.forEach(item => {
+                    const selectedItem = document.createElement('div');
+                    selectedItem.textContent = item.value;
+                    selectedPreferences.appendChild(selectedItem);
+                });
+            }
+
+            // Add preference button click event
+            addPreferenceButton.addEventListener('click', async function () {
+                const preferenceName = preferenceNameInput.value.trim();
+                if (preferenceName) {
+                    createPreferenceItem(preferenceName);
+                    await addPreferenceToServer(preferenceName);
+                    preferenceNameInput.value = '';
+                }
+            });
+
+            // Load preferences on page load
+            fetchPreferences();
+
+            /* //optimized from this to include the fetches and error catches in code above (commented out in case something breaks..)
             addPreferenceButton.addEventListener('click', function() { 
                 const preferenceName = preferenceNameInput.value.trim(); 
                 if (preferenceName) { 
@@ -94,6 +175,7 @@
                     selectedPreferences.appendChild(selectedItem); 
                 }); 
             } 
+            */
         </script>
     </body>
 </html>
