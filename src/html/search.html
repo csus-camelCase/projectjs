@@ -1,28 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Candidate Search Page</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Candidate Search</title>
+    <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
-    <div class="wrapper wide-card job-search">
+    <div class="wrapper job-search">
         <h2>Search for Candidates</h2>
-        <div class="input-box search-bar">
-            <input type="text" id="searchInput" placeholder="Search by candidate name or email">
-            <div class="dropdown-box">
-                <select id="preferencesFilter">
-                    <option value="">All Preferences</option>
-                    <option value="Remote">Remote</option>
-                    <option value="On-Site">On-Site</option>
-                    <option value="Hybrid">Hybrid</option>
-                </select>
-            </div>
-            <button class="btn" onclick="searchCandidates()">Search</button>
+        
+        <!-- Search input box -->
+        <div class="input-box">
+            <input type="text" id="searchInput" placeholder="Search by candidate name or email" onkeyup="filterCandidates()">
         </div>
-        <table>
+        
+        <!-- Preferences dropdown box -->
+        <div class="dropdown-box">
+            <select id="preferenceFilter" onchange="filterCandidates()">
+                <option value="">All Preferences</option>
+                <option value="Remote">Remote</option>
+                <option value="On-Site">On-Site</option>
+                <option value="Hybrid">Hybrid</option>
+            </select>
+        </div>
+        
+        <!-- Table to display candidate details -->
+        <table id="candidatesTable">
             <thead>
                 <tr>
                     <th>First Name</th>
@@ -31,7 +35,7 @@
                     <th>Preferences</th>
                 </tr>
             </thead>
-            <tbody id="candidateTable">
+            <tbody>
                 <tr>
                     <td>Jane</td>
                     <td>Doe</td>
@@ -50,32 +54,48 @@
                     <td>alice.johnson@example.com</td>
                     <td>Hybrid</td>
                 </tr>
+                <tr>
+                    <td>David</td>
+                    <td>Williams</td>
+                    <td>david.williams@example.com</td>
+                    <td>Remote</td>
+                </tr>
+                <tr>
+                    <td>Eva</td>
+                    <td>Lee</td>
+                    <td>eva.lee@example.com</td>
+                    <td>On-Site</td>
+                </tr>
             </tbody>
         </table>
     </div>
 
     <script>
-        function searchCandidates() {
-            const input = document.getElementById("searchInput").value.toLowerCase();
-            const preferencesFilter = document.getElementById("preferencesFilter").value;
-            const table = document.getElementById("candidateTable");
-            const rows = table.getElementsByTagName("tr");
+        // Function to filter candidates based on search input and preferences
+        function filterCandidates() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const preferenceFilter = document.getElementById('preferenceFilter').value;
+            const table = document.getElementById('candidatesTable');
+            const rows = table.getElementsByTagName('tr');
 
-            for (let i = 0; i < rows.length; i++) {
-                const cells = rows[i].getElementsByTagName("td");
-                let match = false;
+            // Loop through all table rows (skip the first row for the header)
+            for (let i = 1; i < rows.length; i++) {
+                let row = rows[i];
+                let firstName = row.cells[0].textContent.toLowerCase();
+                let lastName = row.cells[1].textContent.toLowerCase();
+                let email = row.cells[2].textContent.toLowerCase();
+                let preference = row.cells[3].textContent.toLowerCase();
 
-                const firstName = cells[0].innerText.toLowerCase();
-                const lastName = cells[1].innerText.toLowerCase();
-                const email = cells[2].innerText.toLowerCase();
-                const preferences = cells[3].innerText;
+                // Check if the row matches the search input and preference filter
+                let matchesSearch = firstName.includes(searchInput) || lastName.includes(searchInput) || email.includes(searchInput);
+                let matchesPreference = preferenceFilter === "" || preference.includes(preferenceFilter.toLowerCase());
 
-                if ((firstName.includes(input) || lastName.includes(input) || email.includes(input)) && 
-                    (preferencesFilter === "" || preferences === preferencesFilter)) {
-                    match = true;
+                // Show or hide the row based on the conditions
+                if (matchesSearch && matchesPreference) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
                 }
-
-                rows[i].style.display = match ? "" : "none";
             }
         }
     </script>

@@ -266,3 +266,40 @@ footer {
     color: #fff;
     transform: scale(1.05);
 }
+
+
+/* Ensure the wrapper for the search form and table is wide enough */
+.wrapper.job-search {
+    width: 90%; /* Wider container */
+    max-width: 900px;
+    padding: 20px; /* Add padding for spacing */
+    overflow: hidden; /* Prevent overflow issues */
+}
+
+/* Table styling to avoid overlap and ensure full-width display */
+table {
+    width: 100%; /* Table takes the full width of the container */
+    border-collapse: collapse; /* Remove double borders */
+}
+
+th, td {
+    border: 1px solid #ccc; /* Border for table cells */
+    padding: 10px; /* Add padding for readability */
+    text-align: left; /* Align text to the left */
+}
+
+th {
+    background-color: #8b0000; /* Dark red background for header */
+    color: white; /* White text for contrast */
+}
+
+/* Ensure input fields do not overlap */
+.input-box, .dropdown-box {
+    width: 100%; /* Inputs take full container width */
+    margin-bottom: 20px; /* Space between elements */
+}
+
+button {
+    width: 100%; /* Button spans full width */
+}
+
