@@ -1,0 +1,1 @@
+This folder contains code for externally running apps (ex. AWS Lambda functions) 
