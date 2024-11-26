@@ -97,8 +97,8 @@
             font-size: 18px;
         }
 
-        /* Skip button styling */
-        .skip-button {
+        /* Button styling (applied to both skip and save buttons) */
+        .button {
             padding: 15px 30px;
             background: linear-gradient(90deg, rgba(69,0,0,1) 0%, rgba(184,21,21,0.8) 50%, rgba(255,0,0,0.3) 100%);
             border: none;
@@ -111,7 +111,7 @@
             transition: background 0.3s;
         }
 
-        .skip-button:hover {
+        .button:hover {
             background-color: #a43e31;
         }
 
@@ -135,14 +135,12 @@
             text-decoration: none;
         }
 
-            .logout-button:hover, .edit-button:hover {
-                background-color: #a43e31;
-            }
-
+        .logout-button:hover, .edit-button:hover {
+            background-color: #a43e31;
+        }
     </style>
 </head>
 <body>
-
     <div class="wrapper">
         <div class="top-right-buttons">
             <button class="logout-button" id="logout-btn">Log Out</button>
@@ -175,72 +173,75 @@
                 <div class="job-item"><input type="checkbox" id="job20"><label for="job20">Job Name</label></div>
             </div>
 
-            <button class="save-button">Save Preferences</button>
-
-            <button class="skip-button">Skip</button>
+            <button class="button save-button">Save Preferences</button>
+            <button class="button skip-button" id="skip-btn">Skip</button>
         </div>
     </div>
     <script>
-document.addEventListener("DOMContentLoaded", function () {
-    function fetchJobs() {
-        fetch('/api/jobs') // Fetch all jobs from backend
-            .then(response => response.json())
-            .then(data => {
-                const jobGrid = document.querySelector('.job-grid');
+        document.addEventListener("DOMContentLoaded", function () {
+            function fetchJobs() {
+                fetch('/api/jobs')
+                    .then(response => response.json())
+                    .then(data => {
+                        const jobGrid = document.querySelector('.job-grid');
+                        jobGrid.innerHTML = '';
 
-                jobGrid.innerHTML = ''; // Clear existing job items
+                        data.forEach((job, index) => {
+                            const jobItem = document.createElement('div');
+                            jobItem.classList.add('job-item');
 
-                data.forEach((job, index) => {
-                    const jobItem = document.createElement('div');
-                    jobItem.classList.add('job-item');
+                            const jobCheckbox = document.createElement('input');
+                            jobCheckbox.type = 'checkbox';
+                            jobCheckbox.id = `job${index + 1}`;
+                            jobCheckbox.value = JSON.stringify({
+                                title: job.title,
+                                location: job.location,
+                                job_type: job.job_type,
+                            });
 
-                    // Create checkbox for each job
-                    const jobCheckbox = document.createElement('input');
-                    jobCheckbox.type = 'checkbox';
-                    jobCheckbox.id = `job${index + 1}`;
-                    jobCheckbox.value = JSON.stringify({ // Pass job data as value
-                        title: job.title,
-                        location: job.location,
-                        job_type: job.job_type,
-                    });
+                            const jobLabel = document.createElement('label');
+                            jobLabel.setAttribute('for', jobCheckbox.id);
+                            jobLabel.textContent = job.title;
 
-                    // Create label for the job
-                    const jobLabel = document.createElement('label');
-                    jobLabel.setAttribute('for', jobCheckbox.id);
-                    jobLabel.textContent = job.title;
+                            jobItem.appendChild(jobCheckbox);
+                            jobItem.appendChild(jobLabel);
+                            jobGrid.appendChild(jobItem);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching jobs:', error));
+            }
 
-                    jobItem.appendChild(jobCheckbox);
-                    jobItem.appendChild(jobLabel);
-                    jobGrid.appendChild(jobItem);
-                });
-            })
-            .catch(error => console.error('Error fetching jobs:', error));
-    }
+            fetchJobs();
 
-    fetchJobs();
+            document.querySelector('.save-button').addEventListener('click', () => {
+                const selectedJobs = Array.from(document.querySelectorAll('.job-grid input[type="checkbox"]:checked'))
+                    .map(input => JSON.parse(input.value));
 
-    // Save preferences when the Save button is clicked
-    document.querySelector('.save-button').addEventListener('click', () => {
-        const selectedJobs = Array.from(document.querySelectorAll('.job-grid input[type="checkbox"]:checked'))
-            .map(input => JSON.parse(input.value)); // Parse selected job data
+                fetch('/api/save-preferences', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ preferences: selectedJobs }),
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Preferences saved successfully!');
+                        } else {
+                            alert('Failed to save preferences.');
+                        }
+                    })
+                    .catch(error => console.error('Error saving preferences:', error));
+            });
 
-        fetch('/api/save-preferences', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ preferences: selectedJobs }),
-        })
-            .then(response => {
-                if (response.ok) {
-                    alert('Preferences saved successfully!');
-                } else {
-                    alert('Failed to save preferences.');
-                }
-            })
-            .catch(error => console.error('Error saving preferences:', error));
-    });
-});
+            // Log out button logic
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
 
-    </script>  
-    
+            // Skip button logic
+            document.getElementById('skip-btn').addEventListener('click', () => {
+                window.location.href = 'user_dashboard.html';
+            });
+        });
+    </script>
 </body>
 </html>
