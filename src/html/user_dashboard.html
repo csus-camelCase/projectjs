@@ -17,7 +17,7 @@
                     <li><a href="#">Calendar</a></li>
                     <li><a href="/signup2.html">Profile</a></li> <!-- Redirect to setup.html -->
                     <li><a href="/preferences.html">Preferences</a></li>
-                    <li><a href="#">Settings</a></li>
+                    <li><a href="/settings.html">Settings</a></li>
                     <li><a href="/index.html">Logout</a></li>
                 </ul>
             </nav>
@@ -25,7 +25,7 @@
 
         <!-- Main Content Section -->
         <main>
-            <h1>Welcome, User!</h1>
+            <h1>Welcome, <span id="user-first-name">User</span>!</h1>
             <p>You are logged in as a regular user.</p>
 
             <!-- Upcoming Events and Tasks Section -->
@@ -65,7 +65,7 @@
             const eventsContainer = document.getElementById("events-container");
             const noEventsMessage = document.getElementById("no-events-message");
 
-            // Replace with API call or data fetch logic
+            // Replace with API call or data fetch logic for events
             const events = [
                 {
                     title: "Interview with ABC Corp",
@@ -100,6 +100,15 @@
                     eventsContainer.appendChild(eventDiv);
                 });
             }
+
+            // Fetch user first name and update greeting
+            fetch('/api/user-info')
+                .then(response => response.json())
+                .then(data => {
+                    const firstName = data.first_name || 'User';
+                    document.getElementById('user-first-name').textContent = firstName;
+                })
+                .catch(error => console.error('Error fetching user info:', error));
         });
     </script>
 </body>
