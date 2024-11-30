@@ -106,6 +106,25 @@ app.get('/', (req, res) => {
     res.render('index.ejs', { email });
 });
 
+app.get('/api/user-info', async (req, res) => {
+    const userId = req.session.userId; // Ensure the user is logged in
+    if (!userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({ first_name: user.first_name });
+    } catch (error) {
+        console.error('Error fetching user info:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 app.get('/index.html', (req, res) => {
     const email = req.cookies.email || '';
     res.render('index.ejs', { email });
@@ -235,6 +254,34 @@ app.post('/submit_setup', upload.single('resume'), async (req, res) => {
     } catch (error) {
         console.error('Error saving profile:', error);
         res.status(500).send('An error occurred while saving the profile');
+    }
+});
+
+app.post('/delete_account', async (req, res) => {
+    const userId = req.session.userId; // Ensure the user is logged in
+
+    if (!userId) {
+        return res.status(401).send('Unauthorized');
+    }
+
+    try {
+        // Delete the user
+        const deletedUser = await User.findByIdAndDelete(userId);
+        if (!deletedUser) {
+            return res.status(404).send('User not found');
+        }
+
+        // Delete the associated profile
+        await Profile.findOneAndDelete({ user_id: userId });
+
+        // Clear session and cookies
+        req.session.destroy();
+        res.clearCookie('connect.sid');
+
+        res.redirect('/index.html'); // Redirect to the homepage after account deletion
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        res.status(500).send('An error occurred while deleting your account');
     }
 });
 
