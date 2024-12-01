@@ -10,53 +10,37 @@
     <div class="dropdown">
         <button>Menu</button>
         <div class="dropdown-content">
-            <!--<a href="user_dashboard.html">Dashboard</a>-->
             <a href="https://calendar.google.com/">Google Calendar</a>
             <a href="/signup2.html">Edit Candidate Profile</a> <!-- Redirect to setup.html -->
-            <!--<a href="/preferences.html">Preferences</a>-->
             <a href="/settings.html">Settings</a>
             <a href="/index.html">Logout</a>
-        </div>>
-    </div>>
+        </div>
+    </div>
     
     <div class="wrapper">
         <!-- Header Section -->
         <header>
-            
-            
-
             <img src="images/companylogo.png" alt="System1Search Logo">
         </header>
 
         <!-- Main Content Section -->
         <main>
             <h1>Welcome, <span id="user-first-name">User</span>!</h1>
-            
 
-            <!-- Upcoming Events Section  Blocked out till events are added
+            <!-- Upcoming Events Section -->
             <div class="wide-card">
                 <h2>Upcoming Events</h2>
                 <div id="events-container">
-
                     <p id="no-events-message">No events scheduled. Once scheduled by a recruiter, events will show up here.</p>
                 </div>
             </div>
-            
-             Your Tasks Section 
-            <div class="card">
-                <h2>Your Tasks</h2>
-                <p>Complete your profile to help recruiters match you with opportunities.</p>
-                <button onclick="location.href='signup2.html'">Go to Profile</button> 
-            </div>
 
-            Job Search Section -->
+            <!-- Account Preferences Section -->
             <div class="wide-card job-search">
                 <button onclick="location.href='preferences.html'">Edit Account Preferences</button>
                 <p>Edit your preferences so that recruiters can send job offerings that best fit you.</p>
             </div>
-            
         </main>
-
 
         <!-- Footer Section -->
         <footer>
@@ -98,10 +82,8 @@
             fetch('/api/user-info')
                 .then(response => response.json())
                 .then(data => {
-                    const firstName = data.first_name || 'F';
-                    const lastName = data.last_name || 'L';
+                    const firstName = data.first_name || 'User';
                     document.getElementById('user-first-name').textContent = firstName;
-                    document.getElementById('user-last-name').textContent = lastName;
                 })
                 .catch(error => console.error('Error fetching user info:', error));
         });
