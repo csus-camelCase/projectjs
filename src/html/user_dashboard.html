@@ -13,8 +13,8 @@
             <img src="images/companylogo.png" alt="System1Search Logo">
             <nav>
                 <ul>
-                    <li><a href="#">Dashboard</a></li>
-                    <li><a href="#">Calendar</a></li>
+                    <li><a href="user_dashboard.html">Dashboard</a></li>
+                    <li><a href="https://calendar.google.com/">Calendar</a></li>
                     <li><a href="/signup2.html">Profile</a></li> <!-- Redirect to setup.html -->
                     <li><a href="/preferences.html">Preferences</a></li>
                     <li><a href="/settings.html">Settings</a></li>
@@ -28,21 +28,20 @@
             <h1>Welcome, <span id="user-first-name">User</span>!</h1>
             <p>You are logged in as a regular user.</p>
 
-            <!-- Upcoming Events and Tasks Section -->
-            <div class="cards">
-                <div class="card">
-                    <h2>Upcoming Events</h2>
-                    <div id="events-container">
-                        <!-- Placeholder for no events -->
-                        <p id="no-events-message">No events scheduled. Once scheduled by a recruiter, events will show up here.</p>
-                    </div>
+            <!-- Upcoming Events Section -->
+            <div class="wide-card">
+                <h2>Upcoming Events</h2>
+                <div id="events-container">
+                    <!-- Placeholder for no events -->
+                    <p id="no-events-message">No events scheduled. Once scheduled by a recruiter, events will show up here.</p>
                 </div>
+            </div>
 
-                <div class="card">
-                    <h2>Your Tasks</h2>
-                    <p>Complete your profile to help recruiters match you with opportunities.</p>
-                    <button onclick="location.href='signup2.html'">Go to Profile</button> <!-- Redirect to setup.html -->
-                </div>
+            <!-- Your Tasks Section -->
+            <div class="card">
+                <h2>Your Tasks</h2>
+                <p>Complete your profile to help recruiters match you with opportunities.</p>
+                <button onclick="location.href='signup2.html'">Go to Profile</button> <!-- Redirect to setup.html -->
             </div>
 
             <!-- Job Search Section -->
@@ -65,41 +64,29 @@
             const eventsContainer = document.getElementById("events-container");
             const noEventsMessage = document.getElementById("no-events-message");
 
-            // Replace with API call or data fetch logic for events
-            const events = [
-                {
-                    title: "Interview with ABC Corp",
-                    date: "November 20, 2024",
-                    time: "3:00 PM",
-                    location: "Zoom",
-                    calendarLink: "https://calendar.google.com"
-                },
-                {
-                    title: "Follow-Up Meeting",
-                    date: "November 25, 2024",
-                    time: "10:00 AM",
-                    location: "Office HQ",
-                    calendarLink: "https://calendar.google.com"
-                }
-            ];
+            // Fetch events dynamically from the database
+            fetch('/api/events')
+                .then(response => response.json())
+                .then(events => {
+                    if (events.length > 0) {
+                        noEventsMessage.style.display = "none"; // Hide the no-events message
 
-            if (events.length > 0) {
-                noEventsMessage.style.display = "none"; // Hide the no-events message
+                        events.forEach(event => {
+                            const eventDiv = document.createElement("div");
+                            eventDiv.classList.add("event");
 
-                events.forEach(event => {
-                    const eventDiv = document.createElement("div");
-                    eventDiv.classList.add("event");
+                            eventDiv.innerHTML = `
+                                <p><strong>${event.title}</strong></p>
+                                <p>${event.date} | ${event.time}</p>
+                                <p>Location: ${event.location}</p>
+                                <a href="${event.calendarLink}" target="_blank">View in Google Calendar</a>
+                            `;
 
-                    eventDiv.innerHTML = `
-                        <p><strong>${event.title}</strong></p>
-                        <p>${event.date} | ${event.time}</p>
-                        <p>Location: ${event.location}</p>
-                        <a href="${event.calendarLink}" target="_blank">View in Google Calendar</a>
-                    `;
-
-                    eventsContainer.appendChild(eventDiv);
-                });
-            }
+                            eventsContainer.appendChild(eventDiv);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error fetching events:', error));
 
             // Fetch user first name and update greeting
             fetch('/api/user-info')
