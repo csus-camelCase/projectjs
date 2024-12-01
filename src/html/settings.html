@@ -9,7 +9,7 @@
 <body>
     <div class="wrapper">
         <form action="/submit_settings" method="post">
-            <h1>Edit Information</h1>
+            <h1>Edit Account Information</h1>
             <div class="input-box">
                 <input type="text" name="first_name" placeholder="First Name" required>
             </div>
@@ -19,20 +19,41 @@
             <div class="input-box">
                 <input type="email" name="email" placeholder="Email" required>
             </div>
-            <button type="submit" class="btn">Save Changes</button>
-        </form>
+            <div class="input-box input">
+                <label for="resume">Upload Resume</label>
+                <input type="file" id="resume" name="resume" required>
+                
+            </div>
+            <div class="input-box">
+                <input type="text" name="zipcode" placeholder="Zip Code" required>
+                
+            </div>
+            
+            <div class="input-box dropdown-box">
+                <select name="degree" required>
+                    <option value="" disabled selected>Select Degree Level</option>
+                    <option value="high_school">High School</option>
+                    <option value="associate">Associate Degree</option>
+                    <option value="bachelor">Bachelor's Degree</option>
+                    <option value="master">Master's Degree</option>
+                    <option value="phd">Doctorate</option>
+                </select>
+                <i class='bx bxs-graduation'></i>
+            </div>
 
-        <!-- Form for deleting user account -->
-        <form action="/delete_account" method="post" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+            <button type="submit" class="btn">Save and Continue</button>
+
+            <!-- Form for deleting user account -->
+            <form action="/delete_account" method="post" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
             <button type="submit" class="btn delete-btn">Delete Account</button>
         </form>
-
-        <!-- Navigation links -->
-        <div class="back-link">
-            <p><a href="preferences.html">Back to Preferences</a></p>
-            <p><a href="user_dashboard.html">Back to Dashboard</a></p>
-        </div>
+            
+            <a href="user_dashboard.html">
+                <button type="submit" class="btn">Continue Without Saving</button>
+            </a>
     </div>
+
+        
 
     <style>
         /* Add styling for delete button */
@@ -46,6 +67,7 @@
             font-size: 1em;
             margin-top: 15px;
             transition: background 0.3s;
+            margin-bottom: 15px;
         }
 
         .delete-btn:hover {

@@ -81,9 +81,15 @@ img{
     color: white;
     font-weight: 600;
 }
+
+
+.btn:hover {
+    background-color: #d9363e; /* Darker red on hover */
+}
 /* Resume Label Styling */
 .wrapper .input-box label {
     display: block;
+    margin-top: 15px;
     margin-bottom: 5px;
     font-size: 14px;
     color: #333;
@@ -94,10 +100,11 @@ img{
     display: block;
     width: 100%;
     padding: 10px;
-    border: 1px solid black;
+    border: 2px solid black;
     border-radius: 30px;
     font-size: 16px;
     outline: none;
+    margin-bottom: 15px;
 }
 
 /* Dropdown Box Styling */
@@ -124,7 +131,7 @@ img{
     top: 50%;
     transform: translateY(-50%);
     font-size: 20px;
-    color: black;
+    color: grey;
 }
 .wrapper .forgot {
     display: flex;
@@ -212,7 +219,7 @@ img{
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
-    transition: background 0.3s, color 0.3s;
+    
 }
 
 .prototype-section button:hover {
@@ -303,3 +310,65 @@ button {
     width: 100%; /* Button spans full width */
 }
 
+
+/* Style the dropdown container */
+.dropdown {
+    position: absolute;        
+    right: 150px;
+    top: 15px;
+    display: block;
+    width: 10%;
+}
+
+/* Style the dropdown button */
+.dropdown button {
+    background-color: #8b0000;
+    color: white;
+    padding: 14px 20px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-left: 100px;
+}
+
+/* Change color on hover */
+.dropdown button:hover {
+    background-color: #8b0000;
+}
+
+/* Dropdown content (hidden by default) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 10px;        
+    right: 10px;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    /*box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    //z-index: 1;*/
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+}
+
+/* Change color on hover */
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+/* Show the dropdown content when the button is hovered */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Style for dropdown button on hover */
+.dropdown:hover .dropdown button {
+    background-color: #d9363e;
+}
