@@ -49,22 +49,21 @@ const userSchema = new mongoose.Schema({
     isAdmin: { type: Boolean, default: false },
     created_at: { type: Date, default: Date.now },
     last_login: Date,
-    preferences: { type: Array, default: [] }, // Added preferences field
 });
+
 userSchema.pre('save', async function (next) {
-    if (this.isModified('password')) {
+    // Only hash the password if it's not already hashed
+    if (this.isModified('password') && !this.password.startsWith('$2a$')) {
         try {
             const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(this.password, salt);
-            this.password = hashedPassword;
-            next();
+            this.password = await bcrypt.hash(this.password, salt);
         } catch (err) {
-            next(err);
+            return next(err);
         }
-    } else {
-        next();
     }
+    next();
 });
+
 const User = mongoose.model('User', userSchema, 'users');
 
 const profileSchema = new mongoose.Schema({
@@ -114,6 +113,14 @@ app.set('views', path.join(__dirname, 'html'));
 app.get('/', (req, res) => {
     const email = req.cookies.email || ''; // Pre-fill email if "Remember Me" was checked
     res.render('index.ejs', { email });
+});
+
+app.get('/schedule-event.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'html', 'schedule-event.html'));
+});
+
+app.get('/user_dashboard.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'html', 'user_dashboard.html'));
 });
 
 app.get('/api/user-info', async (req, res) => {
@@ -199,8 +206,36 @@ app.post('/login', async (req, res) => {
 
         res.redirect(user.isAdmin ? '/admin_dashboard.html' : '/user_dashboard.html');
     } catch (error) {
-        console.error(error);
+        console.error('Login error:', error);
         res.status(500).send('Internal server error');
+    }
+});
+
+app.post('/api/schedule-event', async (req, res) => {
+    const { email, title, date, time, location } = req.body;
+
+    try {
+        // Find the user by email
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Save event details in the database
+        const newEvent = new Event({
+            user_id: user._id,
+            title,
+            date,
+            time,
+            location,
+        });
+
+        await newEvent.save();
+
+        res.status(200).json({ message: 'Event scheduled successfully' });
+    } catch (error) {
+        console.error('Error scheduling event:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
@@ -348,6 +383,41 @@ app.post('/submit_settings', async (req, res) => {
     } catch (error) {
         console.error('Error updating user or profile information:', error);
         res.status(500).send('An error occurred while updating your information');
+    }
+});
+
+app.post('/signup', async (req, res) => {
+    const { first_name, last_name, username, email, password, confirm_password } = req.body;
+
+    // Validate passwords match
+    if (password !== confirm_password) {
+        return res.status(400).send('Passwords do not match.');
+    }
+
+    try {
+        // Check if the user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).send('User with this email already exists.');
+        }
+
+        // Create a new user
+        const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
+        const newUser = new User({
+            first_name,
+            last_name,
+            username,
+            email,
+            password: hashedPassword, // Save the hashed password
+        });
+
+        await newUser.save(); // Save the user in the database
+
+        // Redirect or send a success response
+        res.redirect('/index.html'); // Redirect to the login page
+    } catch (error) {
+        console.error('Error during user signup:', error);
+        res.status(500).send('Internal server error');
     }
 });
 

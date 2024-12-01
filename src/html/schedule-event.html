@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Event</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <h1>Schedule an Event</h1>
+        </header>
+        <main>
+            <form id="event-form">
+                <div class="input-box">
+                    <label for="user-email">User Email</label>
+                    <input type="email" id="user-email" name="email" placeholder="Enter user's email" required>
+                </div>
+                <div class="input-box">
+                    <label for="title">Event Title</label>
+                    <input type="text" id="title" name="title" placeholder="Enter event title" required>
+                </div>
+                <div class="input-box">
+                    <label for="date">Event Date</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                <div class="input-box">
+                    <label for="time">Event Time</label>
+                    <input type="time" id="time" name="time" required>
+                </div>
+                <div class="input-box">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" placeholder="Enter event location" required>
+                </div>
+                <button type="submit" class="btn">Schedule Event</button>
+                <div class="back-link">
+                    <p><a href="admin_dashboard.html">Back to Dashboard</a></p>
+            </form>
+        </main>
+        <footer>
+            <p>© 2024 System1Search. All rights reserved.</p>
+        </footer>
+    </div>
+    <script>
+        document.getElementById('event-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const eventData = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/api/schedule-event', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(eventData),
+                });
+
+                if (response.ok) {
+                    alert('Event scheduled successfully and added to user\'s Events.');
+                    event.target.reset();
+                } else {
+                    const error = await response.json();
+                    alert(`Failed to schedule event: ${error.message}`);
+                }
+            } catch (error) {
+                console.error('Error scheduling event:', error);
+                alert('An unexpected error occurred. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

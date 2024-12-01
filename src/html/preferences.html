@@ -227,16 +227,16 @@
                     })
                     .catch(error => console.error('Error saving preferences:', error));
             });
+            // Skip button logic
+            document.getElementById('skip-btn').addEventListener('click', () => {
+                window.location.href = 'user_dashboard.html';
+            });
 
             // Log out button logic
             document.getElementById('logout-btn').addEventListener('click', () => {
                 window.location.href = 'index.html';
             });
 
-            // Skip button logic
-            document.getElementById('skip-btn').addEventListener('click', () => {
-                window.location.href = 'user_dashboard.html';
-            });
         });
     </script>
 </body>
