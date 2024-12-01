@@ -78,6 +78,16 @@ const profileSchema = new mongoose.Schema({
     status: { type: String, default: 'active' },
 });
 
+const eventSchema = new mongoose.Schema({
+    user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    title: { type: String, required: true },
+    date: { type: String, required: true }, // Use ISO 8601 format for better date handling
+    time: { type: String, required: true },
+    location: { type: String, required: true },
+    calendarLink: { type: String }, // Optional: link to Google Calendar or similar
+});
+
+const Event = mongoose.model('Event', eventSchema, 'events');
 const Profile = mongoose.model('Profile', profileSchema, 'profiles');
 
 //
@@ -138,6 +148,21 @@ app.get('/api/jobs', async (req, res) => {
     } catch (error) {
         console.error('Error fetching jobs:', error);
         res.status(500).send('Error fetching jobs');
+    }
+});
+
+app.get('/api/events', async (req, res) => {
+    const userId = req.session.userId; // Ensure the user is logged in
+    if (!userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    try {
+        const events = await Event.find({ user_id: userId }); // Fetch events for the logged-in user
+        res.json(events); // Return events as JSON
+    } catch (error) {
+        console.error('Error fetching events:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
