@@ -115,6 +115,31 @@ app.set('views', path.join(__dirname, 'html'));
 //
 //
 
+app.post('/process-selections', async (req, res) => {
+    try {
+        const selectedCandidates = req.body.selectedCandidates; // Array of selected candidate IDs
+
+        // Log the selected candidate IDs
+        console.log('Selected Candidates:', selectedCandidates);
+
+        // Redirect to send-emails.html after processing
+        res.redirect('/send-emails.html');
+    } catch (error) {
+        console.error('Error processing selected candidates:', error);
+        res.status(500).send('Error processing selected candidates');
+    }
+});
+
+app.get('/search', async (req, res) => {
+    try {
+        const profiles = await Profile.find({}, 'full_name preferences'); // Fetch full_name and preferences
+        res.render('search', { profiles }); // Render the 'search.ejs' view and pass profiles
+    } catch (error) {
+        console.error('Error fetching profiles:', error);
+        res.status(500).send('Error fetching candidates');
+    }
+});
+
 app.get('/api/users', async (req, res) => {
     try {
         const users = await User.find().select('-password'); // Exclude password

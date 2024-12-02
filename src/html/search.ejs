@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Search</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="wrapper job-search">
+        <h2>Search for Candidates</h2>
+        
+        <!-- Search input box -->
+        <div class="input-box">
+            <input type="text" id="searchInput" placeholder="Search by candidate name or preferences" onkeyup="filterCandidates()">
+        </div>
+        
+        <!-- Form to handle selections -->
+        <form id="candidatesForm" action="/process-selections" method="POST">
+            <!-- Table to display candidate details -->
+            <table id="candidatesTable">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>Full Name</th>
+                        <th>Interested in</th>
+                        <th>Preferences</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% profiles.forEach(profile => { %>
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="selectedCandidates" value="<%= profile._id %>">
+                            </td>
+                            <td><%= profile.full_name %></td>
+                            <td>
+                                <% if (profile.preferences.length > 0) { %>
+                                    <%= profile.preferences[0].title %> <!-- Show the first "title" in preferences -->
+                                <% } else { %>
+                                    N/A
+                                <% } %>
+                            </td>
+                            <td>
+                                <% if (profile.preferences.length > 0) { %>
+                                    <%= profile.preferences.map(pref => `${pref.location} (${pref.job_type})`).join(', ') %>
+                                <% } else { %>
+                                    N/A
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            
+            <!-- Button to navigate to send-emails.html -->
+            <div style="margin-top: 20px;">
+                <button type="submit" class="btn">Send Emails to Candidates</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Function to filter candidates based on search input
+        function filterCandidates() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const table = document.getElementById('candidatesTable');
+            const rows = table.getElementsByTagName('tr');
+
+            // Loop through all table rows (skip the first row for the header)
+            for (let i = 1; i < rows.length; i++) {
+                let row = rows[i];
+                let fullName = row.cells[1].textContent.toLowerCase();
+                let interestedIn = row.cells[2].textContent.toLowerCase();
+                let preferences = row.cells[3].textContent.toLowerCase();
+
+                // Check if the row matches the search input
+                let matchesSearch = fullName.includes(searchInput) || interestedIn.includes(searchInput) || preferences.includes(searchInput);
+
+                // Show or hide the row based on the condition
+                row.style.display = matchesSearch ? "" : "none";
+            }
+        }
+    </script>
+</body>
+</html>
