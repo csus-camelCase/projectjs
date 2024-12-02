@@ -9,7 +9,7 @@ const cookieParser = require('cookie-parser');
 const ejs = require('ejs');
 const multer = require('multer');
 const AWS = require('aws-sdk');
-
+const { title } = require('process');
 dotenv.config();
 
 const app = express();
@@ -34,9 +34,15 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // MongoDB Schemas
 const jobSchema = new mongoose.Schema({
-    name: { type: String, required: true, unique: true },
+    title: { type: String, required: true, unique: true },
     description: { type: String, default: '' },
+    requirements: { type: [String], default: [] }, // Default to an empty array
+    client_name: { type: String, required: true },
+    location: { type: String, required: true },
+    job_type: { type: String, enum: ['full-time', 'part-time', 'contract'], required: true },
+    created_at: { type: Date, default: Date.now },
 });
+
 const Job = mongoose.model('Job', jobSchema, 'jobs');
 
 const userSchema = new mongoose.Schema({
@@ -151,6 +157,50 @@ app.put('/api/users/:id/deactivate', async (req, res) => {
     }
 });
 
+// Update an existing job
+app.post('/api/jobs/:id/update', async (req, res) => {
+    const jobId = req.params.id;
+    const { title, description, requirements, client_name, location, job_type } = req.body;
+
+    try {
+        const updatedJob = await Job.findByIdAndUpdate(
+            jobId,
+            {
+                title,
+                description,
+                requirements: requirements ? requirements.split(',').map(req => req.trim()) : [], // Ensure it's an array
+                client_name,
+                location,
+                job_type,
+            },
+            { new: true }
+        );
+        if (!updatedJob) {
+            return res.status(404).send('Job not found');
+        }
+        res.redirect('/job-postings');
+    } catch (error) {
+        console.error('Error updating job:', error);
+        res.status(500).send('Error updating job');
+    }
+});
+
+// Delete a job
+app.post('/api/jobs/:id/delete', async (req, res) => {
+    const jobId = req.params.id;
+
+    try {
+        const deletedJob = await Job.findByIdAndDelete(jobId);
+        if (!deletedJob) {
+            return res.status(404).send('Job not found');
+        }
+        res.redirect('/job-postings');
+    } catch (error) {
+        console.error('Error deleting job:', error);
+        res.status(500).send('Error deleting job');
+    }
+});
+
 // Serve index.ejs for /
 app.get('/', (req, res) => {
     const email = req.cookies.email || ''; // Pre-fill email if "Remember Me" was checked
@@ -231,11 +281,42 @@ app.get('/manage-users.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'html', 'manage-users.html'));
 });
 
+app.get('/job-postings', async (req, res) => {
+    try {
+        const jobs = await Job.find(); // Fetch all jobs from the database
+        res.render('job-postings', { jobs }); // Pass jobs to EJS template
+    } catch (error) {
+        console.error('Error fetching jobs:', error);
+        res.status(500).send('Error fetching jobs');
+    }
+});
+
 app.use(express.static(path.join(__dirname, 'html')));
 
 // Use preference router for preference-related logic
 const preferenceRouter = require('./models/preference')({ User }); // Pass User model explicitly
 app.use(preferenceRouter);
+
+// Add a new job
+app.post('/api/jobs', async (req, res) => {
+    const { title, description, requirements, client_name, location, job_type } = req.body;
+
+    try {
+        const newJob = new Job({
+            title,
+            description,
+            requirements: requirements ? requirements.split(',').map(req => req.trim()) : [], // Ensure it's an array
+            client_name,
+            location,
+            job_type,
+        });
+        await newJob.save();
+        res.redirect('/job-postings');
+    } catch (error) {
+        console.error('Error adding job:', error);
+        res.status(500).send('Error adding job');
+    }
+});
 
 app.post('/login', async (req, res) => {
     const { email, password, rememberMe } = req.body;
@@ -495,7 +576,6 @@ app.post('/signup', async (req, res) => {
         res.status(500).send('Internal server error');
     }
 });
-
 
 // Start the Server
 app.listen(PORT, () => {
