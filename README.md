@@ -91,7 +91,7 @@ This project is being developed for **System 1 Search**, a NorCal-based recruitm
 ```
 **5. Start the server:** 
   ```bash
-  npm start
+  npm run start
   ```
 ---
 
