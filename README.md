@@ -129,11 +129,22 @@ Key milestones we expect to complete in **CSC 191**, based on the user stories a
 | **Phase 5: Final Delivery** | Finalize all documentation and prepare for the final delivery to stakeholders (and possible deployment to production). | Early May '24 |
 
 
+Jira Timeline for CSC 191 (dates subject to change)
+
+![image](https://github.com/user-attachments/assets/5a75224a-6808-4870-b645-6e0cab0baba5)
+
+
+
+
 ---
 
 **NOTE:** The **"External"** folder contains code for external applications part of this project (ex. AWS Lambda Functions). 
 
 ---
+
+
+
+
 
 ## Developers
 - **Zachary Estelita**
