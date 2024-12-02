@@ -155,3 +155,4 @@ Jira Timeline for CSC 191 (dates subject to change)
 - **Rey Halili**
 - **Z Wiese**
 - **Kenny Ahn**
+- **Oluwatamilore Kuti**
