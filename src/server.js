@@ -109,6 +109,48 @@ app.set('views', path.join(__dirname, 'html'));
 //
 //
 
+app.get('/api/users', async (req, res) => {
+    try {
+        const users = await User.find().select('-password'); // Exclude password
+        res.json(users);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).send('Error fetching users');
+    }
+});
+
+app.put('/api/users/:id/role', async (req, res) => {
+    const userId = req.params.id;
+    const { role } = req.body;
+
+    try {
+        const user = await User.findByIdAndUpdate(userId, { role }, { new: true });
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+        res.json({ message: 'User role updated successfully', user });
+    } catch (error) {
+        console.error('Error updating user role:', error);
+        res.status(500).send('Error updating user role');
+    }
+});
+
+// Deactivate a user
+app.put('/api/users/:id/deactivate', async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        const user = await User.findByIdAndUpdate(userId, { status: 'inactive' }, { new: true });
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+        res.json({ message: 'User deactivated successfully', user });
+    } catch (error) {
+        console.error('Error deactivating user:', error);
+        res.status(500).send('Error deactivating user');
+    }
+});
+
 // Serve index.ejs for /
 app.get('/', (req, res) => {
     const email = req.cookies.email || ''; // Pre-fill email if "Remember Me" was checked
@@ -172,6 +214,24 @@ app.get('/api/events', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+// Route for dynamic EJS template
+app.get('/manage-users', async (req, res) => {
+    try {
+        const users = await User.find().select('-password'); // Exclude password for security
+        res.render('manage-users', { users }); // Render EJS template and pass user data
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).send('Error loading manage users page.');
+    }
+});
+
+// Static route for manage-users.html (if needed for legacy support)
+app.get('/manage-users.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'html', 'manage-users.html'));
+});
+
+app.use(express.static(path.join(__dirname, 'html')));
 
 // Use preference router for preference-related logic
 const preferenceRouter = require('./models/preference')({ User }); // Pass User model explicitly
@@ -413,6 +473,21 @@ app.post('/signup', async (req, res) => {
 
         await newUser.save(); // Save the user in the database
 
+        // Automatically create a corresponding profile for the user
+        const newProfile = new Profile({
+            user_id: newUser._id, // Associate with the new user
+            full_name: `${first_name} ${last_name}`,
+            preferences: [], // Initialize preferences as an empty array
+            experience: [],
+            skills: [],
+            education: [],
+            status: 'active',
+        });
+
+        await newProfile.save(); // Save the profile in the database
+
+        console.log('Profile created successfully for user:', newUser.username);
+
         // Redirect or send a success response
         res.redirect('/index.html'); // Redirect to the login page
     } catch (error) {
@@ -420,6 +495,7 @@ app.post('/signup', async (req, res) => {
         res.status(500).send('Internal server error');
     }
 });
+
 
 // Start the Server
 app.listen(PORT, () => {
