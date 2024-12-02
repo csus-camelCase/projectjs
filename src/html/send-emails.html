@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Email</title>
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+<body>
+    <div class="wrapper">
+        <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Send Email to Candidates</h2>
+        <form action="/send-email" method="POST">
+            <!-- Recipient Email Input -->
+            <div class="input-box">
+                <input type="email" name="recipient" placeholder="Recipient Email" required>
+                <i class="bx bx-envelope"></i>
+            </div>
+            
+            <!-- Subject Input -->
+            <div class="input-box">
+                <input type="text" name="subject" placeholder="Subject" required>
+                <i class="bx bx-heading"></i>
+            </div>
+
+            <!-- Message Textarea -->
+            <div class="message-container" style="display: flex; align-items: flex-start; gap: 10px;">
+                <textarea name="message" placeholder="Type your message here..." rows="5" style="width: 100%; border: 2px solid black; border-radius: 10px; padding: 10px;" required></textarea>
+                <!-- Send Button -->
+                <button type="submit" class="send btn">Send Email</button>
+                </button>
+            </div>
+        </form>
+        <!-- Back to Dashboard Link -->
+        <div class="sign-up">
+            <p><a href="/admin_dashboard">Back to Dashboard</a></p>
+        </div>
+    </div>
+</body>
+</html>
