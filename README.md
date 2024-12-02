@@ -1,5 +1,8 @@
 # System 1 Search Web Application
 
+![companylogo](https://github.com/user-attachments/assets/46763d25-185b-4680-921e-b3ab9378d076)
+
+
 ## Project Overview
 This project is being developed for **System 1 Search**, a NorCal-based recruitment agency for medical professionals. The web app is designed to streamline the process of connecting job candidates with potential employers by providing features such as account creation, job preference management, and event scheduling. 
 
