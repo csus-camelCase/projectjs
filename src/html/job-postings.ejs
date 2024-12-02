@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Postings</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Current Job Postings</h2>
+
+        <!-- Add Job Form -->
+        <form id="add-job-form" action="/api/jobs" method="POST">
+            <h3>Add New Job</h3>
+            <input type="text" name="title" placeholder="Job Title" required>
+            <textarea name="description" placeholder="Job Description" required></textarea>
+            <textarea name="requirements" placeholder="Job Requirements (comma-separated)" required></textarea>
+            <input type="text" name="client_name" placeholder="Client Name" required>
+            <input type="text" name="location" placeholder="Location" required>
+            <select name="job_type" required>
+                <option value="full-time">Full-time</option>
+                <option value="part-time">Part-time</option>
+                <option value="contract">Contract</option>
+            </select>
+
+            <button type="submit" class="btn">Add Job</button>
+        </form>
+
+        <!-- Job Listings Section -->
+        <div class="job-listings">
+            <% jobs.forEach(job => { %>
+                <div class="job-card">
+                    <h3 class="job-title"><%= job.title %></h3>
+                    <p><strong>Description:</strong> <%= job.description %></p>
+                    <p><strong>Requirements:</strong> <%= job.requirements.join(', ') %></p>
+                    <p><strong>Client:</strong> <%= job.client_name %></p>
+                    <p><strong>Location:</strong> <%= job.location %></p>
+                    <p><strong>Type:</strong> <%= job.job_type %></p>
+
+                    <!-- Edit Job Form -->
+                    <form class="edit-job-form" action="/api/jobs/<%= job._id %>/update" method="POST">
+                        <h4>Edit Job</h4>
+                        <input type="text" name="title" value="<%= job.title %>" required>
+                        <textarea name="description" required><%= job.description %></textarea>
+                        <textarea name="requirements" required><%= job.requirements.join(', ') %></textarea>
+                        <input type="text" name="client_name" value="<%= job.client_name %>" required>
+                        <input type="text" name="location" value="<%= job.location %>" required>
+                        <select name="job_type" required>
+                            <option value="full-time" <%= job.job_type === 'full-time' ? 'selected' : '' %>>Full-time</option>
+                            <option value="part-time" <%= job.job_type === 'part-time' ? 'selected' : '' %>>Part-time</option>
+                            <option value="contract" <%= job.job_type === 'contract' ? 'selected' : '' %>>Contract</option>
+                        </select>
+                        <button type="submit" class="btn">Edit Job</button>
+                    </form>
+
+                    <!-- Delete Job Button -->
+                    <form class="delete-job-form" action="/api/jobs/<%= job._id %>/delete" method="POST">
+                        <button type="submit" class="btn delete-btn">Delete Job</button>
+                    </form>
+                </div>
+            <% }) %>
+        </div>
+
+        <!-- Back to Dashboard Link -->
+        <div class="sign-up">
+            <p><a href="/admin_dashboard.html">Back to Dashboard</a></p>
+        </div>
+    </div>
+</body>
+</html>
