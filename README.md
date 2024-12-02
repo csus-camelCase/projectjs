@@ -1,12 +1,12 @@
+![image](https://github.com/user-attachments/assets/9bd614d9-fb19-4c54-b082-4d639b1aea9a)
+
 # System 1 Search Web Application
-
-![companylogo](https://github.com/user-attachments/assets/46763d25-185b-4680-921e-b3ab9378d076)
-
 
 ## Project Overview
 This project is being developed for **System 1 Search**, a NorCal-based recruitment agency for medical professionals. The web app is designed to streamline the process of connecting job candidates with potential employers by providing features such as account creation, job preference management, and event scheduling. 
 
 ---
+![image](https://github.com/user-attachments/assets/e70eb73b-fc83-4bfb-be95-8c01a2df7712)
 
 ## Features
 
@@ -28,7 +28,10 @@ This project is being developed for **System 1 Search**, a NorCal-based recruitm
   - Option to include calendar links for external scheduling.
 
 - **Admin Dashboard**
-  - Manage users, job postings, and events.
+  - Allows recruiters at System 1 to manage users, job postings, and events.
+
+![image](https://github.com/user-attachments/assets/10c083b6-5d85-428a-8f9e-1b4d1ef75811) ![image](https://github.com/user-attachments/assets/7b7c6501-15be-445b-9667-4a6060151bed)
+
 
 ---
 
@@ -51,18 +54,22 @@ This project is being developed for **System 1 Search**, a NorCal-based recruitm
 - `aws-sdk`: AWS SDK for interacting with S3.
 
 ### Database Schemas
-1. **User**
+![image](https://github.com/user-attachments/assets/7c3fa599-8365-4028-ac74-c1a040fdd007)
+
+1. **Admin**
+   - Stores admin credentials and account details.
+3. **Candidate/User**
    - Stores user credentials and account details.
-2. **Profile**
-   - Contains user profile information, including resume and job preferences.
-3. **Job**
+4. **Profile Management**
+   - Contains information relevant to profile management.
+5. **Job List**
    - Represents active job postings.
-4. **Event**
+6. **Event Manager**
    - Stores user-scheduled events like interviews or meetings.
 
 ---
 
-## Installation
+## Setup Instructions
 
 ### Prerequisites
 - Node.js and npm
@@ -94,13 +101,39 @@ This project is being developed for **System 1 Search**, a NorCal-based recruitm
 ```
 **5. Start the server:** 
   ```bash
-  npm run start
+  npm start
   ```
+
+--- 
+
+## Testing
+- place holder to do in CSC 191
+  
+---
+
+## Deployment
+- place holder to do in CSC 191 
+
+---
+
+## Timeline (Tentative)
+
+Key milestones we expect to complete in **CSC 191**, based on the user stories and features defined in our Jira.
+
+| Phase                     | Milestone                                      | Estimated Completion Date |
+|---------------------------|----------------------------------------------------------|---------------------------|
+| **Phase 1: API Integrations** | Complete integration of all APIs to enable dynamic content generation on HTML pages. | Late January '24 |
+| **Phase 2: Aesthetic Finalization** | Finalize any aesthetic-related changes to the web pages, ensuring a sleek and professional user experience. | Late February '24 |
+| **Phase 3: IT Testing** | Perform thorough internal testing (IT) to ensure the code functions as expected. The plan is to debug, handle any errors, and optimize performance. | Late of March '24 |
+| **Phase 4: UAT Testing** | Conduct User Acceptance Testing (UAT) with System 1 staff to verify the system meets requirements and expectations. We will collect feedback and address any issues. | Mid April '24 |
+| **Phase 5: Final Delivery** | Finalize all documentation and prepare for the final delivery to stakeholders (and possible deployment to production). | Early May '24 |
+
+
 ---
 
 **NOTE:** The **"External"** folder contains code for external applications part of this project (ex. AWS Lambda Functions). 
 
---- 
+---
 
 ## Developers
 - **Zachary Estelita**
