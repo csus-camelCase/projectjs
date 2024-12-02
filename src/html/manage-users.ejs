@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        async function changeRole(userId, currentRole) {
+            const newRole = prompt(`Enter new role for the user (current: ${currentRole}):`);
+            if (newRole) {
+                try {
+                    const response = await fetch(`/api/users/${userId}/role`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ role: newRole }),
+                    });
+                    const result = await response.json();
+                    alert(result.message);
+                    location.reload(); // Refresh the page
+                } catch (error) {
+                    console.error('Error updating role:', error);
+                }
+            }
+        }
+
+        async function deactivateUser(userId) {
+            if (confirm('Are you sure you want to deactivate this user?')) {
+                try {
+                    const response = await fetch(`/api/users/${userId}/deactivate`, {
+                        method: 'PUT',
+                    });
+                    const result = await response.json();
+                    alert(result.message);
+                    location.reload(); // Refresh the page
+                } catch (error) {
+                    console.error('Error deactivating user:', error);
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <h1>Manage Users</h1>
+        </header>
+        <main>
+            <div class="user-grid">
+                <% users.forEach(user => { %>
+                <div class="user-card">
+                    <h3><%= user.first_name %> <%= user.last_name %></h3>
+                    <p>Email: <%= user.email %></p>
+                    <p>Role: <strong><%= user.role %></strong></p>
+                    <p>Status: <%= user.status %></p>
+                    <button onclick="changeRole('<%= user._id %>', '<%= user.role %>')">Change Role</button>
+                    <button onclick="deactivateUser('<%= user._id %>')">Deactivate</button>
+                </div>
+                <% }); %>
+            </div>
+        </main>
+        <footer>
+            <p>© 2024 System1Search. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
