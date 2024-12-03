@@ -16,7 +16,7 @@
         </div>
         
         <!-- Form to handle selections -->
-        <form id="candidatesForm" action="/process-selections" method="POST">
+        <form id="candidatesForm">
             <!-- Table to display candidate details -->
             <table id="candidatesTable">
                 <thead>
@@ -36,7 +36,7 @@
                             <td><%= profile.full_name %></td>
                             <td>
                                 <% if (profile.preferences.length > 0) { %>
-                                    <%= profile.preferences[0].title %> <!-- Show the first "title" in preferences -->
+                                    <%= profile.preferences[0].title %>
                                 <% } else { %>
                                     N/A
                                 <% } %>
@@ -55,9 +55,15 @@
             
             <!-- Button to navigate to send-emails.html -->
             <div style="margin-top: 20px;">
-                <button type="submit" class="btn">Send Emails to Candidates</button>
+                <button type="button" id="submitButton" class="btn">Send Emails to Candidates</button>
             </div>
         </form>
+
+        <!-- Additional buttons -->
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="/send-emails.html" class="btn" style="margin-right: 10px;">Compose Email</a>
+            <a href="/admin_dashboard.html" class="btn" style="margin-left: 10px;">Back to Dashboard</a>
+        </div>
     </div>
 
     <script>
@@ -67,20 +73,44 @@
             const table = document.getElementById('candidatesTable');
             const rows = table.getElementsByTagName('tr');
 
-            // Loop through all table rows (skip the first row for the header)
             for (let i = 1; i < rows.length; i++) {
                 let row = rows[i];
                 let fullName = row.cells[1].textContent.toLowerCase();
                 let interestedIn = row.cells[2].textContent.toLowerCase();
                 let preferences = row.cells[3].textContent.toLowerCase();
 
-                // Check if the row matches the search input
                 let matchesSearch = fullName.includes(searchInput) || interestedIn.includes(searchInput) || preferences.includes(searchInput);
 
-                // Show or hide the row based on the condition
                 row.style.display = matchesSearch ? "" : "none";
             }
         }
+
+        // Handle form submission
+        document.getElementById('submitButton').addEventListener('click', async () => {
+            const checkboxes = document.querySelectorAll('input[name="selectedCandidates"]:checked');
+            const selectedCandidates = Array.from(checkboxes).map(cb => cb.value);
+
+            // Send selected candidates to the server
+            try {
+                const response = await fetch('/process-selections', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ selectedCandidates })
+                });
+
+                if (response.status === 400) {
+                    const result = await response.json();
+                    alert(result.message); // Show popup if no candidates are selected
+                } else if (response.ok) {
+                    const result = await response.json();
+                    console.log('Emails:', result.emails);
+                    window.location.href = '/send-emails.html'; // Redirect to send-emails.html
+                }
+            } catch (error) {
+                console.error('Error submitting candidates:', error);
+                alert('No candidates selected. Please select at least one candidate.');
+            }
+        });
     </script>
 </body>
 </html>

@@ -158,7 +158,7 @@
             </div>
     
             <button type="save" class="btn save-button">Save Preferences</button>
-            <button type="skip"class="btn skip-button" id="skip-btn">Skip</button>
+            <button type="skip"class="btn skip-button" id="skip-btn">Back</button>
         </div>
     </div>
     <script>
@@ -206,14 +206,14 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ preferences: selectedJobs }),
                 })
-                    .then(response => {
-                        if (response.ok) {
-                            alert('Preferences saved successfully!');
-                        } else {
-                            alert('Failed to save preferences.');
-                        }
-                    })
-                    .catch(error => console.error('Error saving preferences:', error));
+                .then(response => {
+                    if (response.ok) {
+                        alert('Preferences saved successfully!');
+                    } else {
+                        alert('Failed to save preferences.');
+                    }
+                })
+                .catch(error => console.error('Error saving preferences:', error));
             });
             // Skip button logic
             document.getElementById('skip-btn').addEventListener('click', () => {

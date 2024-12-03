@@ -66,11 +66,12 @@
                             eventDiv.classList.add("event");
 
                             eventDiv.innerHTML = `
-                                <p><strong>${event.title}</strong></p>
-                                <p>${event.date} | ${event.time}</p>
-                                <p>Location: ${event.location}</p>
-                                <a href="${event.calendarLink}" target="_blank">View in Google Calendar</a>
-                            `;
+                            <p><strong>${event.title}</strong></p>
+                            <p>${event.date} | ${event.time}</p>
+                            <p>Location: ${event.location}</p>
+                            <a href="${event.calendarLink}"     <!-- For when we have actual google calendar events to reference -->
+                            <a href="https://calendar.google.com/calendar/" target="_blank" rel="noopener noreferrer">View in Google Calendar</a>
+                            `;                        
 
                             eventsContainer.appendChild(eventDiv);
                         });

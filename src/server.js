@@ -119,16 +119,31 @@ app.post('/process-selections', async (req, res) => {
     try {
         const selectedCandidates = req.body.selectedCandidates; // Array of selected candidate IDs
 
-        // Log the selected candidate IDs
-        console.log('Selected Candidates:', selectedCandidates);
+        if (!selectedCandidates || selectedCandidates.length === 0) {
+        }
 
-        // Redirect to send-emails.html after processing
-        res.redirect('/send-emails.html');
+        // Fetch profiles of selected candidates
+        const profiles = await Profile.find({ _id: { $in: selectedCandidates } }, 'user_id');
+
+        // Extract user IDs from profiles
+        const userIds = profiles.map(profile => profile.user_id);
+
+        // Fetch user emails using the user IDs
+        const users = await User.find({ _id: { $in: userIds } }, 'email');
+        const emails = users.map(user => user.email);
+
+        // Log the selected candidate IDs and their emails
+        console.log('Selected Candidates:', selectedCandidates);
+        console.log('Emails:', emails);
+
+        // Pass emails as a query string to send-emails.html
+        res.redirect(`/send-emails.html?emails=${encodeURIComponent(emails.join(','))}`);
     } catch (error) {
         console.error('Error processing selected candidates:', error);
         res.status(500).send('Error processing selected candidates');
     }
 });
+
 
 app.get('/search', async (req, res) => {
     try {
@@ -407,31 +422,30 @@ app.post('/api/schedule-event', async (req, res) => {
 
 // Save preferences logic 
 app.post('/api/save-preferences', async (req, res) => {
-    const userId = req.session.userId; // Ensure the user is logged in
-    console.log('Session userId:', userId); // Debugging
+    const userId = req.session.userId;
+    console.log('Session userId:', userId);
 
-    const { preferences } = req.body; // Preferences sent from the frontend
+    const { preferences } = req.body;  // Get preferences from request body
     if (!userId) {
         return res.status(401).send('Unauthorized');
     }
 
     try {
-        const profile = await Profile.findOne({ user_id: userId }); // Find the user's profile
-        console.log('Profile fetched:', profile); // Debugging
+        const profile = await Profile.findOne({ user_id: userId });
+        console.log('Profile fetched:', profile);
 
         if (!profile) {
             return res.status(404).send('User profile not found');
         }
 
-        // Update preferences array in the `profiles` collection
-        const updatedPreferences = preferences.map(job => ({
+        // Replace existing preferences with the new ones
+        profile.preferences = preferences.map(job => ({
             title: job.title,
             location: job.location,
             job_type: job.job_type,
         }));
 
-        profile.preferences = updatedPreferences; // Replace with the selected job details
-        await profile.save();
+        await profile.save();  // Save the updated profile
 
         res.status(200).send('Preferences saved successfully');
     } catch (error) {
@@ -440,7 +454,7 @@ app.post('/api/save-preferences', async (req, res) => {
     }
 });
 
-// Handle /submit_setup POST request
+// Handle /signup2 POST request
 app.post('/submit_setup', upload.single('resume'), async (req, res) => {
     const { zipcode, degree } = req.body;
     const file = req.file;
@@ -466,22 +480,34 @@ app.post('/submit_setup', upload.single('resume'), async (req, res) => {
 
         const s3Response = await s3.upload(s3Params).promise();
 
-        // Save profile to MongoDB
-        const newProfile = new Profile({
-            user_id: userId,
-            full_name: fullName,
-            education: [{ degree }],
-            resume_url: s3Response.Location,
-            status: "active",
-        });
+        // Check if a profile already exists for this user
+        const existingProfile = await Profile.findOne({ user_id: userId });
 
-        await newProfile.save();
+        if (existingProfile) {
+            // Update the existing profile
+            existingProfile.education.push({ degree }); // Add the new degree
+            existingProfile.resume_url = s3Response.Location;
+            existingProfile.status = "active";
+            await existingProfile.save();
+        } else {
+            // Create a new profile if none exists
+            const newProfile = new Profile({
+                user_id: userId,
+                full_name: fullName,
+                education: [{ degree }],
+                resume_url: s3Response.Location,
+                status: "active",
+            });
+            await newProfile.save();
+        }
+
         res.redirect('/user_dashboard.html');
     } catch (error) {
         console.error('Error saving profile:', error);
         res.status(500).send('An error occurred while saving the profile');
     }
 });
+
 
 app.post('/delete_account', async (req, res) => {
     const userId = req.session.userId; // Ensure the user is logged in
@@ -511,10 +537,12 @@ app.post('/delete_account', async (req, res) => {
     }
 });
 
-// Handle /submit_settings POST request
-app.post('/submit_settings', async (req, res) => {
+// Handle /settings.html POST request
+// Handle /settings.html POST request
+app.post('/submit_settings', upload.single('resume'), async (req, res) => {
     const userId = req.session.userId; // Ensure the user is logged in
-    const { first_name, last_name, email } = req.body; // Extract inputs from the form
+    const { first_name, last_name, email, zipcode, degree } = req.body; // Extract inputs from the form
+    const file = req.file; // Get the uploaded resume file
 
     if (!userId) {
         return res.status(401).send('Unauthorized');
@@ -532,18 +560,32 @@ app.post('/submit_settings', async (req, res) => {
             return res.status(404).send('User not found');
         }
 
-        // Update the associated entry in the profiles collection
-        const updatedProfile = await Profile.findOneAndUpdate(
-            { user_id: userId },
-            { 
-                full_name: `${first_name} ${last_name}` // Update full_name in profile
-            },
-            { new: true } // Return the updated document
-        );
+        // Find the associated profile
+        const profile = await Profile.findOne({ user_id: userId });
 
-        if (!updatedProfile) {
+        if (!profile) {
             return res.status(404).send('User profile not found');
         }
+
+        // Update the profile fields
+        profile.full_name = `${first_name} ${last_name}`;
+        profile.education = [{ degree }];
+        profile.zipcode = zipcode; // Assuming you want to save zipcode in the profile as well
+
+        // If a resume is uploaded, upload it to S3 and update the profile
+        if (file) {
+            const s3Params = {
+                Bucket: process.env.S3_BUCKET_NAME,
+                Key: `resumes/${Date.now()}-${file.originalname}`,
+                Body: file.buffer,
+                ContentType: file.mimetype,
+            };
+
+            const s3Response = await s3.upload(s3Params).promise();
+            profile.resume_url = s3Response.Location; // Update the resume URL in the profile
+        }
+
+        await profile.save(); // Save the updated profile
 
         res.redirect('/preferences.html'); // Redirect back to preferences page
     } catch (error) {
