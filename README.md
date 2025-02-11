@@ -122,11 +122,11 @@ Key milestones we expect to complete in **CSC 191**, based on the user stories a
 
 | Phase                     | Milestone                                      | Estimated Completion Date |
 |---------------------------|----------------------------------------------------------|---------------------------|
-| **Phase 1: API Integrations** | Complete integration of all APIs to enable dynamic content generation on HTML pages. | Late January '24 |
-| **Phase 2: Aesthetic Finalization** | Finalize any aesthetic-related changes to the web pages, ensuring a sleek and professional user experience. | Late February '24 |
-| **Phase 3: IT Testing** | Perform thorough internal testing (IT) to ensure the code functions as expected. The plan is to debug, handle any errors, and optimize performance. | Late March '24 |
-| **Phase 4: UAT Testing** | Conduct User Acceptance Testing (UAT) with System 1 staff to verify the system meets requirements and expectations. We will collect feedback and address any issues. | Mid April '24 |
-| **Phase 5: Final Delivery** | Finalize all documentation and prepare for the final delivery to stakeholders (and possible deployment to production). | Early May '24 |
+| **Phase 1: API Integrations** | Complete integration of all APIs to enable dynamic content generation on HTML pages. | Late January '25 |
+| **Phase 2: Aesthetic Finalization** | Finalize any aesthetic-related changes to the web pages, ensuring a sleek and professional user experience. | Late February '25 |
+| **Phase 3: IT Testing** | Perform thorough internal testing (IT) to ensure the code functions as expected. The plan is to debug, handle any errors, and optimize performance. | Late March '25 |
+| **Phase 4: UAT Testing** | Conduct User Acceptance Testing (UAT) with System 1 staff to verify the system meets requirements and expectations. We will collect feedback and address any issues. | Mid April '25 |
+| **Phase 5: Final Delivery** | Finalize all documentation and prepare for the final delivery to stakeholders (and possible deployment to production). | Early May '25 |
 
 
 Jira Timeline for CSC 191 (dates subject to change)
