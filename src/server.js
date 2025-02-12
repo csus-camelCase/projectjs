@@ -358,6 +358,8 @@ app.post('/api/jobs', async (req, res) => {
     }
 });
 
+app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
+
 app.post('/login', async (req, res) => {
     const { email, password, rememberMe } = req.body;
 
@@ -537,7 +539,35 @@ app.post('/delete_account', async (req, res) => {
     }
 });
 
-// Handle /settings.html POST request
+app.get('/settings.html', async (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) {
+        return res.redirect('/index.html'); // Redirect to login if not logged in
+    }
+
+    try {
+        const user = await User.findById(userId);
+        const profile = await Profile.findOne({ user_id: userId });
+
+        if (!user || !profile) {
+            return res.status(404).send('User or profile not found');
+        }
+
+        // Pass the current user's data to the settings page
+        res.render('settings', {
+            first_name: user.first_name,
+            last_name: user.last_name,
+            email: user.email,
+            degree: profile.education.length > 0 ? profile.education[0].degree : '', // Check if degree exists
+            resume_url: profile.resume_url, // Show current resume URL if available
+            zipcode: profile.zipcode || '', // Include the current zipcode
+        });
+    } catch (error) {
+        console.error('Error fetching user or profile:', error);
+        res.status(500).send('Error fetching profile');
+    }
+});
+
 // Handle /settings.html POST request
 app.post('/submit_settings', upload.single('resume'), async (req, res) => {
     const userId = req.session.userId; // Ensure the user is logged in
