@@ -66,15 +66,25 @@
                             eventDiv.classList.add("event");
 
                             eventDiv.innerHTML = `
-                            <p><strong>${event.title}</strong></p>
-                            <p>${event.date} | ${event.time}</p>
-                            <p>Location: ${event.location}</p>
-                            <a href="${event.calendarLink}"     <!-- For when we have actual google calendar events to reference -->
-                            <a href="https://calendar.google.com/calendar/" target="_blank" rel="noopener noreferrer">View in Google Calendar</a>
+                                <div class="event-details">
+                                    <p><strong>${event.title}</strong></p>
+                                    <p>${event.date} | ${event.time}</p>
+                                    <p>Location: ${event.location}</p>
+                                    <a href="${event.calendarLink || 'https://calendar.google.com/calendar/'}" target="_blank" rel="noopener noreferrer">View in Google Calendar</a>
+                                </div>
+                                <button class="reschedule-btn" onclick="requestReschedule(this, '${event.id}')">Request Reschedule</button>
                             `;                        
 
                             eventsContainer.appendChild(eventDiv);
                         });
+
+                        // Add event listeners to reschedule buttons
+                        document.querySelectorAll(".reschedule-btn").forEach(button => {
+                            button.addEventListener("click", (e) => {
+                                const eventId = e.target.getAttribute("data-event-id");
+                                requestReschedule(eventId);
+                            });
+                        });                        
                     }
                 })
                 .catch(error => console.error('Error fetching events:', error));
@@ -88,6 +98,39 @@
                 })
                 .catch(error => console.error('Error fetching user info:', error));
         });
+
+        function requestReschedule(button, eventId) {
+            // Disable the button temporarily to prevent multiple clicks
+            button.disabled = true;
+
+            fetch("/api/request-reschedule", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ eventId: eventId }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errData => {
+                        throw new Error(errData.error || `Server error: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    button.textContent = "Request Sent!";
+                    button.style.backgroundColor = "#aaa"; // Change to gray
+                } else {
+                    throw new Error(data.error || "Unknown error occurred.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert(`Failed to send request: ${error.message}`);
+                button.disabled = false; // Re-enable the button so the user can try again
+            });
+        }
+
     </script>
 </body>
 </html>
