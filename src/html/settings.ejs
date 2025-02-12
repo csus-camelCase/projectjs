@@ -8,27 +8,23 @@
 </head>
 <body>
     <div class="wrapper">
-        <form action="/submit_settings" method="post">
+        <form action="/submit_settings" method="post" enctype="multipart/form-data">
             <h1>Edit Account Information</h1>
-            <div class="input-box">
-                <input type="text" name="first_name" placeholder="First Name" required>
-            </div>
-            <div class="input-box">
-                <input type="text" name="last_name" placeholder="Last Name" required>
-            </div>
-            <div class="input-box">
-                <input type="email" name="email" placeholder="Email" required>
-            </div>
-            <div class="input-box input">
-                <label for="resume">Upload Resume</label>
-                <input type="file" id="resume" name="resume" required>
-                
-            </div>
-            <div class="input-box">
-                <input type="text" name="zipcode" placeholder="Zip Code" required>
-                
-            </div>
-            
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" name="first_name" value="<%= first_name %>" required><br><br>
+
+            <label for="last_name">Last Name:</label>
+            <input type="text" id="last_name" name="last_name" value="<%= last_name %>" required><br><br>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="<%= email %>" required><br><br>
+
+            <label for="resume">Resume (Optional):</label>
+            <input type="file" id="resume" name="resume"><br><br>
+
+            <label for="zipcode">Zipcode:</label>
+            <input type="text" id="zipcode" name="zipcode" value="<%= zipcode %>"><br><br>
+
             <div class="input-box dropdown-box">
                 <select name="degree" required>
                     <option value="" disabled selected>Select Degree Level</option>
@@ -42,23 +38,20 @@
             </div>
             <a href="user_dashboard.html">
             <button type="submit" class="btn">Save and Continue</button>
-            </a>
-            <!-- Form for deleting user account -->
-            <form action="/delete_account" method="post" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+        </form>
+
+        <form action="/delete_account" method="post" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
             <button type="submit" class="btn delete-btn">Delete Account</button>
         </form>
-            
-            <a href="user_dashboard.html">
-                <button type="submit" class="btn">Continue Without Saving</button>
-            </a>
+        <a href="user_dashboard.html">
+            <button type="button" class="btn">Continue Without Saving</button>
+        </a>
     </div>
-
-        
 
     <style>
         /* Add styling for delete button */
         .delete-btn {
-            background-color: #ff4d4f; /* Red for delete button */
+            background-color: #ff4d4f;
             color: white;
             border: none;
             border-radius: 10px;
@@ -71,8 +64,9 @@
         }
 
         .delete-btn:hover {
-            background-color: #d9363e; /* Darker red on hover */
+            background-color: #d9363e;
         }
+
     </style>
 </body>
 </html>
