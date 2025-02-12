@@ -9,7 +9,7 @@
 <body>
     <div class="wrapper">
         <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Send Email to Candidates</h2>
-        <form id="emailForm">
+        <form id="emailForm" action="/api/send-email" method="POST">
             <!-- Recipient Email Input -->
             <div class="input-box">
                 <input type="email" id="recipient" name="recipient" placeholder="Recipient Email" required>
@@ -56,7 +56,6 @@
 
         // Handle form submission
         document.getElementById('emailForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the form from actually submitting
             document.getElementById('successMessage').style.display = 'block'; // Show success message
         });
     </script>

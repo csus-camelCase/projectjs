@@ -115,6 +115,40 @@ app.set('views', path.join(__dirname, 'html'));
 //
 //
 
+// Send emails to all recipients listed in query string
+app.post('/api/send-email', async (req, res) => {
+    const { recipient, subject, message } = req.body;
+
+    const API_URL = "https://du55u2rij4.execute-api.us-west-2.amazonaws.com/dev/send-email";
+    const API_KEY = "rlFQMGqpw72w4NnytZBapaLsFnc2WaQH1mrTZ0un";
+
+    const requestData = {
+        toAddress: recipient,
+        subject: subject,
+        body: message
+    };
+
+    async function sendEmail() {
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "x-api-key": API_KEY,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            const data = await response.json();
+            console.log("Response:", data);
+        } catch (error) {
+            console.error("Error:", error.message);
+        }
+    }
+
+    sendEmail();
+});
+
 app.post('/process-selections', async (req, res) => {
     try {
         const selectedCandidates = req.body.selectedCandidates; // Array of selected candidate IDs
