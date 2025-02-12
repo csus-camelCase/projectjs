@@ -641,6 +641,26 @@ app.post('/signup', async (req, res) => {
     } catch (error) {
         console.error('Error during user signup:', error);
         res.status(500).send('Internal server error');
+    } 
+});
+
+// Reschedule an event
+app.post('/api/request-reschedule', async (req, res) => {
+    try {
+        const { eventId } = req.body;
+
+        if (!eventId) {
+            return res.status(400).json({ error: "Event ID is required." });
+        }
+
+        // You can modify this to store the request in a database
+        console.log(`Reschedule request received for Event ID: ${eventId}`);
+
+        // Respond to the client
+        res.status(200).json({ message: "Request sent successfully!" });
+    } catch (error) {
+        console.error("Error processing reschedule request:", error);
+        res.status(500).json({ error: "Internal server error." });
     }
 });
 
