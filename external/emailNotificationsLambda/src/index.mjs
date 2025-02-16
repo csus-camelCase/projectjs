@@ -1,3 +1,14 @@
+/*
+Email Notifications API 
+Hosted on API gateway using a NodeJS lambda function
+
+JSON body example: 
+{
+  "toAddress": "email1, email2",
+  "subject": "Test Email from Lambda",
+  "body": "Hello, this is a test email."
+}
+*/
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
 // Initialize the SES client with the AWS region from environment variables
