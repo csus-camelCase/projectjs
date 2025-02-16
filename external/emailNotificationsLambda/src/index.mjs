@@ -1,7 +1,18 @@
+/*
+Email Notifications API 
+Hosted on API gateway using a NodeJS lambda function
+
+JSON body example: 
+{
+  "toAddress": "email1, email2",
+  "subject": "Test Email from Lambda",
+  "body": "Hello, this is a test email."
+}
+*/
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
 // Initialize the SES client with the AWS region from environment variables
-const ses = new SESClient({ region: process.env.AWS_REGION }); // Use environment variables for configuration
+const ses = new SESClient({ region: process.env.AWS_REGION });
 
 // Function to validate email format
 const validateEmail = (email) => {
@@ -16,14 +27,13 @@ export const handler = async (event) => {
   try {
     parsedBody = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
   } catch (error) {
-    // Return an error response if the JSON is invalid
     return {
       statusCode: 400,
       body: JSON.stringify({ message: 'Invalid JSON format', error: error.message }),
     };
   }
 
-  const { toAddress, subject, body } = parsedBody;
+  let { toAddress, subject, body } = parsedBody;
 
   // Validate required fields
   if (!toAddress || !subject || !body) {
@@ -33,19 +43,24 @@ export const handler = async (event) => {
     };
   }
 
-  // Validate email format
-  if (!validateEmail(toAddress)) {
+  // Convert to an array if multiple emails are provided (comma-separated)
+  const toAddressesArray = toAddress.split(',')
+    .map(email => email.trim()) // Remove extra spaces
+    .filter(email => validateEmail(email)); // Validate each email
+
+  // Ensure at least one valid email remains
+  if (toAddressesArray.length === 0) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ message: 'Invalid email address' }),
+      body: JSON.stringify({ message: 'No valid email addresses provided' }),
     };
   }
 
   // Construct the email parameters
   const params = {
-    Source: process.env.SES_SOURCE_EMAIL, // Use environment variables for sensitive data like the source email
+    Source: process.env.SES_SOURCE_EMAIL,
     Destination: {
-      ToAddresses: [toAddress],
+      ToAddresses: toAddressesArray, // Pass the array of email addresses
     },
     Message: {
       Body: {
@@ -59,14 +74,14 @@ export const handler = async (event) => {
     // Create and send the email using SES
     const command = new SendEmailCommand(params);
     const data = await ses.send(command);
-    console.log('Email sent successfully:', data); // Log success for debugging purposes
+    console.log('Email sent successfully:', data);
 
     return {
       statusCode: 200,
       body: JSON.stringify({ message: 'Email sent successfully', data }),
     };
   } catch (error) {
-    console.error('Error sending email:', error); // Log errors for troubleshooting
+    console.error('Error sending email:', error);
 
     return {
       statusCode: 500,
