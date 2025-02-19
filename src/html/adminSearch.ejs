@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Search</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="wrapper job-search">
+        <h2>Search for Admins</h2>
+        
+        <!-- Search input box -->
+        <div class="input-box">
+            <input type="text" id="searchInput" placeholder="Search by admin name or preferences" onkeyup="filterCandidates()">
+        </div>
+        
+        <!-- Form to handle selections -->
+        <form id="candidatesForm">
+            <!-- Table to display candidate details -->
+            <table id="candidatesTable">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>Full Name</th>
+                        <th>Interested in</th>
+                        <th>Preferences</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% profiles.forEach(profile => { %>
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="selectedCandidates" value="<%= profile._id %>">
+                            </td>
+                            <td><%= profile.full_name %></td>
+                            <td>
+                                <% if (profile.preferences.length > 0) { %>
+                                    <%= profile.preferences[0].title %>
+                                <% } else { %>
+                                    N/A
+                                <% } %>
+                            </td>
+                            <td>
+                                <% if (profile.preferences.length > 0) { %>
+                                    <%= profile.preferences.map(pref => `${pref.location} (${pref.job_type})`).join(', ') %>
+                                <% } else { %>
+                                    N/A
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            
+            <!-- Button to navigate to send-emails.html -->
+            <div style="margin-top: 20px;">
+                <button type="button" id="submitButton" class="btn">Send Emails to Candidates</button>
+            </div>
+        </form>
+
+        <!-- Additional buttons -->
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="/send-emails.html" class="btn" style="margin-right: 10px;">Compose Email</a>
+            <a href="/admin_dashboard.html" class="btn" style="margin-left: 10px;">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        // Function to filter candidates based on search input
+        function filterCandidates() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const table = document.getElementById('candidatesTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                let row = rows[i];
+                let fullName = row.cells[1].textContent.toLowerCase();
+                let interestedIn = row.cells[2].textContent.toLowerCase();
+                let preferences = row.cells[3].textContent.toLowerCase();
+
+                let matchesSearch = fullName.includes(searchInput) || interestedIn.includes(searchInput) || preferences.includes(searchInput);
+
+                row.style.display = matchesSearch ? "" : "none";
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('submitButton').addEventListener('click', async () => {
+            const checkboxes = document.querySelectorAll('input[name="selectedCandidates"]:checked');
+            const selectedCandidates = Array.from(checkboxes).map(cb => cb.value);
+    
+            // Send selected candidates to the server
+            try {
+                const response = await fetch('/process-selections', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ selectedCandidates })
+                });
+                
+                if (response.status === 400) {
+                    const result = await response.json();
+                    alert(result.message); // Show popup if no candidates are selected
+                } else if (response.ok) {
+                    window.location.href = response.url; // Redirect to send-emails.html
+                }
+            } catch (error) {
+                console.error('Error submitting candidates:', error);
+                alert('No candidates selected. Please select at least one candidate.');
+            }
+        });
+    </script>
+</body>
+</html>
