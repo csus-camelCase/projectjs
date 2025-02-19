@@ -310,6 +310,10 @@ button {
     width: 100%; /* Button spans full width */
 }
 
+.search-button {
+    width: 49.7%; /* Buttons are side by side */
+    display: inline-block;
+}
 
 /* Style the dropdown container */
 .dropdown {
