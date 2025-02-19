@@ -377,6 +377,11 @@ app.get('/job-postings', async (req, res) => {
     }
 });
 
+// Route for create-job-postings 
+app.get('/create-job-postings', (req, res) => {
+    res.render('create-job-postings');
+});
+
 app.use(express.static(path.join(__dirname, 'html')));
 
 // Use preference router for preference-related logic

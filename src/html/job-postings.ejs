@@ -10,23 +10,6 @@
     <div class="wrapper">
         <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Current Job Postings</h2>
 
-        <!-- Add Job Form -->
-        <form id="add-job-form" action="/api/jobs" method="POST">
-            <h3>Add New Job</h3>
-            <input type="text" name="title" placeholder="Job Title" required>
-            <textarea name="description" placeholder="Job Description" required></textarea>
-            <textarea name="requirements" placeholder="Job Requirements (comma-separated)" required></textarea>
-            <input type="text" name="client_name" placeholder="Client Name" required>
-            <input type="text" name="location" placeholder="Location" required>
-            <select name="job_type" required>
-                <option value="full-time">Full-time</option>
-                <option value="part-time">Part-time</option>
-                <option value="contract">Contract</option>
-            </select>
-
-            <button type="submit" class="btn">Add Job</button>
-        </form>
-
         <!-- Job Listings Section -->
         <div class="job-listings">
             <% jobs.forEach(job => { %>
