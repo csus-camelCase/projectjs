@@ -190,6 +190,17 @@ app.get('/search', async (req, res) => {
     }
 });
 
+app.get('/adminSearch', async (req, res) => {
+    try {
+        const profiles = await Profile.find({}, 'full_name preferences'); // Fetch full_name and preferences
+        const filteredProfiles = profiles.filter(profile => profile.isAdmin); // Exclude admins
+        res.render('search', { profiles: filteredProfiles }); // Render the 'search.ejs' view and pass profiles
+    } catch (error) { 
+        console.error('Error fetching profiles:', error);
+        res.status(500).send('Error fetching candidates');
+    }
+});
+
 app.get('/api/users', async (req, res) => {
     try {
         const users = await User.find().select('-password'); // Exclude password
