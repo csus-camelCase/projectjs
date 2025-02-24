@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Candidate Search</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="wrapper job-search">
         <h2>Search for Candidates</h2>
-        
+
         <!-- Search input box -->
         <div class="input-box">
-            <input type="text" id="searchInput" placeholder="Search by candidate name or preferences" onkeyup="filterCandidates()">
+            <input type="text" id="searchInput" placeholder="Search by candidate name or preferences"
+                onkeyup="filterCandidates()">
         </div>
-        
+
         <!-- Form to handle selections -->
         <form id="candidatesForm">
             <!-- Table to display candidate details -->
@@ -28,31 +31,34 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% profiles.forEach(profile => { %>
+                    <% profiles.forEach(profile=> { %>
                         <tr>
                             <td>
                                 <input type="checkbox" name="selectedCandidates" value="<%= profile._id %>">
                             </td>
-                            <td><%= profile.full_name %></td>
                             <td>
-                                <% if (profile.preferences.length > 0) { %>
-                                    <%= profile.preferences[0].title %>
-                                <% } else { %>
-                                    N/A
-                                <% } %>
+                                <%= profile.full_name %>
                             </td>
                             <td>
-                                <% if (profile.preferences.length > 0) { %>
-                                    <%= profile.preferences.map(pref => `${pref.location} (${pref.job_type})`).join(', ') %>
-                                <% } else { %>
-                                    N/A
-                                <% } %>
+                                <% if (profile.preferences.length> 0) { %>
+                                    <%= profile.preferences[0].title %>
+                                        <% } else { %>
+                                            N/A
+                                            <% } %>
+                            </td>
+                            <td>
+                                <% if (profile.preferences.length> 0) { %>
+                                    <%= profile.preferences.map(pref=> `${pref.location} (${pref.job_type})`).join(', ')
+                                        %>
+                                        <% } else { %>
+                                            N/A
+                                            <% } %>
                             </td>
                         </tr>
-                    <% }) %>
+                        <% }) %>
                 </tbody>
             </table>
-            
+
             <!-- Button to navigate to send-emails.html -->
             <div style="margin-top: 20px;">
                 <button type="button" id="submitButton" class="btn">Send Emails to Candidates</button>
@@ -68,28 +74,54 @@
 
     <script>
         // Function to filter candidates based on search input
-        function filterCandidates() {
-            const searchInput = document.getElementById('searchInput').value.toLowerCase();
-            const table = document.getElementById('candidatesTable');
-            const rows = table.getElementsByTagName('tr');
+        let debounceTimer;
 
-            for (let i = 1; i < rows.length; i++) {
-                let row = rows[i];
-                let fullName = row.cells[1].textContent.toLowerCase();
-                let interestedIn = row.cells[2].textContent.toLowerCase();
-                let preferences = row.cells[3].textContent.toLowerCase();
+        document.getElementById('searchInput').addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(searchCandidates, 300); // Wait 300ms before searching
+        });
 
-                let matchesSearch = fullName.includes(searchInput) || interestedIn.includes(searchInput) || preferences.includes(searchInput);
+        async function searchCandidates() {
+            const query = document.getElementById('searchInput').value.trim();
 
-                row.style.display = matchesSearch ? "" : "none";
+            if (query.length === 0) {
+                window.location.reload(); // Reload full candidate list when input is cleared
+                return;
+            }
+
+            try {
+                const response = await fetch(`/search-candidates?query=${encodeURIComponent(query)}`);
+                const candidates = await response.json();
+                updateCandidatesTable(candidates);
+            } catch (error) {
+                console.error('Error fetching candidates:', error);
             }
         }
+
+        function updateCandidatesTable(candidates) {
+            const tbody = document.querySelector("#candidatesTable tbody");
+            tbody.innerHTML = ""; // Clear existing rows
+
+            candidates.forEach(profile => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+            <td><input type="checkbox" name="selectedCandidates" value="${profile._id}"></td>
+            <td>${profile.full_name}</td>
+            <td>${profile.preferences.length > 0 ? profile.preferences[0].title : 'N/A'}</td>
+            <td>${profile.preferences.length > 0 ? profile.preferences.map(pref => `${pref.location} (${pref.job_type})`).join(', ') : 'N/A'}</td>
+        `;
+
+                tbody.appendChild(row);
+            });
+        }
+
 
         // Handle form submission
         document.getElementById('submitButton').addEventListener('click', async () => {
             const checkboxes = document.querySelectorAll('input[name="selectedCandidates"]:checked');
             const selectedCandidates = Array.from(checkboxes).map(cb => cb.value);
-    
+
             // Send selected candidates to the server
             try {
                 const response = await fetch('/process-selections', {
@@ -97,7 +129,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ selectedCandidates })
                 });
-                
+
                 if (response.status === 400) {
                     const result = await response.json();
                     alert(result.message); // Show popup if no candidates are selected
@@ -111,4 +143,5 @@
         });
     </script>
 </body>
+
 </html>
