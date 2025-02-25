@@ -190,30 +190,6 @@ app.get('/search', async (req, res) => {
     }
 });
 
-//candidate seach modification
-app.get('/search-candidates', async (req, res) => {
-    const query = req.query.query;
-    if (!query) {
-        return res.json([]); // Return an empty array if no query is provided
-    }
-
-    try {
-        const candidates = await Candidate.find({
-            $or: [
-                { full_name: { $regex: query, $options: 'i' } },  // Case-insensitive name search
-                { "preferences.title": { $regex: query, $options: 'i' } }, // Job title search
-                { "preferences.location": { $regex: query, $options: 'i' } } // Location search
-            ]
-        }).lean();
-
-        res.json(candidates);
-    } catch (error) {
-        console.error('Error searching candidates:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
-
 app.get('/adminSearch', async (req, res) => {
     try {
         const profiles = await Profile.find({}, 'full_name preferences'); // Fetch full_name and preferences
