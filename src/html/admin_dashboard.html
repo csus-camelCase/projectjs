@@ -22,7 +22,7 @@
 
         <!-- Main Content Section -->
         <main>
-            <h1>Welcome!</h1>
+            <h1>Welcome, <span id="user-first-name">User</span>!</h1>
             <p>You are logged in as an admin.</p>
 
             <div class="admin-dash">
@@ -70,5 +70,24 @@
             <p>© 2024 System1Search. All rights reserved.</p>
         </footer>
     </div>
+
+    <script>
+        // Fetch user first name and update greeting
+        fetch('/api/user-info')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const firstName = data.first_name || 'User'; // Fallback to 'User' if first_name is not available
+                document.getElementById('user-first-name').textContent = firstName;
+            })
+            .catch(error => {
+                console.error('Error fetching user info:', error);
+                document.getElementById('user-first-name').textContent = 'User'; // Fallback in case of error
+            });
+    </script>
 </body>
 </html>
