@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Schedule Event</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="wrapper">
         <header>
@@ -22,12 +24,12 @@
                     <input type="text" id="title" name="title" placeholder="Enter event title" required>
                 </div>
                 <div class="input-box">
-                    <label for="date">Event Date</label>
-                    <input type="date" id="date" name="date" required>
+                    <label for="startTime">Start Time</label>
+                    <input type="datetime-local" id="startTime" name="startTime" required>
                 </div>
                 <div class="input-box">
-                    <label for="time">Event Time</label>
-                    <input type="time" id="time" name="time" required>
+                    <label for="endTime">End Time</label>
+                    <input type="datetime-local" id="endTime" name="endTime" required>
                 </div>
                 <div class="input-box">
                     <label for="location">Location</label>
@@ -49,6 +51,10 @@
             const formData = new FormData(event.target);
             const eventData = Object.fromEntries(formData.entries());
 
+            // Convert datetime-local values to ISO format
+            eventData.startTime = new Date(eventData.startTime).toISOString();
+            eventData.endTime = new Date(eventData.endTime).toISOString();
+
             try {
                 const response = await fetch('/api/schedule-event', {
                     method: 'POST',
@@ -57,7 +63,7 @@
                 });
 
                 if (response.ok) {
-                    alert('Event scheduled successfully and added to user\'s Events.');
+                    alert("Event scheduled successfully and added to user's Events.");
                     event.target.reset();
                 } else {
                     const error = await response.json();
