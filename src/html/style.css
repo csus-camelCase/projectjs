@@ -520,3 +520,21 @@ button {
     text-align: center;
     gap: 10px;
 }
+
+/* Style for the textarea */
+.input-box textarea {
+    width: 100%;
+    height: 100px; /* Adjust height as needed */
+    background: transparent;
+    border: 2px solid black;
+    border-radius: 40px;
+    font-size: 16px;
+    color: black;
+    padding: 15px 20px;
+    resize: vertical; /* Allows vertical resizing */
+    margin-bottom: 20px; /* Adds space below the text box */
+}
+
+.input-box textarea::placeholder {
+    color: grey;
+}
