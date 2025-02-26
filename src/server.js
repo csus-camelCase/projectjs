@@ -738,6 +738,7 @@ app.post('/signup', async (req, res) => {
     } 
 });
 
+// request event to be rescheduled
 app.post('/api/request-reschedule', async (req, res) => {
     try {
         const { eventId } = req.body;
