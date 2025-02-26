@@ -738,23 +738,27 @@ app.post('/signup', async (req, res) => {
     } 
 });
 
-// Reschedule an event
 app.post('/api/request-reschedule', async (req, res) => {
     try {
         const { eventId } = req.body;
 
-        if (!eventId) {
-            return res.status(400).json({ error: "Event ID is required." });
+        // Validate input
+        if (!eventId || typeof eventId !== 'string') {
+            return res.status(400).json({ error: "Invalid or missing Event ID." });
         }
 
-        // You can modify this to store the request in a database
-        console.log(`Reschedule request received for Event ID: ${eventId}`);
+        // Log the request for debugging purposes
+        console.info(`Reschedule request received for Event ID: ${eventId}`);
 
-        // Respond to the client
-        res.status(200).json({ message: "Request sent successfully!" });
+
+        // Respond to the client with a success message
+        return res.status(200).json({ success: true, message: "Request sent successfully!" });
     } catch (error) {
+        // Log error details for troubleshooting
         console.error("Error processing reschedule request:", error);
-        res.status(500).json({ error: "Internal server error." });
+
+        // Respond with a generic error message
+        return res.status(500).json({ error: "Internal server error." });
     }
 });
 
