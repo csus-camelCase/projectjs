@@ -7,13 +7,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="wrapper">
+    <div class="wrapper" style="width: 1000px">
         <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Current Job Postings</h2>
 
         <!-- Job Listings Section -->
         <div class="job-listings">
             <% jobs.forEach(job => { %>
-                <div class="job-card">
+                <div class="job-card" style="display: grid; gap: 5px">
                     <h3 class="job-title"><%= job.title %></h3>
                     <p><strong>Description:</strong> <%= job.description %></p>
                     <p><strong>Requirements:</strong> <%= job.requirements.join(', ') %></p>
@@ -22,7 +22,7 @@
                     <p><strong>Type:</strong> <%= job.job_type %></p>
 
                     <!-- Edit Job Form -->
-                    <form class="edit-job-form" action="/api/jobs/<%= job._id %>/update" method="POST">
+                    <form class="edit-job-form" style="display: grid; gap: 5px" action="/api/jobs/<%= job._id %>/update" method="POST">
                         <h4>Edit Job</h4>
                         <input type="text" name="title" value="<%= job.title %>" required>
                         <textarea name="description" required><%= job.description %></textarea>
@@ -47,7 +47,7 @@
 
         <!-- Back to Dashboard Link -->
         <div class="sign-up">
-            <p><a href="/admin_dashboard.html">Back to Dashboard</a></p>
+            <a href="/admin_dashboard.html" class="btn" style="padding: 10px; min-width: 200px; height: 50px; margin-left: 10px;">Back to Dashboard</a>
         </div>
     </div>
 </body>
