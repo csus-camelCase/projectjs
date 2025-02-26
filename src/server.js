@@ -86,13 +86,11 @@ const profileSchema = new mongoose.Schema({
 const eventSchema = new mongoose.Schema({
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     title: { type: String, required: true },
-    startTime: { type: Date, required: true }, // Combined date and time
-    endTime: { type: Date, required: true },   // Combined date and time
+    date: { type: String, required: true }, // Use ISO 8601 format for better date handling
+    time: { type: String, required: true },
     location: { type: String, required: true },
-    description: { type: String },             // Optional: event description
-    calendarLink: { type: String },            // Optional: link to Google Calendar or similar
+    calendarLink: { type: String }, // Optional: link to Google Calendar or similar
 });
-
 
 const Event = mongoose.model('Event', eventSchema, 'events');
 const Profile = mongoose.model('Profile', profileSchema, 'profiles');
@@ -191,6 +189,30 @@ app.get('/search', async (req, res) => {
         res.status(500).send('Error fetching candidates');
     }
 });
+
+//candidate seach modification
+app.get('/search-candidates', async (req, res) => {
+    const query = req.query.query;
+    if (!query) {
+        return res.json([]); // Return an empty array if no query is provided
+    }
+
+    try {
+        const candidates = await Candidate.find({
+            $or: [
+                { full_name: { $regex: query, $options: 'i' } },  // Case-insensitive name search
+                { "preferences.title": { $regex: query, $options: 'i' } }, // Job title search
+                { "preferences.location": { $regex: query, $options: 'i' } } // Location search
+            ]
+        }).lean();
+
+        res.json(candidates);
+    } catch (error) {
+        console.error('Error searching candidates:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 app.get('/adminSearch', async (req, res) => {
     try {
@@ -346,7 +368,6 @@ app.get('/api/events', async (req, res) => {
 
     try {
         const events = await Event.find({ user_id: userId }); // Fetch events for the logged-in user
-        console.log('Events retrieved:', events);
         res.json(events); // Return events as JSON
     } catch (error) {
         console.error('Error fetching events:', error);
@@ -449,7 +470,7 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/api/schedule-event', async (req, res) => {
-    const { email, title, startTime, endTime, location } = req.body;
+    const { email, title, date, time, location } = req.body;
 
     try {
         // Find the user by email
@@ -458,21 +479,12 @@ app.post('/api/schedule-event', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Parse startTime and endTime into Date objects
-        const parsedStartTime = new Date(startTime);
-        const parsedEndTime = new Date(endTime);
-
-        // Validate the parsed dates
-        if (isNaN(parsedStartTime) || isNaN(parsedEndTime)) {
-            return res.status(400).json({ message: 'Invalid date format' });
-        }
-
         // Save event details in the database
         const newEvent = new Event({
             user_id: user._id,
             title,
-            startTime: parsedStartTime,
-            endTime: parsedEndTime,
+            date,
+            time,
             location,
         });
 
@@ -484,7 +496,6 @@ app.post('/api/schedule-event', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
-
 
 // Save preferences logic 
 app.post('/api/save-preferences', async (req, res) => {
@@ -738,28 +749,23 @@ app.post('/signup', async (req, res) => {
     } 
 });
 
-// request event to be rescheduled
+// Reschedule an event
 app.post('/api/request-reschedule', async (req, res) => {
     try {
         const { eventId } = req.body;
 
-        // Validate input
-        if (!eventId || typeof eventId !== 'string') {
-            return res.status(400).json({ error: "Invalid or missing Event ID." });
+        if (!eventId) {
+            return res.status(400).json({ error: "Event ID is required." });
         }
 
-        // Log the request for debugging purposes
-        console.info(`Reschedule request received for Event ID: ${eventId}`);
+        // You can modify this to store the request in a database
+        console.log(`Reschedule request received for Event ID: ${eventId}`);
 
-
-        // Respond to the client with a success message
-        return res.status(200).json({ success: true, message: "Request sent successfully!" });
+        // Respond to the client
+        res.status(200).json({ message: "Request sent successfully!" });
     } catch (error) {
-        // Log error details for troubleshooting
         console.error("Error processing reschedule request:", error);
-
-        // Respond with a generic error message
-        return res.status(500).json({ error: "Internal server error." });
+        res.status(500).json({ error: "Internal server error." });
     }
 });
 

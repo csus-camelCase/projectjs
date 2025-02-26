@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- ejs -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +8,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="wrapper" style="width: 1000px">
+    <div class="wrapper">
         <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Current Job Postings</h2>
 
         <!-- Job Listings Section -->
         <div class="job-listings">
             <% jobs.forEach(job => { %>
-                <div class="job-card" style="display: grid; gap: 5px">
+                <div class="job-card">
                     <h3 class="job-title"><%= job.title %></h3>
                     <p><strong>Description:</strong> <%= job.description %></p>
                     <p><strong>Requirements:</strong> <%= job.requirements.join(', ') %></p>
@@ -22,19 +23,20 @@
                     <p><strong>Type:</strong> <%= job.job_type %></p>
 
                     <!-- Edit Job Form -->
-                    <form class="edit-job-form" style="display: grid; gap: 5px" action="/api/jobs/<%= job._id %>/update" method="POST">
+                    <form class="edit-job-form" action="/api/jobs/<%= job._id %>/update" method="POST">
                         <h4>Edit Job</h4>
-                        <input type="text" name="title" value="<%= job.title %>" required>
-                        <textarea name="description" required><%= job.description %></textarea>
-                        <textarea name="requirements" required><%= job.requirements.join(', ') %></textarea>
-                        <input type="text" name="client_name" value="<%= job.client_name %>" required>
-                        <input type="text" name="location" value="<%= job.location %>" required>
-                        <select name="job_type" required>
+                        <input type="text" style="margin-bottom: 10px;" name="title" value="<%= job.title %>" required>
+                        <textarea style="margin-bottom: 5px;" name="description" required><%= job.description %></textarea>
+                        <textarea style="margin-bottom: 5px;" name="requirements" required><%= job.requirements.join(', ') %></textarea>
+                        <input type="text" style="margin-bottom: 10px;" name="client_name" value="<%= job.client_name %>" required>
+                        <input type="text" style="margin-bottom: 10px;" name="location" value="<%= job.location %>" required>
+                        <select style="margin-bottom: 10px;" name="job_type" required>
                             <option value="full-time" <%= job.job_type === 'full-time' ? 'selected' : '' %>>Full-time</option>
                             <option value="part-time" <%= job.job_type === 'part-time' ? 'selected' : '' %>>Part-time</option>
                             <option value="contract" <%= job.job_type === 'contract' ? 'selected' : '' %>>Contract</option>
                         </select>
-                        <button type="submit" class="btn">Edit Job</button>
+                        <!-- Edit Job Button -->
+                        <button type="submit" style="margin-bottom: 10px;" class="btn">Edit Job</button>
                     </form>
 
                     <!-- Delete Job Button -->
@@ -47,7 +49,7 @@
 
         <!-- Back to Dashboard Link -->
         <div class="sign-up">
-            <a href="/admin_dashboard.html" class="btn" style="padding: 10px; min-width: 200px; height: 50px; margin-left: 10px;">Back to Dashboard</a>
+            <p><a href="/admin_dashboard.html">Back to Dashboard</a></p>
         </div>
     </div>
 </body>
