@@ -41,7 +41,7 @@
     </script>
 </head>
 <body>
-    <div class="wrapper">
+    <div class="wrapper" style="width: 1000px; height: 500px;">
         <header>
             <h1>Manage Users</h1>
         </header>
@@ -53,12 +53,17 @@
                     <p>Email: <%= user.email %></p>
                     <p>Role: <strong><%= user.role %></strong></p>
                     <p>Status: <%= user.status %></p>
-                    <button onclick="changeRole('<%= user._id %>', '<%= user.role %>')">Change Role</button>
-                    <button onclick="deactivateUser('<%= user._id %>')">Deactivate</button>
+                    <button class="btn" onclick="changeRole('<%= user._id %>', '<%= user.role %>')">Change Role</button>
+                    <button class="btn" onclick="deactivateUser('<%= user._id %>')">Deactivate</button>
                 </div>
                 <% }); %>
             </div>
         </main>
+        
+        <div style="margin-top: 40px; text-align: center;">
+            <a href="/admin_dashboard.html" class="btn" style="padding: 10px; min-width: 200px; height: 50px; margin-left: 10px;">Back to Dashboard</a>
+        </div>
+
         <footer>
             <p>© 2024 System1Search. All rights reserved.</p>
         </footer>
