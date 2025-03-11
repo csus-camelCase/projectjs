@@ -16,7 +16,8 @@
             <img src="images/companylogo.png" alt="logo">
         
             <div class="input-box">
-                <input type="text" name="email" id="email" placeholder="Email" required>
+                <input type="text" name="email" id="email" placeholder="Email" value="<%= email %>" required>
+
                 <i class='bx bxs-user'></i> 
                 <span id="emailError" class="error-message" style="display: none; color: red;">Please fill out this field</span>
                 <% if (typeof invalidCredentials !== 'undefined' && invalidCredentials) { %>
