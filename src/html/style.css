@@ -461,3 +461,11 @@ button {
 .reschedule-btn:hover {
     background-color: #cc3b3b;
 }
+
+.error-message {
+    font-size: 0.6rem;   /* Smaller text size */
+    color: red;
+    margin-top: 2px;     /* Slight spacing below input field */
+    margin-left: 30px;
+    display: block;      /* Ensures proper alignment */
+}
