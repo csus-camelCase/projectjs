@@ -80,7 +80,6 @@ img{
     font-size: 16px;
     color: white;
     font-weight: 600;
-    text-decoration: none;
 }
 
 
@@ -191,19 +190,13 @@ img{
 
 /* Calendar Section */
 .prototype-section {
-    display: block;
     margin-top: 30px;
     padding: 20px;
     background: rgba(255, 255, 255, 0.8);
-    border: 2px solid black;
     border-radius: 10px;
     color: #333;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: center;
-}
-
-.prototype-section .search-button {
-    margin-top: 5px
 }
 
 .prototype-section h2 {
@@ -221,10 +214,9 @@ img{
 .prototype-section button {
     padding: 10px 20px;
     border: none;
-    background: rgb(69,0,0);
-    background: linear-gradient(0deg, rgb(141, 11, 11) 0%, rgba(184,21,21,0.802784222737819) 50%, rgba(255, 34, 27, 0.75) 100%);
+    background: #8B0000;
     color: white;
-    border-radius: 40px;
+    border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
     
@@ -304,8 +296,7 @@ th, td {
 }
 
 th {
-    background: rgb(69,0,0);
-    background: linear-gradient(0deg, rgb(141, 11, 11) 0%, rgba(184,21,21,0.802784222737819) 50%, rgba(255, 34, 27, 0.75) 100%);
+    background-color: #8b0000; /* Dark red background for header */
     color: white; /* White text for contrast */
 }
 
@@ -471,52 +462,10 @@ button {
     background-color: #cc3b3b;
 }
 
-/* Layout for users page */
-.user-grid {
-    padding: 20px;
-    display: flex;
-    gap: 50px; 
-    overflow: scroll;
-    border: 2px solid rgb(0, 0, 0); 
-    border-radius: 10px;
-}
-
-.user-card {
-    overflow-wrap: normal;
-    display: grid;
-    gap: 5px;
-    padding: 15px;
-    border: 2px solid rgb(0, 0, 0); 
-    border-radius: 40px;
-    min-width: 500px;
-    transition: transform 0.3s ease;
-}
-
-/* Layout for job listings */
-.job-listings {
-    display: flex; 
-    gap: 10px; 
-    overflow: scroll; 
-    border: 2px solid rgb(0, 0, 0); 
-    border-radius: 10px;
-}
-
-/* Job category list in email section */
-.job-cat-grid {
-    padding: 20px;
-    display: grid;
-    gap: 20px; 
-    overflow: scroll;
-    border: 2px solid rgb(0, 0, 0); 
-    border-radius: 10px;
-    height: 350px;
-}
-
-/* Layout for admin dashboard sections */
-.admin-dash {
-    display: flex; 
-    justify-content: center;
-    flex-wrap: wrap;
-    text-align: center;
-    gap: 10px;
+.error-message {
+    font-size: 0.7rem;   /* Smaller text size */
+    color: red;
+    margin-top: 2px;     /* Slight spacing below input field */
+    margin-left: 30px;
+    display: block;      /* Ensures proper alignment */
 }
