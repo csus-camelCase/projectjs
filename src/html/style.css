@@ -463,7 +463,7 @@ button {
 }
 
 .error-message {
-    font-size: 0.6rem;   /* Smaller text size */
+    font-size: 0.7rem;   /* Smaller text size */
     color: red;
     margin-top: 2px;     /* Slight spacing below input field */
     margin-left: 30px;
