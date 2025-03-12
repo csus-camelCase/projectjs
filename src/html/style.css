@@ -1,5 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
+:root {
+    --red-gradient: linear-gradient(0deg, rgb(141, 11, 11) 0%, rgba(184,21,21,0.802784222737819) 50%, rgba(255, 34, 27, 0.75) 100%);
+    --default-dark-red: rgb(69,0,0);
+    --black-border: 2px solid rgb(0, 0, 0); 
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -14,11 +20,11 @@ body {
     align-items: center;
     min-height: 100vh;
     background-size: 100%;
-    background: rgb(69,0,0);
+    background: var(--default-dark-red);
     background: linear-gradient(0deg, rgb(151, 151, 151) 0%, rgb(255, 255, 255) 50%, rgb(255, 255, 255) 100%);
 }
 
-img{
+img {
     text-align: center;
     max-width: 100%;
     height: auto;
@@ -28,7 +34,7 @@ img{
 .wrapper{
     width: 420px;
     background: white;
-    border: 2px solid black;
+    border: var(--black-border);
     border-radius:  10px;
     padding: 30px 40px;
 }
@@ -46,7 +52,7 @@ img{
     background: transparent;
     border: none;
     outline: none;
-    border: 2px solid black;
+    border: var(--black-border);
     border-radius: 40px;
     font-size: 16px;
     color: black;
@@ -70,11 +76,11 @@ img{
 .wrapper .btn {
     width: 100%;
     height: 45px;
-    background: rgb(69,0,0);
-    background: linear-gradient(0deg, rgb(141, 11, 11) 0%, rgba(184,21,21,0.802784222737819) 50%, rgba(255, 34, 27, 0.75) 100%);
+    background: var(--default-dark-red);
+    background: var(--red-gradient);
     border: none;
     outline: none;
-    border: 2px solid black,;
+    border: var(--black-border);
     border-radius: 40px;
     cursor: pointer;
     font-size: 16px;
@@ -84,8 +90,9 @@ img{
 }
 
 
-.btn:hover {
-    background-color: #d9363e; /* Darker red on hover */
+.btn:hover {                                  /*new standard for button hovering, replace everywhere applicable (any button hover rules that look like this)*/
+    background: #ffcccb;
+    color: black;
 }
 /* Resume Label Styling */
 .wrapper .input-box label {
@@ -101,7 +108,7 @@ img{
     display: block;
     width: 100%;
     padding: 10px;
-    border: 2px solid black;
+    border: var(--black-border);
     border-radius: 30px;
     font-size: 16px;
     outline: none;
@@ -117,7 +124,7 @@ img{
     width: 100%;
     height: 50px;
     background: transparent;
-    border: 2px solid black;
+    border: var(--black-border);
     border-radius: 40px;
     font-size: 16px;
     color: black;
@@ -195,7 +202,7 @@ img{
     margin-top: 30px;
     padding: 20px;
     background: rgba(255, 255, 255, 0.8);
-    border: 2px solid black;
+    border: var(--black-border);
     border-radius: 10px;
     color: #333;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -218,15 +225,20 @@ img{
     margin-bottom: 20px;
 }
 
-.prototype-section button {
-    padding: 10px 20px;
+.prototype-section button {                                         /*copies wrapper button, replace later*/
+    width: 100%;
+    height: 45px;
+    background: var(--default-dark-red);
+    background: var(--red-gradient);
     border: none;
-    background: rgb(69,0,0);
-    background: linear-gradient(0deg, rgb(141, 11, 11) 0%, rgba(184,21,21,0.802784222737819) 50%, rgba(255, 34, 27, 0.75) 100%);
-    color: white;
+    outline: none;
+    border: var(--black-border);
     border-radius: 40px;
     cursor: pointer;
-    font-weight: bold;
+    font-size: 16px;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
     
 }
 
@@ -265,21 +277,25 @@ footer {
     margin-bottom: 20px;
 }
 
-.wide-card.job-search button {
-    background: #8b0000;
-    color: white;
-    padding: 10px 20px;
+.wide-card.job-search button {                                                   /*copies wrapper button, replace later*/
+    width: 100%;
+    height: 45px;
+    background: var(--default-dark-red);
+    background: var(--red-gradient);
     border: none;
-    border-radius: 5px;
-    font-size: 1rem;
+    outline: none;
+    border: var(--black-border);
+    border-radius: 40px;
     cursor: pointer;
-    transition: all 0.3s;
+    font-size: 16px;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
 }
 
-.wide-card.job-search button:hover {
-    background: #b22222;
-    color: #fff;
-    transform: scale(1.05);
+.wide-card.job-search button:hover {                                            /*replace later*/
+    background: #ffcccb;
+    color: black;
 }
 
 
@@ -304,8 +320,8 @@ th, td {
 }
 
 th {
-    background: rgb(69,0,0);
-    background: linear-gradient(0deg, rgb(141, 11, 11) 0%, rgba(184,21,21,0.802784222737819) 50%, rgba(255, 34, 27, 0.75) 100%);
+    background: var(--default-dark-red);
+    background: var(--red-gradient);
     color: white; /* White text for contrast */
 }
 
@@ -334,8 +350,9 @@ button {
 }
 
 /* Style the dropdown button */
-.dropdown button {
-    background-color: #8b0000;
+.dropdown button {                                       /*may need some unique changes that are different from other buttons but still align its look with everything else*/
+    background: var(--default-dark-red);
+    background: var(--red-gradient);
     color: white;
     padding: 14px 20px;
     font-size: 16px;
@@ -346,8 +363,9 @@ button {
 }
 
 /* Change color on hover */
-.dropdown button:hover {
-    background-color: #8b0000;
+.dropdown button:hover {                                                /*replace later*/
+    background: #ffcccb;
+    color: black;
 }
 
 /* Dropdown content (hidden by default) */
@@ -395,7 +413,7 @@ button {
 
 /* Job card styles */
 .job-card {
-    border: 2px solid #000;
+    border: var(--black-border);
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -454,17 +472,20 @@ button {
     min-width: 200px;
 }
 
-.reschedule-btn {
-    background-color: #8b0000;
-    color: white;
+.reschedule-btn {                                                                       /*copies wrapper btn rule, replace later*/
+    width: 100%;
+    height: 45px;
+    background: var(--default-dark-red);
+    background: var(--red-gradient);
     border: none;
-    padding: 8px 12px;
+    outline: none;
+    border: var(--black-border);
+    border-radius: 40px;
     cursor: pointer;
-    border-radius: 5px;
-    transition: 0.3s;
-    font-size: 14px;
-    white-space: nowrap; /* Prevents text from wrapping */
-    flex-shrink: 0; /* Prevents button from shrinking */
+    font-size: 16px;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
 }
 
 .reschedule-btn:hover {
@@ -485,7 +506,7 @@ button {
     display: flex;
     gap: 50px; 
     overflow: scroll;
-    border: 2px solid rgb(0, 0, 0); 
+    border: var(--black-border);
     border-radius: 10px;
 }
 
@@ -494,18 +515,18 @@ button {
     display: grid;
     gap: 5px;
     padding: 15px;
-    border: 2px solid rgb(0, 0, 0); 
+    border: var(--black-border); 
     border-radius: 40px;
     min-width: 500px;
     transition: transform 0.3s ease;
 }
 
-/* Layout for job listings */
+/* Layout for job listings */                               /* Group the flex boxes below into one CSS rule? */
 .job-listings {
     display: flex; 
     gap: 10px; 
     overflow: scroll; 
-    border: 2px solid rgb(0, 0, 0); 
+    border: var(--black-border); 
     border-radius: 10px;
 }
 
@@ -515,7 +536,7 @@ button {
     display: grid;
     gap: 20px; 
     overflow: scroll;
-    border: 2px solid rgb(0, 0, 0); 
+    border: var(--black-border);
     border-radius: 10px;
     height: 350px;
 }
