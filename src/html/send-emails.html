@@ -6,8 +6,8 @@
     <title>Send Email</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body style="display: flex; gap: 40px;">
-    <div class="wrapper" style="height: 550px;">
+<body>
+    <div class="wrapper">
         <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Send Email to Candidates</h2>
         <form id="emailForm" action="/api/send-email" method="POST">
             <!-- Recipient Email Input -->
@@ -37,50 +37,12 @@
         
         <!-- Navigate to Search Button -->
         <div style="text-align: center; margin-top: 20px;">
-            <a href="/search" class="btn" style="display: inline-block; padding: 10px 20px; color: white; text-decoration: none;">Search for Candidates</a>
+            <a href="/search" class="btn" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Search for Candidates</a>
         </div>
 
         <!-- Back to Dashboard Link -->
         <div class="sign-up">
-            <p><a href="/admin_dashboard.html" class="btn" style="padding: 10px; margin-left: 10px;">Back to Dashboard</a></p>
-        </div>
-    </div>
-
-    <!-- Job Categories Search Box -->
-    <div class="wrapper" style="height: 550px;">
-        <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Job Categories</h2>
-
-        
-        <!-- Search Bar -->
-        <div class="input-box">
-            <input type="text" id="searchInput" placeholder="Search by job category name">
-        </div>
-
-        <div class="job-cat-grid">
-            <!-- Table -->
-            <form id="jobCatForm">
-                <table id="jobCatTable">
-                    <!-- Top Row -->
-                    <thead>
-                        <tr>
-                            <th>Select</th>
-                            <th>Full Name</th>
-                        </tr>
-                    </thead>
-
-                    <!-- Rows -->
-                    <tbody>
-                        <tr>
-                            <td>
-                                <input type="checkbox" name="selectedCandidates" value="<%= profile._id %>">
-                            </td>
-                            <td>
-                                Example Job Category Name 
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </form>
+            <p><a href="/admin_dashboard.html">Back to Dashboard</a></p>
         </div>
     </div>
 
