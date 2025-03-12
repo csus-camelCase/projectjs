@@ -13,6 +13,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Print GitHub Variables
+        run: |
+          echo "Checking GitHub Variables..."
+          echo "EC2_PUBLIC_IP: '${{ vars.EC2_PUBLIC_IP }}'"
+
       - name: Deploy to EC2
         run: |
           # Create SSH key file
