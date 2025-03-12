@@ -1,52 +1,97 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF -8">
+        <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
-        <title> Forgot Password form system1seachsac</title>
+        <title>Forgot Password form system1searchsac</title>
         <link rel="stylesheet" href="style.css">
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     </head>
 
     <body>
-        <div class = "wrapper">
-            <form action="" onsubmit="return handleSubmit();">
+        <div class="wrapper">
+            <form action="" onsubmit="return handleSubmit(event);">
                 <a href="index.html">
                     <img src="images/companylogo.png" alt="logo">
                 </a>
              
                 <div class="forgot-text">
-                    <p id="forgot-text">Enter your email to recieve a link to reset your password.</p> 
+                    <p id="forgot-text">Enter your email to receive a link to reset your password.</p> 
                 </div>
                 <div class="input-box">
-                    <input type="text" placeholder="Email" required?>
+                    <input type="email" id="email" placeholder="Email" required>
                     <i class='bx bxs-user'></i> 
-                
                 </div>
                 <button type="submit" class="btn" id="submit-btn">Send Email</button>
-
             </form>
         </div>
         <script> 
             let step = 1;
-            function handleSubmit() {
-                if(step == 1) {
-                    changeText();
-                    step++;
-                }
-                else {
-                    window.location.href = "forgot2.html"
+            let email = "";
+
+            async function handleSubmit(event) {
+                event.preventDefault();
+
+                if (step === 1) {
+                    email = document.getElementById("email").value;
+                    const response = await sendEmail(email);
+                    if (response.success) {
+                        changeText();
+                        step++;
+                    } else {
+                        alert("Failed to send email. Please try again.");
+                    }
+                } else {
+                    const code = document.querySelector(".input-box input").value;
+                    const response = await verifyCode(email, code);
+                    if (response.success) {
+                        window.location.href = "forgot2.html";
+                    } else {
+                        alert("Invalid code. Please try again.");
+                    }
                 }
                 return false;
             }
+
             function changeText() {
-                document.getElementById("forgot-text").innerText = "Enter the 6 digit code you recieved from your email.";
+                document.getElementById("forgot-text").innerText = "Enter the 6-digit code you received from your email.";
                 document.querySelector(".input-box input").placeholder = "Code";
                 document.querySelector(".input-box input").value = "";
                 document.querySelector(".input-box input").type = "number";
                 document.querySelector(".input-box input").maxLength = 6;
-                document.getElementById("submit-btn").innerText = "Reset Password"
+                document.getElementById("submit-btn").innerText = "Reset Password";
+            }
+
+            async function sendEmail(email) {
+                try {
+                    const response = await fetch('https://api.camelcase-preprod.com/email/send', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            toAddress: email,
+                            subject: "Password Reset Code",
+                            body: `Your password reset code is: ${generateCode()}`,
+                        }),
+                    });
+                    const data = await response.json();
+                    return { success: response.ok, data };
+                } catch (error) {
+                    console.error('Error:', error);
+                    return { success: false };
+                }
+            }
+
+            async function verifyCode(email, code) {
+                // todo verify code function
+                return { success: true };
+            }
+
+            function generateCode() {
+                // Generate a 6-digit code
+                return Math.floor(100000 + Math.random() * 900000).toString();
             }
         </script>
     </body>
