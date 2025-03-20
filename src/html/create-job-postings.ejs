@@ -11,7 +11,7 @@
         <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Create Job Postings</h2>
 
         <!-- Add Job Form -->
-        <form id="add-job-form" action="/api/jobs" method="POST">
+        <form style="display: grid; gap: 10px" id="add-job-form" action="/api/jobs" method="POST">
             <h3>Add New Job</h3>
             <input type="text" name="title" placeholder="Job Title" required>
             <textarea name="description" placeholder="Job Description" required></textarea>
@@ -31,7 +31,7 @@
 
         <!-- Back to Dashboard Link -->
         <div class="sign-up">
-            <p><a href="/admin_dashboard.html">Back to Dashboard</a></p>
+            <p><a href="/admin_dashboard.html" class="btn" style="padding: 10px; margin-left: 10px;">Back to Dashboard</a></p>
         </div>
     </div>
 </body>
