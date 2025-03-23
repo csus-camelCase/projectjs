@@ -15,7 +15,7 @@
         <!-- Search input box -->
         <div class="input-box">
             <input type="text" id="searchInput" placeholder="Search by candidate name or preferences"
-                onkeyup="filterCandidates()">
+                onkeyup="searchCandidates()">
         </div>
 
         <!-- Form to handle selections -->
@@ -25,34 +25,30 @@
                 <thead>
                     <tr>
                         <th>Select</th>
-                        <th>Full Name</th>
-                        <th>Interested in</th>
-                        <th>Preferences</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>First Login</th>
+                        <th>Last Login</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <% profiles.forEach(profile=> { %>
+                   
+                    <% users.forEach(user=> { %>
                         <tr>
                             <td>
-                                <input type="checkbox" name="selectedCandidates" value="<%= profile._id %>">
+                                <input type="checkbox" name="selectedCandidates" value="<%= user._id %>">
                             </td>
                             <td>
-                                <%= profile.full_name %>
+                                <%= user.first_name %>
                             </td>
                             <td>
-                                <% if (profile.preferences.length> 0) { %>
-                                    <%= profile.preferences[0].title %>
-                                        <% } else { %>
-                                            N/A
-                                            <% } %>
+                                <%= user.last_name %>
                             </td>
                             <td>
-                                <% if (profile.preferences.length> 0) { %>
-                                    <%= profile.preferences.map(pref=> `${pref.location} (${pref.job_type})`).join(', ')
-                                        %>
-                                        <% } else { %>
-                                            N/A
-                                            <% } %>
+                                <%= user.formattedCreatedAt %>
+                            </td>
+                            <td>
+                                <%= user.formattedLastLogin %>
                             </td>
                         </tr>
                         <% }) %>
@@ -73,6 +69,7 @@
     </div>
 
     <script>
+         
         // Function to filter candidates based on search input
         let debounceTimer;
 
@@ -102,14 +99,15 @@
             const tbody = document.querySelector("#candidatesTable tbody");
             tbody.innerHTML = ""; // Clear existing rows
 
-            candidates.forEach(profile => {
+            candidates.forEach(user => {
                 const row = document.createElement("tr");
 
                 row.innerHTML = `
-            <td><input type="checkbox" name="selectedCandidates" value="${profile._id}"></td>
-            <td>${profile.full_name}</td>
-            <td>${profile.preferences.length > 0 ? profile.preferences[0].title : 'N/A'}</td>
-            <td>${profile.preferences.length > 0 ? profile.preferences.map(pref => `${pref.location} (${pref.job_type})`).join(', ') : 'N/A'}</td>
+            <td><input type="checkbox" name="selectedCandidates" value="${user._id}"></td>
+            <td>${user.first_name}</td>
+            <td>${user.last_name}</td>
+            <td>${user.formattedCreatedAt}</td>
+            <td>${user.formattedLastLogin}</td>
         `;
 
                 tbody.appendChild(row);

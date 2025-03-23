@@ -10,7 +10,9 @@ const ejs = require('ejs');
 const multer = require('multer');
 const AWS = require('aws-sdk');
 const { title } = require('process');
+const moment = require('moment');
 dotenv.config();
+
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -181,9 +183,15 @@ app.post('/process-selections', async (req, res) => {
 
 app.get('/search', async (req, res) => {
     try {
-        const profiles = await Profile.find({}, 'full_name preferences'); // Fetch full_name and preferences
-        const filteredProfiles = profiles.filter(profile => !profile.isAdmin); // Exclude admins
-        res.render('search', { profiles: filteredProfiles }); // Render the 'search.ejs' view and pass profiles
+        const profiles = await Profile.find({}, 'user_id');
+        const userIds = profiles.map(profile => profile.user_id);
+        const users = await User.find({ _id: { $in: userIds } }, 'first_name last_name created_at last_login');
+        const filteredUsers = users.filter(user => !user.isAdmin); // Exclude admins
+        users.forEach(user => {
+            user.formattedCreatedAt = moment(user.created_at).format('MMMM YYYY');
+            user.formattedLastLogin = moment(user.last_login).format('MMMM YYYY');
+          });
+        res.render('search', { users: filteredUsers }); // Render the 'search.ejs' view and pass profiles
     } catch (error) { 
         console.error('Error fetching profiles:', error);
         res.status(500).send('Error fetching candidates');
@@ -198,15 +206,21 @@ app.get('/search-candidates', async (req, res) => {
     }
 
     try {
-        const candidates = await Candidate.find({
+        const profiles = await Profile.find({}, 'user_id');
+        const userIds = profiles.map(profile => profile.user_id);
+        const users = await User.find({ _id: { $in: userIds },
             $or: [
-                { full_name: { $regex: query, $options: 'i' } },  // Case-insensitive name search
-                { "preferences.title": { $regex: query, $options: 'i' } }, // Job title search
-                { "preferences.location": { $regex: query, $options: 'i' } } // Location search
+                { first_name: { $regex: query, $options: 'i' } },  // Case-insensitive name search
+                { last_name: { $regex: query, $options: 'i' } }
             ]
         }).lean();
+        const filteredUsers = users.filter(user => !user.isAdmin); // Exclude admins
+        users.forEach(user => {
+            user.formattedCreatedAt = moment(user.created_at).format('MMMM YYYY');
+            user.formattedLastLogin = moment(user.last_login).format('MMMM YYYY');
+          });
 
-        res.json(candidates);
+        res.json(filteredUsers);
     } catch (error) {
         console.error('Error searching candidates:', error);
         res.status(500).json({ error: 'Internal Server Error' });
