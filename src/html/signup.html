@@ -33,10 +33,12 @@
                 <div class="input-box">
                     <input type="password" name="password" id="password" placeholder="Password" required>
                     <i class='bx bxs-lock-alt'></i>
+                    <span class="error-message" id="passwordError"></span>
                 </div>
                 <div class="input-box">
                     <input type="password" name="confirm_password" placeholder="Confirm Password" required>
                     <i class='bx bxs-lock-alt'></i>
+                    <span class="error-message" id="matchError"></span>
                 </div>
 
                 <button type="submit" class="btn">Sign Up</button>
@@ -46,5 +48,54 @@
                 </div>
             </form>
         </div>
+        <script>
+            window.onload = function () {
+            // Get query parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const passwordError = urlParams.get('passwordError');
+            const matchError = urlParams.get('matchError');
+
+            // Show error messages if available
+            if (passwordError) {
+                document.getElementById('passwordError').textContent = passwordError;
+            }
+            if (matchError) {
+                document.getElementById('matchError').textContent = matchError;
+            }
+        };
+            document.addEventListener("DOMContentLoaded", function () {
+                const form = document.querySelector("form");
+                const password = document.getElementById("password");
+                const confirmPassword = document.querySelector("input[name='confirm_password']");
+                const passwordError = document.createElement("p");
+                passwordError.classList.add("error-message");
+                password.parentNode.appendChild(passwordError);
+        
+                function validatePassword(pwd) {
+                    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                    return regex.test(pwd);
+                }
+        
+                password.addEventListener("input", function () {
+                    if (!validatePassword(password.value)) {
+                        passwordError.textContent = "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.";
+                    } else {
+                        passwordError.textContent = "";
+                    }
+                });
+        
+                form.addEventListener("submit", function (event) {
+                    if (!validatePassword(password.value)) {
+                        event.preventDefault();
+                        alert("Password does not meet security requirements!");
+                    }
+        
+                    if (password.value !== confirmPassword.value) {
+                        event.preventDefault();
+                        alert("Passwords do not match!");
+                    }
+                });
+            });
+        </script>        
     </body>
 </html>

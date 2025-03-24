@@ -721,9 +721,30 @@ app.post('/submit_settings', upload.single('resume'), async (req, res) => {
 app.post('/signup', async (req, res) => {
     const { first_name, last_name, username, email, password, confirm_password } = req.body;
 
-    // Validate passwords match
+    // Password validation function
+    function isValidPassword(password) {
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        return regex.test(password);
+    }
+
+     // Error message variables
+     let errorMessages = {
+        passwordError: '',
+        matchError: ''
+    };
+
+    // Check if passwords match
     if (password !== confirm_password) {
-        return res.status(400).send('Passwords do not match.');
+        errorMessages.matchError = 'Passwords do not match.';
+    }
+
+    // Validate password strength
+    if (!isValidPassword(password)) {
+        errorMessages.passwordError = 'Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.';
+    }
+
+    if (errorMessages.passwordError || errorMessages.matchError) {
+        return res.redirect(`/signup.html?passwordError=${encodeURIComponent(errorMessages.passwordError)}&matchError=${encodeURIComponent(errorMessages.matchError)}`);
     }
 
     try {
