@@ -449,18 +449,20 @@ app.post('/api/jobs', async (req, res) => {
 
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
 
+app.get('/login', (req, res) => {
+    res.render('index', { email: '', invalidCredentials: false });  
+});
+
 app.post('/login', async (req, res) => {
     const { email, password, rememberMe } = req.body;
 
     try {
         const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).send('Invalid email or password');
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).send('Invalid email or password');
+        if (!user || !(await bcrypt.compare(password, user.password))) {
+            return res.render('index', { 
+                email, 
+                invalidCredentials: true // Flag for invalid login
+            });
         }
 
         req.session.userId = user._id;
@@ -479,7 +481,10 @@ app.post('/login', async (req, res) => {
         res.redirect(user.isAdmin ? '/admin_dashboard.html' : '/user_dashboard.html');
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).send('Internal server error');
+        res.render('index', { 
+            email, 
+            invalidCredentials: true 
+        });
     }
 });
 
