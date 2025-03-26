@@ -63,39 +63,6 @@
                 document.getElementById('matchError').textContent = matchError;
             }
         };
-            document.addEventListener("DOMContentLoaded", function () {
-                const form = document.querySelector("form");
-                const password = document.getElementById("password");
-                const confirmPassword = document.querySelector("input[name='confirm_password']");
-                const passwordError = document.createElement("p");
-                passwordError.classList.add("error-message");
-                password.parentNode.appendChild(passwordError);
-        
-                function validatePassword(pwd) {
-                    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-                    return regex.test(pwd);
-                }
-        
-                password.addEventListener("input", function () {
-                    if (!validatePassword(password.value)) {
-                        passwordError.textContent = "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.";
-                    } else {
-                        passwordError.textContent = "";
-                    }
-                });
-        
-                form.addEventListener("submit", function (event) {
-                    if (!validatePassword(password.value)) {
-                        event.preventDefault();
-                        alert("Password does not meet security requirements!");
-                    }
-        
-                    if (password.value !== confirmPassword.value) {
-                        event.preventDefault();
-                        alert("Passwords do not match!");
-                    }
-                });
-            });
         </script>        
     </body>
 </html>
