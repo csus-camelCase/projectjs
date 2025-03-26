@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body style="display: flex; gap: 40px;">
-    <div class="wrapper" style="height: 550px;">
+    <div class="wrapper"> <!-- style="height: 550px;" this makes the wrapper not adjust along with the text box-->
         <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Send Email to Candidates</h2>
         <form id="emailForm" action="/api/send-email" method="POST">
             <!-- Recipient Email Input -->
