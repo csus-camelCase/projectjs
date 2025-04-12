@@ -37,6 +37,7 @@ img {
     border: var(--black-border);
     border-radius:  10px;
     padding: 30px 40px;
+    margin: 50px;
 }
 
 .wrapper .input-box {

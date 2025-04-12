@@ -6,8 +6,8 @@
     <title>Send Email</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body style="display: flex; gap: 40px;">
-    <div class="wrapper"> <!-- style="height: 550px;" this makes the wrapper not adjust along with the text box-->
+<body style="display: flex;">
+    <div class="wrapper" style="width: 800px;"> <!-- style="height: 550px;" this makes the wrapper not adjust along with the text box-->
         <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Send Email to Candidates</h2>
         <form id="emailForm" action="/api/send-email" method="POST">
             <!-- Recipient Email Input -->
@@ -46,9 +46,9 @@
         </div>
     </div>
 
-    <!-- Job Categories Search Box -->
-    <div class="wrapper" style="height: 550px;">
-        <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Job Categories</h2>
+    <!-- Preference Postings Search Box -->
+    <div class="wrapper" style="height: 550px; width: 800px;">
+        <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Preference Postings</h2>
 
         
         <!-- Search Bar -->
