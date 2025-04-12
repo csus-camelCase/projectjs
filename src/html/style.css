@@ -549,3 +549,22 @@ button {
     text-align: center;
     gap: 10px;
 }
+
+/* Input fields for 6-digit "forgot password" verification */
+.numField {
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+    margin: 0;
+    border: var(--black-border);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.number-fields {
+    display: flex; 
+    justify-content: center;
+    flex-wrap: wrap;
+    text-align: center;
+    margin: 1em;
+    gap: 10px;
+}
