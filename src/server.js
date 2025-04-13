@@ -117,6 +117,94 @@ app.set('views', path.join(__dirname, 'html'));
 //
 //
 
+//preference search route
+app.get('/api/search-preferences', async (req, res) => {
+    const searchTerm = req.query.term;
+    console.log('\n--- NEW SEARCH REQUEST ---');
+    console.log(`Search term: "${searchTerm}"`);
+
+    if (!searchTerm || searchTerm.length < 2) {
+        console.log('Search term too short (minimum 2 characters required)');
+        return res.json([]);
+    }
+
+    try {
+        console.log('\n[1/3] Querying database for profiles with preferences...');
+        const profiles = await Profile.aggregate([
+            {
+                $match: {
+                    preferences: { 
+                        $exists: true,
+                        $not: { $size: 0 } 
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'user_id',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            },
+            {
+                $unwind: '$user'
+            },
+            {
+                $project: {
+                    _id: 1,
+                    full_name: 1,
+                    preferences: 1,
+                    email: '$user.email',
+                    status: 1
+                }
+            }
+        ]);
+
+        console.log(`[2/3] Found ${profiles.length} profiles with preferences`);
+        
+        if (profiles.length > 0) {
+            console.log('\nSample profile preferences:');
+            console.log({
+                name: profiles[0].full_name,
+                email: profiles[0].email,
+                preferences: profiles[0].preferences,
+                preference_types: profiles[0].preferences.map(p => typeof p)
+            });
+        }
+
+        console.log('\n[3/3] Filtering results...');
+        const filtered = profiles.filter(profile => {
+            if (!Array.isArray(profile.preferences)) {
+                console.log(`Profile ${profile._id} has non-array preferences:`, profile.preferences);
+                return false;
+            }
+            
+            return profile.preferences.some(pref => {
+                const prefString = typeof pref === 'object' ? 
+                    JSON.stringify(pref) : 
+                    String(pref);
+                const match = prefString.toLowerCase().includes(searchTerm.toLowerCase());
+                if (match) {
+                    console.log(`Match found in profile ${profile._id}:`, {
+                        preference: pref,
+                        as_string: prefString
+                    });
+                }
+                return match;
+            });
+        });
+
+        console.log(`\nFound ${filtered.length} matching profiles`);
+        console.log('--- END OF SEARCH ---\n');
+        res.json(filtered.slice(0, 50));
+    } catch (error) {
+        console.error('\n!!! SEARCH ERROR !!!');
+        console.error(error);
+        res.status(500).json({ error: 'Failed to search preferences' });
+    }
+});
+
 // Send emails to all recipients listed in query string
 app.post('/api/send-email', async (req, res) => {
     const { recipient, subject, message } = req.body;
