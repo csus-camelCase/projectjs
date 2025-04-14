@@ -43,12 +43,7 @@
     <div class="wrapper" style="width: 800px;">
         <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Send Email to Candidates</h2>
         <form id="emailForm" action="/api/send-email" method="POST">
-            <!-- Recipient Email Input -->
-            <div class="input-box">
-                <input type="email" id="recipient" name="recipient" placeholder="Recipient Email" required>
-                <i class="bx bx-envelope"></i>
-            </div>
-            
+
             <!-- Subject Input -->
             <div class="input-box">
                 <input type="text" name="subject" placeholder="Subject" required>
@@ -59,18 +54,13 @@
             <div class="message-container" style="display: flex; align-items: flex-start; gap: 10px;">
                 <textarea name="message" placeholder="Type your message here..." rows="5" style="width: 100%; border: 2px solid black; border-radius: 10px; padding: 10px;" required></textarea>
                 <!-- Send Button -->
-                <button type="submit" class="send btn">Send Email</button>
+                <button type="submit" class="send btn" title="Are you sure">Send Email</button>
             </div>
         </form>
 
         <!-- Success Message -->
         <div id="successMessage" style="display: none; text-align: center; margin-top: 20px; color: green; font-weight: bold;">
             Email(s) sent!
-        </div>
-        
-        <!-- Navigate to Search Button -->
-        <div style="text-align: center; margin-top: 20px;">
-            <a href="/search" class="btn" style="display: inline-block; padding: 10px 20px; color: white; text-decoration: none;">Search for Candidates</a>
         </div>
 
         <!-- Back to Dashboard Link -->
@@ -92,9 +82,8 @@
             <table id="preferenceResults" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th>Name</th>
                         <th>Preferences</th>
-                        <th>Email</th>
+                        <th>Description</th>
                     </tr>
                 </thead>
                 <tbody id="preferenceResultsBody">
@@ -129,6 +118,8 @@
                 searchPreferences(term);
             }, 300);
         });
+        
+
 
         // Search preferences function
         async function searchPreferences(term) {
