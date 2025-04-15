@@ -764,6 +764,23 @@ app.post('/delete_account', async (req, res) => {
     }
 });
 
+//search.ejs deletion logic
+app.post('/delete-candidates', async (req, res) => {
+    const { selectedCandidates } = req.body;
+
+    if (!selectedCandidates || selectedCandidates.length === 0) {
+        return res.status(400).json({ message: "No candidates selected for deletion." });
+    }
+
+    try {
+        await User.deleteMany({ _id: { $in: selectedCandidates } });
+        res.status(200).json({ message: "Candidates deleted successfully." });
+    } catch (error) {
+        console.error("Error deleting candidates:", error);
+        res.status(500).json({ message: "Error deleting candidates." });
+    }
+});
+
 app.get('/settings.html', async (req, res) => {
     const userId = req.session.userId;
     if (!userId) {

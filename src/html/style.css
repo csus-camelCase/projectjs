@@ -37,7 +37,7 @@ img {
     border: var(--black-border);
     border-radius:  10px;
     padding: 30px 40px;
-    margin: 50px;
+    height: 50px;
 }
 
 .wrapper .input-box {
@@ -261,9 +261,9 @@ footer {
     padding: 30px;
     text-align: center;
     background: rgba(255, 255, 255, 0.2);
-    /*border: 1px solid rgba(0, 0, 0, 0.1);*/
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 10px;
-    /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);*/
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .wide-card.job-search h2 {
@@ -549,97 +549,4 @@ button {
     flex-wrap: wrap;
     text-align: center;
     gap: 10px;
-}
-
-/* Input fields for 6-digit "forgot password" verification */
-.numField {
-    -webkit-appearance: none;
-    -moz-appearance: textfield;
-    margin: 0;
-    border: var(--black-border);
-    border-radius: 10px;
-    padding: 20px;
-}
-
-.number-fields {
-    display: flex; 
-    justify-content: center;
-    flex-wrap: wrap;
-    text-align: center;
-    margin: 1em;
-    gap: 10px;
-}
-
-/* BUTTON STYLING preferences */
-.btn {
-    background: var(--default-dark-red);
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 40px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.3s ease;
-}
-
-/* Input box layout wrapper */
-.input-box {
-    margin-bottom: 20px;
-}
-
-/* Search input already styled via .input-box input */
-
-/* Scrollable Table Body for Preferences */
-#preferencesTable tbody {
-    display: block;
-    max-height: 300px; /* around 6–7 preferences */
-    overflow-y: auto;
-}
-
-#preferencesTable thead,
-#preferencesTable tbody tr {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
-}
-
-/* Modal Overlay */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    justify-content: center;
-    align-items: center;
-}
-
-/* Modal Box */
-.modal-content {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.3);
-}
-
-.modal-content input {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    border: var(--black-border);
-    border-radius: 40px;
-    margin-bottom: 20px;
-}
-
-/* For spacing below table buttons */
-.button-row {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-top: 20px;
 }

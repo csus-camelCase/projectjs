@@ -17,8 +17,8 @@ try:
     email_input = driver.find_element(By.NAME, "email")
     password_input = driver.find_element(By.NAME, "password")
     
-    email_input.send_keys("kennyahn@email.com")
-    password_input.send_keys("password")
+    email_input.send_keys("kennyahndelete@email.com")
+    password_input.send_keys("Password98?")
     password_input.send_keys(Keys.RETURN)  # Press Enter to log in
 
     time.sleep(2)  

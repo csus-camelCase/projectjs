@@ -60,6 +60,12 @@
             <div style="margin-top: 20px;">
                 <button type="button" id="submitButton" class="btn">Send Emails to Candidates</button>
             </div>
+            <!-- Delete Selected Accounts Button -->
+            <div style="margin-top: 20px;">
+                <button type="button" id="deleteButton" class="btn">
+                    Delete Selected Accounts
+                </button>
+            </div>
         </form>
 
         <!-- Additional buttons -->
@@ -138,6 +144,39 @@
             } catch (error) {
                 console.error('Error submitting candidates:', error);
                 alert('No candidates selected. Please select at least one candidate.');
+            }
+        });
+
+        // Handle deletion
+        document.getElementById('deleteButton').addEventListener('click', async () => {
+            const checkboxes = document.querySelectorAll('input[name="selectedCandidates"]:checked');
+            const selectedCandidates = Array.from(checkboxes).map(cb => cb.value);
+
+            if (selectedCandidates.length === 0) {
+                alert("Please select at least one candidate to delete.");
+                return;
+            }
+
+            const confirmed = confirm("Are you sure you want to delete the selected account(s)? This action cannot be undone.");
+
+            if (!confirmed) return;
+
+            try {
+                const response = await fetch('/delete-candidates', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ selectedCandidates })
+                });
+
+                if (response.ok) {
+                    alert("Selected accounts deleted successfully.");
+                    location.reload();
+                } else {
+                    alert("Failed to delete accounts.");
+                }
+            } catch (error) {
+                console.error('Error deleting candidates:', error);
+                alert("An error occurred while trying to delete the selected accounts.");
             }
         });
     </script>
