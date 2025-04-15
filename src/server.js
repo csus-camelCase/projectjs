@@ -342,6 +342,11 @@ app.get('/search-admins', async (req, res) => {
       }
 });
 
+app.get('/manage-preferences', (req, res) => {
+    res.render('manage-preferences');
+});
+
+
 
 app.get('/adminSearch', async (req, res) => {
     try {
@@ -405,7 +410,7 @@ app.put('/api/users/:id/deactivate', async (req, res) => {
 });
 
 // Update an existing job
-app.post('/api/jobs/:id/update', async (req, res) => {
+/*app.post('/api/jobs/:id/update', async (req, res) => {
     const jobId = req.params.id;
     const { title, description, requirements, client_name, location, job_type } = req.body;
 
@@ -430,10 +435,10 @@ app.post('/api/jobs/:id/update', async (req, res) => {
         console.error('Error updating job:', error);
         res.status(500).send('Error updating job');
     }
-});
+});*/
 
 // Delete a job
-app.post('/api/jobs/:id/delete', async (req, res) => {
+/*app.post('/api/jobs/:id/delete', async (req, res) => {
     const jobId = req.params.id;
 
     try {
@@ -446,7 +451,7 @@ app.post('/api/jobs/:id/delete', async (req, res) => {
         console.error('Error deleting job:', error);
         res.status(500).send('Error deleting job');
     }
-});
+});*/
 
 // Serve index.ejs for /
 app.get('/', (req, res) => {
@@ -528,7 +533,7 @@ app.get('/manage-users.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'html', 'manage-users.html'));
 });
 
-app.get('/job-postings', async (req, res) => {
+/*app.get('/job-postings', async (req, res) => {
     try {
         const jobs = await Job.find(); // Fetch all jobs from the database
         res.render('job-postings', { jobs }); // Pass jobs to EJS template
@@ -536,21 +541,24 @@ app.get('/job-postings', async (req, res) => {
         console.error('Error fetching jobs:', error);
         res.status(500).send('Error fetching jobs');
     }
-});
+});*/
 
 // Route for create-job-postings 
-app.get('/create-job-postings', (req, res) => {
+/*app.get('/create-job-postings', (req, res) => {
     res.render('create-job-postings');
-});
+});*/
 
 app.use(express.static(path.join(__dirname, 'html')));
 
+const preferenceRoutes = require('./route/preferences');
+app.use('/api/preferences', preferenceRoutes);
+
 // Use preference router for preference-related logic
-const preferenceRouter = require('./models/preference')({ User }); // Pass User model explicitly
-app.use(preferenceRouter);
+/*const preferenceRouter = require('./models/preference')({ User }); // Pass User model explicitly
+app.use(preferenceRouter);*/
 
 // Add a new job
-app.post('/api/jobs', async (req, res) => {
+/*app.post('/api/jobs', async (req, res) => {
     const { title, description, requirements, client_name, location, job_type } = req.body;
 
     try {
@@ -568,7 +576,7 @@ app.post('/api/jobs', async (req, res) => {
         console.error('Error adding job:', error);
         res.status(500).send('Error adding job');
     }
-});
+});*/
 
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
 

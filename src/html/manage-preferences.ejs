@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Preferences</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+    <div class="wrapper job-search">
+        <h2>Manage Preferences</h2>
+
+        <!-- Search bar -->
+        <div class="input-box">
+            <input type="text" id="searchInput" placeholder="Search for preferences by name">
+        </div>
+
+        <!-- Preferences table -->
+        <table id="preferencesTable">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Preference</th>
+                    <th>Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamic rows inserted here -->
+            </tbody>
+        </table>
+
+        <!-- Buttons -->
+        <div class="button-row">
+            <button class="btn" id="createBtn">Create Preference</button>
+            <button class="btn" id="deleteBtn">Delete Selected</button>
+            <a href="/admin_dashboard.html" class="btn">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Modal for create/edit -->
+    <div class="modal" id="preferenceModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Create Preference</h3>
+            <input type="text" id="preferenceInput" placeholder="Enter preference name">
+            <div class="button-row">
+                <button class="btn" id="savePreferenceBtn">Save</button>
+                <button class="btn" id="cancelModalBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let page = 1;
+        let searchTerm = '';
+        let isLoading = false;
+        let hasMore = true;
+        const limit = 10;
+        let editMode = false;
+        let editingId = null;
+
+        function fetchPreferences(reset = false) {
+            if (isLoading) return;
+            isLoading = true;
+
+            if (reset) {
+                $('#preferencesTable tbody').empty();
+                page = 1;
+                hasMore = true;
+            }
+
+            $.get(`/api/preferences?search=${encodeURIComponent(searchTerm)}&page=${page}&limit=${limit}`, (data) => {
+                const prefs = data.preferences;
+
+                if (prefs.length === 0) {
+                    hasMore = false;
+                    if (reset) {
+                        $('#preferencesTable tbody').append('<tr><td colspan="3">No preferences found.</td></tr>');
+                    }
+                } else {
+                    prefs.forEach(pref => {
+                        const row = `
+                            <tr data-id="${pref._id}">
+                                <td><input type="checkbox" class="selectPref" value="${pref._id}"></td>
+                                <td class="pref-name">${pref.name}</td>
+                                <td><button class="btn editBtn">Edit</button></td>
+                            </tr>
+                        `;
+                        if ($(`#preferencesTable tr[data-id='${pref._id}']`).length === 0) {
+                            // Only append if not already in table
+                            $('#preferencesTable tbody').append(row);
+                        }
+
+                    });
+
+                    // Only increment if we actually got a full page of results
+                    if (prefs.length < 10) {
+                        hasMore = false;
+                    } else {
+                        page++; // only advance page if we expect more
+                        hasMore = true;
+                    }
+                }
+
+                isLoading = false;
+            }).fail(() => {
+                console.error('Failed to load preferences');
+                isLoading = false;
+            });
+        }
+
+        // Search
+        $('#searchInput').on('input', function () {
+            searchTerm = $(this).val().trim();
+            fetchPreferences(true);
+        });
+
+        // Infinite scroll
+        $('#preferencesTable tbody').on('scroll', function () {
+            const $this = $(this);
+            if ($this.scrollTop() + $this.innerHeight() >= this.scrollHeight - 10) {
+                fetchPreferences();
+            }
+        });
+
+        // Open modal to create
+        $('#createBtn').click(() => {
+            editMode = false;
+            editingId = null;
+            $('#modalTitle').text('Create Preference');
+            $('#preferenceInput').val('');
+            $('#preferenceModal').fadeIn();
+        });
+
+        // Cancel modal
+        $('#cancelModalBtn').click(() => {
+            $('#preferenceModal').fadeOut();
+        });
+
+        // Save preference (create or edit)
+        $('#savePreferenceBtn').click(() => {
+            const name = $('#preferenceInput').val().trim();
+            if (!name) return alert('Preference name is required.');
+
+            if (editMode && editingId) {
+                $.ajax({
+                    url: `/api/preferences/${editingId}`,
+                    method: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ name }),
+                    success: () => {
+                        $('#preferenceModal').fadeOut();
+                        fetchPreferences(true);
+                    },
+                    error: err => alert(err.responseJSON?.message || 'Error updating')
+                });
+            } else {
+                $.post('/api/preferences', { name }, () => {
+                    $('#preferenceModal').fadeOut();
+                    fetchPreferences(true);
+                }).fail(err => alert(err.responseJSON?.message || 'Error creating'));
+            }
+        });
+
+        // Handle edit button click
+        $('#preferencesTable').on('click', '.editBtn', function () {
+            const row = $(this).closest('tr');
+            editingId = row.data('id');
+            const name = row.find('.pref-name').text();
+
+            editMode = true;
+            $('#modalTitle').text('Edit Preference');
+            $('#preferenceInput').val(name);
+            $('#preferenceModal').fadeIn();
+        });
+
+        // Delete selected
+        $('#deleteBtn').click(() => {
+            const ids = $('.selectPref:checked').map(function () {
+                return $(this).val();
+            }).get();
+
+            if (!ids.length) return alert('Select at least one preference to delete.');
+            if (!confirm('Are you sure you want to delete the selected preferences?')) return;
+
+            $.ajax({
+                url: '/api/preferences',
+                method: 'DELETE',
+                contentType: 'application/json',
+                data: JSON.stringify({ ids }),
+                success: res => {
+                    alert(res.message);
+                    fetchPreferences(true);
+                },
+                error: err => alert(err.responseJSON?.message || 'Error deleting preferences')
+            });
+        });
+
+        // Initial load
+        $(document).ready(() => {
+            fetchPreferences();
+        });
+    </script>
+
+</body>
+</html>

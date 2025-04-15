@@ -1,8 +1,5 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.alert import Alert
 import time
 
 driver = webdriver.Chrome()
@@ -48,5 +45,5 @@ def test_password(password, confirm_password, expected_error):
 
 # Run test cases
 test_password(invalidTest, invalidTest, "Password must be at least 8 characters long")  # Should fail
-
+test_password(validTest, validTest, None)  # Should pass
 driver.quit()
