@@ -643,3 +643,23 @@ button {
     justify-content: center;
     margin-top: 20px;
 }
+.admin-header {
+    position: relative;
+    width: 100%;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.admin-header .center-logo {
+    max-width: 2000px;
+    margin: 0 auto;
+    display: block;
+}
+
+.admin-header .dropdown {
+    position: absolute;        
+    right: -500px;
+    top: -300px;
+    display: block;
+    width: 10%;
+}

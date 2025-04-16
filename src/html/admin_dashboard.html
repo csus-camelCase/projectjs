@@ -9,13 +9,12 @@
 <body>
     <div class="dashboard-wrapper">
         <!-- Header Section -->
-        <header>
-            <img src="images/companylogo.png" alt="System1Search Logo">
+        <header class="admin-header">
+            <img src="images/companylogo.png" alt="System1Search Logo" class="center-logo">
             <div class="dropdown">
                 <button>Menu</button>
-                <div class="dropdown-content" style="left: 110px; top: 53px;">
+                <div class="dropdown-content">
                     <a href="https://calendar.google.com/">Google Calendar</a>
-                    <!--<a href="/signup2.html">Edit Candidate Profile</a>  axed due to repeating data from settings setup.html -->
                     <a href="/settings.html">Settings</a>
                     <a href="/index.html">Logout</a>
                 </div>
@@ -35,22 +34,15 @@
                     <button class="dashboard-button" onclick="location.href='/schedule-event.html'">Create Event</button>
                 </div>
 
-                <!-- Manage Users Section -->
-                <div class="prototype-section">
-                    <h2>Manage Users</h2>
-                    <p>View and manage Candidate accounts.</p>
-                    <button class="dashboard-button" onclick="location.href='/manage-users'">Manage Users</button>
-                </div>
-
                 <!-- Candidate Search Section -->
                 <div class="prototype-section">
                     <h2>Candidate Search</h2>
                     <p>Search and add candidates based on preferences.</p>
-                    <button name="admin"class="search-button" onclick="location.href='/adminSearch'">Admin Search</button>
-                    <button name="candidate"class="search-button" onclick="location.href='/search'">Candidate Search</button>
+                    <button name="admin" class="search-button" onclick="location.href='/adminSearch'">Admin Search</button>
+                    <button name="candidate" class="search-button" onclick="location.href='/search'">Candidate Search</button>
                 </div>
 
-                <!-- Job Postings Section -->
+                <!-- Preferences Section -->
                 <div class="prototype-section">
                     <h2>Preferences</h2>
                     <p>Create and manage Preferences</p>
