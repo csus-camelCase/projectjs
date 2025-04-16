@@ -559,6 +559,10 @@ button {
     border: var(--black-border);
     border-radius: 10px;
     padding: 20px;
+    width: 70px;
+    height: 70px;
+    text-align: center;
+    font-size: 1.2em  
 }
 
 .number-fields {
