@@ -957,6 +957,32 @@ app.post('/api/request-reschedule', async (req, res) => {
     }
 });
 
+// Checking for previous password 
+app.post("/password/change", async (req, res) => {
+    const { userId, password } = req.body;
+
+    try {
+        // Fetch current password hash from database
+        const user = await db.getUserById(userId); // Assume getUserById fetches user data
+        const currentPasswordHash = user.passwordHash;
+
+        // Compare new password with current password
+        const isSamePassword = await bcrypt.compare(password, currentPasswordHash);
+        if (isSamePassword) {
+            return res.status(400).json({ success: false, error: "previous_password_used" });
+        }
+
+        // Hash new password and update it in the database
+        const newPasswordHash = await bcrypt.hash(password, 10);
+        await db.updatePassword(userId, newPasswordHash); // Assume updatePassword updates user password
+
+        return res.status(200).json({ success: true });
+    } catch (error) {
+        console.error("Error changing password:", error);
+        return res.status(500).json({ success: false, error: "server_error" });
+    }
+});
+
 // Start the Server
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);

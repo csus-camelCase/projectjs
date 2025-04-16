@@ -4,6 +4,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 
 driver = webdriver.Chrome()
@@ -34,6 +35,7 @@ try:
         else:
             print("Empty Input Test: Fail")
 
+    # Test 2: non-matching passwords
     def test_non_matching_passwords():
         driver.find_element(By.NAME, "first_name").send_keys("Bob")
         driver.find_element(By.NAME, "last_name").send_keys("Smith")
@@ -43,11 +45,13 @@ try:
         driver.find_element(By.NAME, "confirm_password").send_keys("StrongPassword12!")
         driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
         # Check for error messages
-        password_error = driver.find_element(By.ID, "matchError").text
-        if "Passwords do not match!" in password_error:
-            print("Non-Matching Passwords Test: Pass")
-        else:
-            print("Non-Matching Passwords Test: Fail")
+    try:
+        match_error_element = WebDriverWait(driver, 10).until(
+            EC.text_to_be_present_in_element((By.ID, "matchError"), "Passwords do not match!")
+        )
+        print("Test Passed: Match error displayed correctly:", match_error_element)
+    except:
+        print("Test Failed: Match error not displayed or incorrect")
     # Executing tests
     test_empty_input()
     time.sleep(2)

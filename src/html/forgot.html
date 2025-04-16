@@ -30,40 +30,22 @@
             </form>
         </div>
         <script> 
-            let step = 1;
-            let email = "";
-
             async function handleSubmit(event) {
-                event.preventDefault();
+                event.preventDefault(); // Prevent form submission
 
-                if (step === 1) {
-                    email = document.getElementById("email").value;
+                const email = document.getElementById("email").value;
+                try {
                     const response = await sendEmail(email);
                     if (response.success) {
-                        changeText();
-                        step++;
+                        // Redirect to the 6-digit code page
+                        window.location.href = "forgotValidation.html";
                     } else {
                         alert("Failed to send email. Please try again.");
                     }
-                } else {
-                    const code = document.querySelector(".input-box input").value;
-                    const response = await verifyCode(email, code);
-                    if (response.success) {
-                        window.location.href = "forgot2.html";
-                    } else {
-                        alert("Invalid code. Please try again.");
-                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("An error occurred. Please try again.");
                 }
-                return false;
-            }
-
-            function changeText() {
-                document.getElementById("forgot-text").innerText = "Enter the 6-digit code you received from your email.";
-                document.querySelector(".input-box input").placeholder = "Code";
-                document.querySelector(".input-box input").value = "";
-                document.querySelector(".input-box input").type = "number";
-                document.querySelector(".input-box input").maxLength = 6;
-                document.getElementById("submit-btn").innerText = "Reset Password";
             }
 
             async function sendEmail(email) {
@@ -85,12 +67,7 @@
                     console.error('Error:', error);
                     return { success: false };
                 }
-            }
-
-            async function verifyCode(email, code) {
-                // todo verify code function
-                return { success: true };
-            }
+            } 
 
             function generateCode() {
                 // Generate a 6-digit code
