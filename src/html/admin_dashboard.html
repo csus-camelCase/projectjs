@@ -9,15 +9,16 @@
 <body>
     <div class="dashboard-wrapper">
         <!-- Header Section -->
-        <header>
-            <img src="images/companylogo.png" alt="System1Search Logo">
-            <nav>
-                <ul>
-                    <li><a href="/manage-users">Manage Users</a></li>
-                    <li><a href="/job-postings">Job Postings</a></li>
-                    <li><a href="/index.html">Logout</a></li>
-                </ul>
-            </nav>
+        <header class="admin-header">
+            <img src="images/companylogo.png" alt="System1Search Logo" class="center-logo">
+            <div class="dropdown">
+                <button>Menu</button>
+                <div class="dropdown-content">
+                    <a href="https://calendar.google.com/">Google Calendar</a>
+                    <a href="/settings.html">Settings</a>
+                    <a href="/index.html">Logout</a>
+                </div>
+            </div>
         </header>
 
         <!-- Main Content Section -->
@@ -33,27 +34,19 @@
                     <button class="dashboard-button" onclick="location.href='/schedule-event.html'">Create Event</button>
                 </div>
 
-                <!-- Manage Users Section -->
-                <div class="prototype-section">
-                    <h2>Manage Users</h2>
-                    <p>View and manage Candidate accounts.</p>
-                    <button class="dashboard-button" onclick="location.href='/manage-users'">Manage Users</button>
-                </div>
-
                 <!-- Candidate Search Section -->
                 <div class="prototype-section">
                     <h2>Candidate Search</h2>
                     <p>Search and add candidates based on preferences.</p>
-                    <button class="search-button" onclick="location.href='/adminSearch'">Admin Search</button>
-                    <button class="search-button" onclick="location.href='/search'">Candidate Search</button>
+                    <button name="admin" class="search-button" onclick="location.href='/adminSearch'">Admin Search</button>
+                    <button name="candidate" class="search-button" onclick="location.href='/search'">Candidate Search</button>
                 </div>
 
-                <!-- Job Postings Section -->
+                <!-- Preferences Section -->
                 <div class="prototype-section">
-                    <h2>Job Postings</h2>
-                    <p>Create and manage job postings.</p>
-                    <button class="search-button" onclick="location.href='/create-job-postings'">Create Jobs</button>
-                    <button class="search-button" onclick="location.href='/job-postings'">Manage Jobs</button>
+                    <h2>Preferences</h2>
+                    <p>Create and manage Preferences</p>
+                    <button class="search-button" onclick="location.href='/manage-preferences'">Manage Preferences</button>
                 </div>
 
                 <!-- Email Notifications Section -->

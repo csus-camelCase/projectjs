@@ -1,5 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
+:root {
+    --red-gradient: linear-gradient(0deg, rgb(141, 11, 11) 0%, rgba(184,21,21,0.802784222737819) 50%, rgba(255, 34, 27, 0.75) 100%);
+    --default-dark-red: rgb(69,0,0);
+    --black-border: 2px solid rgb(0, 0, 0); 
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -14,11 +20,11 @@ body {
     align-items: center;
     min-height: 100vh;
     background-size: 100%;
-    background: rgb(69,0,0);
+    background: var(--default-dark-red);
     background: linear-gradient(0deg, rgb(151, 151, 151) 0%, rgb(255, 255, 255) 50%, rgb(255, 255, 255) 100%);
 }
 
-img{
+img {
     text-align: center;
     max-width: 100%;
     height: auto;
@@ -28,9 +34,10 @@ img{
 .wrapper{
     width: 420px;
     background: white;
-    border: 2px solid black;
+    border: var(--black-border);
     border-radius:  10px;
     padding: 30px 40px;
+    margin: 50px;
 }
 
 .wrapper .input-box {
@@ -46,7 +53,7 @@ img{
     background: transparent;
     border: none;
     outline: none;
-    border: 2px solid black;
+    border: var(--black-border);
     border-radius: 40px;
     font-size: 16px;
     color: black;
@@ -70,21 +77,23 @@ img{
 .wrapper .btn {
     width: 100%;
     height: 45px;
-    background: rgb(69,0,0);
-    background: linear-gradient(0deg, rgb(141, 11, 11) 0%, rgba(184,21,21,0.802784222737819) 50%, rgba(255, 34, 27, 0.75) 100%);
+    background: var(--default-dark-red);
+    background: var(--red-gradient);
     border: none;
     outline: none;
-    border: 2px solid black,;
+    border: var(--black-border);
     border-radius: 40px;
     cursor: pointer;
     font-size: 16px;
     color: white;
     font-weight: 600;
+    text-decoration: none;
 }
 
 
-.btn:hover {
-    background-color: #d9363e; /* Darker red on hover */
+.btn:hover {                                  /*new standard for button hovering, replace everywhere applicable (any button hover rules that look like this)*/
+    background: #ffcccb;
+    color: black;
 }
 /* Resume Label Styling */
 .wrapper .input-box label {
@@ -100,7 +109,7 @@ img{
     display: block;
     width: 100%;
     padding: 10px;
-    border: 2px solid black;
+    border: var(--black-border);
     border-radius: 30px;
     font-size: 16px;
     outline: none;
@@ -116,7 +125,7 @@ img{
     width: 100%;
     height: 50px;
     background: transparent;
-    border: 2px solid black;
+    border: var(--black-border);
     border-radius: 40px;
     font-size: 16px;
     color: black;
@@ -190,13 +199,19 @@ img{
 
 /* Calendar Section */
 .prototype-section {
+    display: block;
     margin-top: 30px;
     padding: 20px;
     background: rgba(255, 255, 255, 0.8);
+    border: var(--black-border);
     border-radius: 10px;
     color: #333;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: center;
+}
+
+.prototype-section .search-button {
+    margin-top: 5px
 }
 
 .prototype-section h2 {
@@ -211,14 +226,20 @@ img{
     margin-bottom: 20px;
 }
 
-.prototype-section button {
-    padding: 10px 20px;
+.prototype-section button {                                         /*copies wrapper button, replace later*/
+    width: 100%;
+    height: 45px;
+    background: var(--default-dark-red);
+    background: var(--red-gradient);
     border: none;
-    background: #8B0000;
-    color: white;
-    border-radius: 5px;
+    outline: none;
+    border: var(--black-border);
+    border-radius: 40px;
     cursor: pointer;
-    font-weight: bold;
+    font-size: 16px;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
     
 }
 
@@ -240,9 +261,9 @@ footer {
     padding: 30px;
     text-align: center;
     background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    /*border: 1px solid rgba(0, 0, 0, 0.1);*/
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);*/
 }
 
 .wide-card.job-search h2 {
@@ -257,21 +278,25 @@ footer {
     margin-bottom: 20px;
 }
 
-.wide-card.job-search button {
-    background: #8b0000;
-    color: white;
-    padding: 10px 20px;
+.wide-card.job-search button {                                                   /*copies wrapper button, replace later*/
+    width: 100%;
+    height: 45px;
+    background: var(--default-dark-red);
+    background: var(--red-gradient);
     border: none;
-    border-radius: 5px;
-    font-size: 1rem;
+    outline: none;
+    border: var(--black-border);
+    border-radius: 40px;
     cursor: pointer;
-    transition: all 0.3s;
+    font-size: 16px;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
 }
 
-.wide-card.job-search button:hover {
-    background: #b22222;
-    color: #fff;
-    transform: scale(1.05);
+.wide-card.job-search button:hover {                                            /*replace later*/
+    background: #ffcccb;
+    color: black;
 }
 
 
@@ -296,7 +321,8 @@ th, td {
 }
 
 th {
-    background-color: #8b0000; /* Dark red background for header */
+    background: var(--default-dark-red);
+    background: var(--red-gradient);
     color: white; /* White text for contrast */
 }
 
@@ -325,8 +351,9 @@ button {
 }
 
 /* Style the dropdown button */
-.dropdown button {
-    background-color: #8b0000;
+.dropdown button {                                       /*may need some unique changes that are different from other buttons but still align its look with everything else*/
+    background: var(--default-dark-red);
+    background: var(--red-gradient);
     color: white;
     padding: 14px 20px;
     font-size: 16px;
@@ -337,8 +364,9 @@ button {
 }
 
 /* Change color on hover */
-.dropdown button:hover {
-    background-color: #8b0000;
+.dropdown button:hover {                                                /*replace later*/
+    background: #ffcccb;
+    color: black;
 }
 
 /* Dropdown content (hidden by default) */
@@ -386,7 +414,7 @@ button {
 
 /* Job card styles */
 .job-card {
-    border: 2px solid #000;
+    border: var(--black-border);
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -445,17 +473,20 @@ button {
     min-width: 200px;
 }
 
-.reschedule-btn {
-    background-color: #8b0000;
-    color: white;
+.reschedule-btn {                                                                       /*copies wrapper btn rule, replace later*/
+    width: 100%;
+    height: 45px;
+    background: var(--default-dark-red);
+    background: var(--red-gradient);
     border: none;
-    padding: 8px 12px;
+    outline: none;
+    border: var(--black-border);
+    border-radius: 40px;
     cursor: pointer;
-    border-radius: 5px;
-    transition: 0.3s;
-    font-size: 14px;
-    white-space: nowrap; /* Prevents text from wrapping */
-    flex-shrink: 0; /* Prevents button from shrinking */
+    font-size: 16px;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
 }
 
 .reschedule-btn:hover {
@@ -463,9 +494,176 @@ button {
 }
 
 .error-message {
-    font-size: 0.7rem;   /* Smaller text size */
+    font-size: 0.6rem;   /* Smaller text size */
     color: red;
     margin-top: 2px;     /* Slight spacing below input field */
     margin-left: 30px;
     display: block;      /* Ensures proper alignment */
+}
+
+/* Layout for users page */
+.user-grid {
+    padding: 20px;
+    display: flex;
+    gap: 50px; 
+    overflow: scroll;
+    border: var(--black-border);
+    border-radius: 10px;
+}
+
+.user-card {
+    overflow-wrap: normal;
+    display: grid;
+    gap: 5px;
+    padding: 15px;
+    border: var(--black-border); 
+    border-radius: 40px;
+    min-width: 500px;
+    transition: transform 0.3s ease;
+}
+
+/* Layout for job listings */                               /* Group the flex boxes below into one CSS rule? */
+.job-listings {
+    display: flex; 
+    gap: 10px; 
+    overflow: scroll; 
+    border: var(--black-border); 
+    border-radius: 10px;
+}
+
+/* Job category list in email section */
+.job-cat-grid {
+    padding: 20px;
+    display: grid;
+    gap: 20px; 
+    overflow: scroll;
+    border: var(--black-border);
+    border-radius: 10px;
+    height: 350px;
+}
+
+/* Layout for admin dashboard sections */
+.admin-dash {
+    display: flex; 
+    justify-content: center;
+    flex-wrap: wrap;
+    text-align: center;
+    gap: 10px;
+}
+ 
+/* Input fields for 6-digit "forgot password" verification */
+.numField {
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+    margin: 0;
+    border: var(--black-border);
+    border-radius: 10px;
+    padding: 20px;
+    width: 70px;
+    height: 70px;
+    text-align: center;
+    font-size: 1.2em  
+}
+
+.number-fields {
+    display: flex; 
+    justify-content: center;
+    flex-wrap: wrap;
+    text-align: center;
+    margin: 1em;
+    gap: 10px;
+}
+
+/* BUTTON STYLING preferences */
+.btn {
+    background: var(--default-dark-red);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+/* Input box layout wrapper */
+.input-box {
+    margin-bottom: 20px;
+}
+
+/* Search input already styled via .input-box input */
+
+/* Scrollable Table Body for Preferences */
+#preferencesTable tbody {
+    display: block;
+    max-height: 300px; /* around 6–7 preferences */
+    overflow-y: auto;
+}
+
+#preferencesTable thead,
+#preferencesTable tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+/* Modal Overlay */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+/* Modal Box */
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: var(--black-border);
+    border-radius: 40px;
+    margin-bottom: 20px;
+}
+
+/* For spacing below table buttons */
+.button-row {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+.admin-header {
+    position: relative;
+    width: 100%;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.admin-header .center-logo {
+    max-width: 2000px;
+    margin: 0 auto;
+    display: block;
+}
+
+.admin-header .dropdown {
+    position: absolute;        
+    right: -500px;
+    top: -300px;
+    display: block;
+    width: 10%;
 }

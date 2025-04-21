@@ -10,7 +10,7 @@
     </head>
 
     <body>
-        <div class="wrapper">
+        <div class="wrapper" style="width:800px; ">
             <form action="/signup" method="POST" class="container">
                 <img src="images/companylogo.png" alt="logo">
 
@@ -33,10 +33,12 @@
                 <div class="input-box">
                     <input type="password" name="password" id="password" placeholder="Password" required>
                     <i class='bx bxs-lock-alt'></i>
+                    <span class="error-message" id="passwordError"></span>
                 </div>
                 <div class="input-box">
                     <input type="password" name="confirm_password" placeholder="Confirm Password" required>
                     <i class='bx bxs-lock-alt'></i>
+                    <span class="error-message" id="matchError"></span>
                 </div>
 
                 <button type="submit" class="btn">Sign Up</button>
@@ -46,5 +48,21 @@
                 </div>
             </form>
         </div>
+        <script>
+            window.onload = function () {
+            // Get query parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const passwordError = urlParams.get('passwordError');
+            const matchError = urlParams.get('matchError');
+
+            // Show error messages if available
+            if (passwordError) {
+                document.getElementById('passwordError').textContent = passwordError;
+            }
+            if (matchError) {
+                document.getElementById('matchError').textContent = matchError;
+            }
+        };
+        </script>        
     </body>
 </html>

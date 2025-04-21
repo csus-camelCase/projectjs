@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+    <!--ejs-->
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -17,7 +18,6 @@
         
             <div class="input-box">
                 <input type="text" name="email" id="email" placeholder="Email" value="<%= email %>" required>
-
                 <i class='bx bxs-user'></i> 
                 <span id="emailError" class="error-message" style="display: none; color: red;">Please fill out this field</span>
                 <% if (typeof invalidCredentials !== 'undefined' && invalidCredentials) { %>
@@ -40,7 +40,7 @@
         
             <div class="forgot">
                 <label><input type="checkbox" id="rememberMe" name="rememberMe"> Remember me </label>
-                <a href="forgot.html">Forgot Password?</a>
+                <a name="forgot" href="forgot.html">Forgot Password?</a>
             </div>
         
             <button type="submit" class="btn">Login</button>
@@ -79,7 +79,6 @@
                 event.preventDefault(); // Prevent form submission if fields are empty
             }
         });
-    </script>
-    
+    </script>    
 </body>
 </html>

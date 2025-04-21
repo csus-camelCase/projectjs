@@ -12,7 +12,8 @@
         
         <!-- Search input box -->
         <div class="input-box">
-            <input type="text" id="searchInput" placeholder="Search by admin name or preferences" onkeyup="filterCandidates()">
+            <input type="text" id="searchInput" placeholder="Search by admin name or preferences" 
+            onkeyup="searchCandidates()">
         </div>
         
         <!-- Form to handle selections -->
@@ -22,40 +23,42 @@
                 <thead>
                     <tr>
                         <th>Select</th>
-                        <th>Full Name</th>
-                        <th>Interested in</th>
-                        <th>Preferences</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>First Login</th>
+                        <th>Last Login</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <% profiles.forEach(profile => { %>
+                    <% users.forEach(user=> { %>
+                       
                         <tr>
                             <td>
-                                <input type="checkbox" name="selectedCandidates" value="<%= profile._id %>">
-                            </td>
-                            <td><%= profile.full_name %></td>
-                            <td>
-                                <% if (profile.preferences.length > 0) { %>
-                                    <%= profile.preferences[0].title %>
-                                <% } else { %>
-                                    N/A
-                                <% } %>
+                                <input type="checkbox" name="selectedCandidates" value="<%= user._id %>">
                             </td>
                             <td>
-                                <% if (profile.preferences.length > 0) { %>
-                                    <%= profile.preferences.map(pref => `${pref.location} (${pref.job_type})`).join(', ') %>
-                                <% } else { %>
-                                    N/A
-                                <% } %>
+                                <%= user.first_name %>
                             </td>
+                            <td>
+                                <%= user.last_name %>
+                            </td>
+                            <td>
+                                <%= user.formattedCreatedAt %>
+                            </td>
+                            <td>
+                                <%= user.formattedLastLogin %>
+                            </td>
+                            <% }) %>  
                         </tr>
-                    <% }) %>
                 </tbody>
             </table>
             
             <!-- Button to navigate to send-emails.html -->
             <div style="margin-top: 20px;">
                 <button type="button" id="submitButton" class="btn">Send Emails to Candidates</button>
+            </div>
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="btn" onclick="promptPromoteAdmin()">Promote User to Admin</button>
             </div>
         </form>
 
@@ -67,29 +70,54 @@
     </div>
 
     <script>
+         
         // Function to filter candidates based on search input
-        function filterCandidates() {
-            const searchInput = document.getElementById('searchInput').value.toLowerCase();
-            const table = document.getElementById('candidatesTable');
-            const rows = table.getElementsByTagName('tr');
+        let debounceTimer;
 
-            for (let i = 1; i < rows.length; i++) {
-                let row = rows[i];
-                let fullName = row.cells[1].textContent.toLowerCase();
-                let interestedIn = row.cells[2].textContent.toLowerCase();
-                let preferences = row.cells[3].textContent.toLowerCase();
+        document.getElementById('searchInput').addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(searchCandidates, 300); // Wait 300ms before searching
+        });
 
-                let matchesSearch = fullName.includes(searchInput) || interestedIn.includes(searchInput) || preferences.includes(searchInput);
+        async function searchCandidates() {
+            const query = document.getElementById('searchInput').value.trim();
 
-                row.style.display = matchesSearch ? "" : "none";
+            
+
+            try {
+                const response = await fetch(`/search-admins?query=${encodeURIComponent(query)}`);
+                const candidates = await response.json();
+                updateCandidatesTable(candidates);
+            } catch (error) {
+                console.error('Error fetching candidates:', error);
             }
         }
+
+        function updateCandidatesTable(candidates) {
+            const tbody = document.querySelector("#candidatesTable tbody");
+            tbody.innerHTML = ""; // Clear existing rows
+
+            candidates.forEach(user => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+            <td><input type="checkbox" name="selectedCandidates" value="${user._id}"></td>
+            <td>${user.first_name}</td>
+            <td>${user.last_name}</td>
+            <td>${user.formattedCreatedAt}</td>
+            <td>${user.formattedLastLogin}</td>
+        `;
+
+                tbody.appendChild(row);
+            });
+        }
+
 
         // Handle form submission
         document.getElementById('submitButton').addEventListener('click', async () => {
             const checkboxes = document.querySelectorAll('input[name="selectedCandidates"]:checked');
             const selectedCandidates = Array.from(checkboxes).map(cb => cb.value);
-    
+
             // Send selected candidates to the server
             try {
                 const response = await fetch('/process-selections', {
@@ -97,7 +125,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ selectedCandidates })
                 });
-                
+
                 if (response.status === 400) {
                     const result = await response.json();
                     alert(result.message); // Show popup if no candidates are selected
@@ -109,6 +137,52 @@
                 alert('No candidates selected. Please select at least one candidate.');
             }
         });
+        async function promptPromoteAdmin() {
+        const fullName = prompt("Enter the full name of the user to promote (e.g. John Doe):");
+
+        if (!fullName || !fullName.includes(" ")) {
+            alert("Please enter a valid full name (first and last).");
+            return;
+        }
+
+        const [firstName, ...rest] = fullName.trim().split(" ");
+        const lastName = rest.join(" ");
+
+        try {
+            const response = await fetch(`/api/users`);
+            const users = await response.json();
+
+            const matchedUser = users.find(user =>
+                user.first_name?.toLowerCase() === firstName.toLowerCase() &&
+                user.last_name?.toLowerCase() === lastName.toLowerCase()
+            );
+
+            if (!matchedUser) {
+                alert("User not found. Check spelling and try again.");
+                return;
+            }
+
+            const updateResponse = await fetch(`/api/users/${matchedUser._id}/role`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ role: 'admin', isAdmin: true })
+            });
+
+            if (updateResponse.ok) {
+                alert(`${fullName} is now an admin!`);
+                location.reload();
+            } else {
+                const error = await updateResponse.json();
+                alert("Failed to promote user: " + (error.message || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error("Error promoting user:", error);
+            alert("Something went wrong.");
+        }
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+    searchCandidates();
+});
     </script>
 </body>
 </html>

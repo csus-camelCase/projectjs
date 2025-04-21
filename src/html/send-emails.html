@@ -5,17 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Send Email</title>
     <link rel="stylesheet" href="style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        .results-container {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .search-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+        }
+        .input-box {
+            position: relative;
+        }
+    </style>
 </head>
-<body style="display: flex; gap: 40px;">
-    <div class="wrapper" style="height: 550px;">
+<body style="display: flex;">
+    <div class="wrapper" style="width: 800px;">
         <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Send Email to Candidates</h2>
         <form id="emailForm" action="/api/send-email" method="POST">
-            <!-- Recipient Email Input -->
-            <div class="input-box">
-                <input type="email" id="recipient" name="recipient" placeholder="Recipient Email" required>
-                <i class="bx bx-envelope"></i>
-            </div>
-            
+
             <!-- Subject Input -->
             <div class="input-box">
                 <input type="text" name="subject" placeholder="Subject" required>
@@ -26,18 +54,13 @@
             <div class="message-container" style="display: flex; align-items: flex-start; gap: 10px;">
                 <textarea name="message" placeholder="Type your message here..." rows="5" style="width: 100%; border: 2px solid black; border-radius: 10px; padding: 10px;" required></textarea>
                 <!-- Send Button -->
-                <button type="submit" class="send btn">Send Email</button>
+                <button type="submit" class="send btn" title="Are you sure">Send Email</button>
             </div>
         </form>
 
         <!-- Success Message -->
         <div id="successMessage" style="display: none; text-align: center; margin-top: 20px; color: green; font-weight: bold;">
             Email(s) sent!
-        </div>
-        
-        <!-- Navigate to Search Button -->
-        <div style="text-align: center; margin-top: 20px;">
-            <a href="/search" class="btn" style="display: inline-block; padding: 10px 20px; color: white; text-decoration: none;">Search for Candidates</a>
         </div>
 
         <!-- Back to Dashboard Link -->
@@ -46,55 +69,161 @@
         </div>
     </div>
 
-    <!-- Job Categories Search Box -->
-    <div class="wrapper" style="height: 550px;">
-        <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Job Categories</h2>
-
+    <!-- Preference Postings Search Box -->
+    <div class="wrapper" style="width: 800px;">
+        <h2 style="text-align: center; margin-bottom: 20px;">Search Preferences</h2>
         
-        <!-- Search Bar -->
         <div class="input-box">
-            <input type="text" id="searchInput" placeholder="Search by job category name">
+            <input type="text" id="preferenceSearch" placeholder="Search job preferences...">
+            <i class='bx bx-search search-icon'></i>
         </div>
-
-        <div class="job-cat-grid">
-            <!-- Table -->
-            <form id="jobCatForm">
-                <table id="jobCatTable">
-                    <!-- Top Row -->
-                    <thead>
-                        <tr>
-                            <th>Select</th>
-                            <th>Full Name</th>
-                        </tr>
-                    </thead>
-
-                    <!-- Rows -->
-                    <tbody>
-                        <tr>
-                            <td>
-                                <input type="checkbox" name="selectedCandidates" value="<%= profile._id %>">
-                            </td>
-                            <td>
-                                Example Job Category Name 
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </form>
+    
+        <div class="results-container" style="margin-top: 20px; max-height: 400px; overflow-y: auto;">
+            <table id="preferenceResults" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Preferences</th>
+                        <th>Description</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody id="preferenceResultsBody">
+                    <!-- Results will appear here -->
+                </tbody>
+            </table>
+            <div id="noPreferenceResults" style="text-align: center; padding: 20px; display: none;">
+                No matching preferences found. Try a different search term.
+            </div>
         </div>
     </div>
-
+    
     <script>
+        // DOM elements
+        const preferenceSearch = document.getElementById('preferenceSearch');
+        const resultsBody = document.getElementById('preferenceResultsBody');
+        const noResults = document.getElementById('noPreferenceResults');
+        let searchDebounce;
+
+        // Initialize search functionality
+        preferenceSearch.addEventListener('input', function() {
+            clearTimeout(searchDebounce);
+            const term = this.value.trim();
+            
+            if (term.length < 2) {
+                resultsBody.innerHTML = '';
+                noResults.style.display = 'none';
+                return;
+            }
+            
+            searchDebounce = setTimeout(() => {
+                searchPreferences(term);
+            }, 300);
+        });
+        
+
+
+        // Search preferences function
+        async function searchPreferences(term) {
+            console.log('Searching for:', term);
+            try {
+                const response = await fetch(`/api/search-preferences?term=${encodeURIComponent(term)}`);
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API error:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const results = await response.json();
+                console.log('API results:', results);
+                
+                resultsBody.innerHTML = '';
+                
+                if (!results || results.length === 0) {
+                    console.log('No results found');
+                    noResults.style.display = 'block';
+                    return;
+                }
+                
+                noResults.style.display = 'none';
+                console.log(`Displaying ${results.length} results`);
+                
+                results.forEach(profile => {
+                    const row = document.createElement('tr');
+                    
+                    // Format preferences for display
+                    let prefsDisplay = 'No preferences';
+                    if (Array.isArray(profile.preferences)) {
+                        prefsDisplay = profile.preferences
+                            .map(pref => {
+                                if (typeof pref === 'string') return pref;
+                                try {
+                                    // Try to parse if it's a JSON string
+                                    const parsed = typeof pref === 'string' ? 
+                                        JSON.parse(pref) : 
+                                        pref;
+                                    if (typeof parsed === 'object') {
+                                        return Object.entries(parsed)
+                                            .map(([key, value]) => `${key}: ${value}`)
+                                            .join(', ');
+                                    }
+                                    return String(pref);
+                                } catch {
+                                    return String(pref);
+                                }
+                            })
+                            .join(', ');
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${profile.full_name || 'Anonymous'}</td>
+                        <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;">
+                            ${prefsDisplay}
+                        </td>
+                        <td>
+                            ${profile.email ? 
+                                `<a href="mailto:${profile.email}">${profile.email}</a>` : 
+                                'No email'}
+                        </td>
+                    `;
+                    resultsBody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Search failed:', error);
+                resultsBody.innerHTML = `
+                    <tr>
+                        <td colspan="3" style="color: red;">
+                            Error loading results. Please try again.
+                        </td>
+                    </tr>`;
+                noResults.style.display = 'none';
+            }
+        }
+
         // Prepopulate the email field from the query string
         const params = new URLSearchParams(window.location.search);
         const emails = params.get('emails');
         if (emails) {
             document.getElementById('recipient').value = emails;
         }
-
+    
         // Handle form submission
         document.getElementById('emailForm').addEventListener('submit', function(event) {
-            document.getElementById('successMessage').style.display = 'block'; // Show success message
+            event.preventDefault();
+            document.getElementById('successMessage').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'none';
+            }, 3000);
+            
+            // Submit the form asynchronously
+            fetch('/api/send-email', {
+                method: 'POST',
+                body: new FormData(this)
+            }).catch(error => {
+                console.error('Error sending email:', error);
+            });
         });
     </script>
 </body>

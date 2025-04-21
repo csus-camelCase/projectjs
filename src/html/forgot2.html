@@ -4,13 +4,13 @@
         <meta charset="UTF -8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
-        <title> Login Form system1seachsac</title>
+        <title> Login Form system1searchsac</title>
         <link rel="stylesheet" href="style.css">
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     </head>
 
     <body>
-        <div class = "wrapper">
+        <div class = "wrapper" style="height: 500px; width: 700px">
             <form action="">
                 <a href="index.html">
                     <img src="images/companylogo.png" alt="logo">
@@ -26,8 +26,66 @@
                     <input type="text" placeholder="Confirm Password" required?>
                 </div>
                 <button type="submit" class="btn">Change Password</button>
-
+                <div class="sign-up">
+                    <p>Back to  <a href="/index.html">Login</a></p>
+                </div>
             </form>
         </div>
+        <script>
+            async function handlePasswordChange(event) {
+                event.preventDefault(); // Prevent form submission
+        
+                // Retrieve the input values
+                const password = document.querySelectorAll(".input-box input")[0].value;
+                const confirmPassword = document.querySelectorAll(".input-box input")[1].value;
+        
+                if (!password || !confirmPassword) {
+                    alert("Please fill out both fields.");
+                    return false;
+                }
+        
+                if (password !== confirmPassword) {
+                    alert("Passwords do not match. Please try again.");
+                    return false;
+                }
+        
+                try {
+                    const response = await changePassword(password);
+                    if (response.success) {
+                        alert("Your password has been changed successfully!");
+                        window.location.href = "/index.html"; // Redirect to login page
+                    } else if (response.error === "previous_password_used") {
+                        alert("You cannot reuse your previous password. Please try a different one.");
+                    } else {
+                        alert("Failed to change password. Please try again.");
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("An error occurred while changing the password. Please try again.");
+                }
+        
+                return false;
+            }
+        
+            async function changePassword(password) {
+                try {
+                    const response = await fetch("https://api.camelcase-preprod.com/password/change", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ password }), // Send the new password to the API
+                    });
+                    const data = await response.json();
+                    return { success: response.ok, ...data }; // Extract response and check for success
+                } catch (error) {
+                    console.error("Error:", error);
+                    return { success: false };
+                }
+            }
+        
+            document.querySelector("form").addEventListener("submit", handlePasswordChange);
+        </script>
+        
     </body>
 </html>

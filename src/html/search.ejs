@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<!-- ejs file -->
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +15,7 @@
         <!-- Search input box -->
         <div class="input-box">
             <input type="text" id="searchInput" placeholder="Search by candidate name or preferences"
-                onkeyup="filterCandidates()">
+                onkeyup="searchCandidates()">
         </div>
 
         <!-- Form to handle selections -->
@@ -27,34 +25,31 @@
                 <thead>
                     <tr>
                         <th>Select</th>
-                        <th>Full Name</th>
-                        <th>Interested in</th>
-                        <th>Preferences</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>First Login</th>
+                        <th>Last Login</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <% profiles.forEach(profile=> { %>
+                   
+                    <% users.forEach(user=> { %>
+                        
                         <tr>
                             <td>
-                                <input type="checkbox" name="selectedCandidates" value="<%= profile._id %>">
+                                <input type="checkbox" name="selectedCandidates" value="<%= user._id %>">
                             </td>
                             <td>
-                                <%= profile.full_name %>
+                                <%= user.first_name %>
                             </td>
                             <td>
-                                <% if (profile.preferences.length> 0) { %>
-                                    <%= profile.preferences[0].title %>
-                                        <% } else { %>
-                                            N/A
-                                            <% } %>
+                                <%= user.last_name %>
                             </td>
                             <td>
-                                <% if (profile.preferences.length> 0) { %>
-                                    <%= profile.preferences.map(pref=> `${pref.location} (${pref.job_type})`).join(', ')
-                                        %>
-                                        <% } else { %>
-                                            N/A
-                                            <% } %>
+                                <%= user.formattedCreatedAt %>
+                            </td>
+                            <td>
+                                <%= user.formattedLastLogin %>
                             </td>
                         </tr>
                         <% }) %>
@@ -64,6 +59,12 @@
             <!-- Button to navigate to send-emails.html -->
             <div style="margin-top: 20px;">
                 <button type="button" id="submitButton" class="btn">Send Emails to Candidates</button>
+            </div>
+            <!-- Delete Selected Accounts Button -->
+            <div style="margin-top: 20px;">
+                <button type="button" id="deleteButton" class="btn">
+                    Delete Selected Accounts
+                </button>
             </div>
         </form>
 
@@ -75,6 +76,7 @@
     </div>
 
     <script>
+         
         // Function to filter candidates based on search input
         let debounceTimer;
 
@@ -104,14 +106,15 @@
             const tbody = document.querySelector("#candidatesTable tbody");
             tbody.innerHTML = ""; // Clear existing rows
 
-            candidates.forEach(profile => {
+            candidates.forEach(user => {
                 const row = document.createElement("tr");
 
                 row.innerHTML = `
-            <td><input type="checkbox" name="selectedCandidates" value="${profile._id}"></td>
-            <td>${profile.full_name}</td>
-            <td>${profile.preferences.length > 0 ? profile.preferences[0].title : 'N/A'}</td>
-            <td>${profile.preferences.length > 0 ? profile.preferences.map(pref => `${pref.location} (${pref.job_type})`).join(', ') : 'N/A'}</td>
+            <td><input type="checkbox" name="selectedCandidates" value="${user._id}"></td>
+            <td>${user.first_name}</td>
+            <td>${user.last_name}</td>
+            <td>${user.formattedCreatedAt}</td>
+            <td>${user.formattedLastLogin}</td>
         `;
 
                 tbody.appendChild(row);
@@ -141,6 +144,39 @@
             } catch (error) {
                 console.error('Error submitting candidates:', error);
                 alert('No candidates selected. Please select at least one candidate.');
+            }
+        });
+
+        // Handle deletion
+        document.getElementById('deleteButton').addEventListener('click', async () => {
+            const checkboxes = document.querySelectorAll('input[name="selectedCandidates"]:checked');
+            const selectedCandidates = Array.from(checkboxes).map(cb => cb.value);
+
+            if (selectedCandidates.length === 0) {
+                alert("Please select at least one candidate to delete.");
+                return;
+            }
+
+            const confirmed = confirm("Are you sure you want to delete the selected account(s)? This action cannot be undone.");
+
+            if (!confirmed) return;
+
+            try {
+                const response = await fetch('/delete-candidates', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ selectedCandidates })
+                });
+
+                if (response.ok) {
+                    alert("Selected accounts deleted successfully.");
+                    location.reload();
+                } else {
+                    alert("Failed to delete accounts.");
+                }
+            } catch (error) {
+                console.error('Error deleting candidates:', error);
+                alert("An error occurred while trying to delete the selected accounts.");
             }
         });
     </script>

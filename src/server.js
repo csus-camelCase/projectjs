@@ -10,7 +10,9 @@ const ejs = require('ejs');
 const multer = require('multer');
 const AWS = require('aws-sdk');
 const { title } = require('process');
+const moment = require('moment');
 dotenv.config();
+
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -115,6 +117,94 @@ app.set('views', path.join(__dirname, 'html'));
 //
 //
 
+//preference search route
+app.get('/api/search-preferences', async (req, res) => {
+    const searchTerm = req.query.term;
+    console.log('\n--- NEW SEARCH REQUEST ---');
+    console.log(`Search term: "${searchTerm}"`);
+
+    if (!searchTerm || searchTerm.length < 2) {
+        console.log('Search term too short (minimum 2 characters required)');
+        return res.json([]);
+    }
+
+    try {
+        console.log('\n[1/3] Querying database for profiles with preferences...');
+        const profiles = await Profile.aggregate([
+            {
+                $match: {
+                    preferences: { 
+                        $exists: true,
+                        $not: { $size: 0 } 
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'user_id',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            },
+            {
+                $unwind: '$user'
+            },
+            {
+                $project: {
+                    _id: 1,
+                    full_name: 1,
+                    preferences: 1,
+                    email: '$user.email',
+                    status: 1
+                }
+            }
+        ]);
+
+        console.log(`[2/3] Found ${profiles.length} profiles with preferences`);
+        
+        if (profiles.length > 0) {
+            console.log('\nSample profile preferences:');
+            console.log({
+                name: profiles[0].full_name,
+                email: profiles[0].email,
+                preferences: profiles[0].preferences,
+                preference_types: profiles[0].preferences.map(p => typeof p)
+            });
+        }
+
+        console.log('\n[3/3] Filtering results...');
+        const filtered = profiles.filter(profile => {
+            if (!Array.isArray(profile.preferences)) {
+                console.log(`Profile ${profile._id} has non-array preferences:`, profile.preferences);
+                return false;
+            }
+            
+            return profile.preferences.some(pref => {
+                const prefString = typeof pref === 'object' ? 
+                    JSON.stringify(pref) : 
+                    String(pref);
+                const match = prefString.toLowerCase().includes(searchTerm.toLowerCase());
+                if (match) {
+                    console.log(`Match found in profile ${profile._id}:`, {
+                        preference: pref,
+                        as_string: prefString
+                    });
+                }
+                return match;
+            });
+        });
+
+        console.log(`\nFound ${filtered.length} matching profiles`);
+        console.log('--- END OF SEARCH ---\n');
+        res.json(filtered.slice(0, 50));
+    } catch (error) {
+        console.error('\n!!! SEARCH ERROR !!!');
+        console.error(error);
+        res.status(500).json({ error: 'Failed to search preferences' });
+    }
+});
+
 // Send emails to all recipients listed in query string
 app.post('/api/send-email', async (req, res) => {
     const { recipient, subject, message } = req.body;
@@ -181,9 +271,15 @@ app.post('/process-selections', async (req, res) => {
 
 app.get('/search', async (req, res) => {
     try {
-        const profiles = await Profile.find({}, 'full_name preferences'); // Fetch full_name and preferences
-        const filteredProfiles = profiles.filter(profile => !profile.isAdmin); // Exclude admins
-        res.render('search', { profiles: filteredProfiles }); // Render the 'search.ejs' view and pass profiles
+        const profiles = await Profile.find({}, 'user_id');
+        const userIds = profiles.map(profile => profile.user_id);
+        const users = await User.find({ _id: { $in: userIds } }, 'first_name last_name created_at last_login');
+        const filteredUsers = users.filter(user => !user.isAdmin); // Exclude admins
+        users.forEach(user => {
+            user.formattedCreatedAt = moment(user.created_at).format('MMMM YYYY');
+            user.formattedLastLogin = moment(user.last_login).format('MMMM YYYY');
+          });
+        res.render('search', { users: filteredUsers }); // Render the 'search.ejs' view and pass profiles
     } catch (error) { 
         console.error('Error fetching profiles:', error);
         res.status(500).send('Error fetching candidates');
@@ -198,31 +294,76 @@ app.get('/search-candidates', async (req, res) => {
     }
 
     try {
-        const candidates = await Candidate.find({
+        const profiles = await Profile.find({}, 'user_id');
+        const userIds = profiles.map(profile => profile.user_id);
+        const users = await User.find({ _id: { $in: userIds },
             $or: [
-                { full_name: { $regex: query, $options: 'i' } },  // Case-insensitive name search
-                { "preferences.title": { $regex: query, $options: 'i' } }, // Job title search
-                { "preferences.location": { $regex: query, $options: 'i' } } // Location search
+                { first_name: { $regex: query, $options: 'i' } },  // Case-insensitive name search
+                { last_name: { $regex: query, $options: 'i' } }
             ]
         }).lean();
+        const filteredUsers = users.filter(user => !user.isAdmin); // Exclude admins
+        users.forEach(user => {
+            user.formattedCreatedAt = moment(user.created_at).format('MMMM YYYY');
+            user.formattedLastLogin = moment(user.last_login).format('MMMM YYYY');
+          });
 
-        res.json(candidates);
+        res.json(filteredUsers);
     } catch (error) {
         console.error('Error searching candidates:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+app.get('/search-admins', async (req, res) => {
+    try {
+        const searchTerm = req.query.query;
+        let results;
+        if (!searchTerm || searchTerm.trim() === "") {
+          // No query provided – fetch all admin users
+          results = await User.find({ isAdmin: true });  // returns all admins
+        } else {
+          // Query provided – fetch admin users matching the search term
+          const term = searchTerm.trim();
+          const regex = new RegExp(term, "i");  // case-insensitive regex for matching
+          results = await User.find({ 
+            isAdmin: true,
+            $or: [ 
+              { username: regex }, 
+              { email: regex }, 
+              { name: regex } 
+            ] 
+          });
+          // ^ The fields used in $or should be those that make sense to search by.
+        }
+        return res.json(results);
+      } catch (err) {
+        console.error("Error in /search-candidates:", err);
+        res.status(500).json({ error: "Internal server error" });
+      }
+});
+
+app.get('/manage-preferences', (req, res) => {
+    res.render('manage-preferences');
+});
+
 
 
 app.get('/adminSearch', async (req, res) => {
     try {
-        const profiles = await Profile.find({}, 'full_name preferences'); // Fetch full_name and preferences
-        const filteredProfiles = profiles.filter(profile => profile.isAdmin); // Exclude admins
-        res.render('search', { profiles: filteredProfiles }); // Render the 'search.ejs' view and pass profiles
+        const profiles = await Profile.find({}, 'user_id');
+        const userIds = profiles.map(profile => profile.user_id);
+        const users = await User.find({ _id: { $in: userIds } }, 'first_name last_name created_at last_login');
+        const filteredUsers = users.filter(user => user.isAdmin); // only admins
+        users.forEach(user => {
+            user.formattedCreatedAt = moment(user.created_at).format('MMMM YYYY');
+            user.formattedLastLogin = moment(user.last_login).format('MMMM YYYY');
+          });
+        res.render('adminSearch', { users: filteredUsers }); // Render the 'adminSearch.ejs' view and pass profiles
     } catch (error) { 
         console.error('Error fetching profiles:', error);
         res.status(500).send('Error fetching candidates');
     }
+    
 });
 
 app.get('/api/users', async (req, res) => {
@@ -251,6 +392,7 @@ app.put('/api/users/:id/role', async (req, res) => {
     }
 });
 
+
 // Deactivate a user
 app.put('/api/users/:id/deactivate', async (req, res) => {
     const userId = req.params.id;
@@ -268,7 +410,7 @@ app.put('/api/users/:id/deactivate', async (req, res) => {
 });
 
 // Update an existing job
-app.post('/api/jobs/:id/update', async (req, res) => {
+/*app.post('/api/jobs/:id/update', async (req, res) => {
     const jobId = req.params.id;
     const { title, description, requirements, client_name, location, job_type } = req.body;
 
@@ -293,10 +435,10 @@ app.post('/api/jobs/:id/update', async (req, res) => {
         console.error('Error updating job:', error);
         res.status(500).send('Error updating job');
     }
-});
+});*/
 
 // Delete a job
-app.post('/api/jobs/:id/delete', async (req, res) => {
+/*app.post('/api/jobs/:id/delete', async (req, res) => {
     const jobId = req.params.id;
 
     try {
@@ -309,7 +451,7 @@ app.post('/api/jobs/:id/delete', async (req, res) => {
         console.error('Error deleting job:', error);
         res.status(500).send('Error deleting job');
     }
-});
+});*/
 
 // Serve index.ejs for /
 app.get('/', (req, res) => {
@@ -391,7 +533,7 @@ app.get('/manage-users.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'html', 'manage-users.html'));
 });
 
-app.get('/job-postings', async (req, res) => {
+/*app.get('/job-postings', async (req, res) => {
     try {
         const jobs = await Job.find(); // Fetch all jobs from the database
         res.render('job-postings', { jobs }); // Pass jobs to EJS template
@@ -399,21 +541,24 @@ app.get('/job-postings', async (req, res) => {
         console.error('Error fetching jobs:', error);
         res.status(500).send('Error fetching jobs');
     }
-});
+});*/
 
 // Route for create-job-postings 
-app.get('/create-job-postings', (req, res) => {
+/*app.get('/create-job-postings', (req, res) => {
     res.render('create-job-postings');
-});
+});*/
 
 app.use(express.static(path.join(__dirname, 'html')));
 
+const preferenceRoutes = require('./route/preferences');
+app.use('/api/preferences', preferenceRoutes);
+
 // Use preference router for preference-related logic
-const preferenceRouter = require('./models/preference')({ User }); // Pass User model explicitly
-app.use(preferenceRouter);
+/*const preferenceRouter = require('./models/preference')({ User }); // Pass User model explicitly
+app.use(preferenceRouter);*/
 
 // Add a new job
-app.post('/api/jobs', async (req, res) => {
+/*app.post('/api/jobs', async (req, res) => {
     const { title, description, requirements, client_name, location, job_type } = req.body;
 
     try {
@@ -431,7 +576,7 @@ app.post('/api/jobs', async (req, res) => {
         console.error('Error adding job:', error);
         res.status(500).send('Error adding job');
     }
-});
+});*/
 
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
 
@@ -444,7 +589,6 @@ app.post('/login', async (req, res) => {
 
     try {
         const user = await User.findOne({ email });
-
         if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.render('index', { 
                 email, 
@@ -620,6 +764,23 @@ app.post('/delete_account', async (req, res) => {
     }
 });
 
+//search.ejs deletion logic
+app.post('/delete-candidates', async (req, res) => {
+    const { selectedCandidates } = req.body;
+
+    if (!selectedCandidates || selectedCandidates.length === 0) {
+        return res.status(400).json({ message: "No candidates selected for deletion." });
+    }
+
+    try {
+        await User.deleteMany({ _id: { $in: selectedCandidates } });
+        res.status(200).json({ message: "Candidates deleted successfully." });
+    } catch (error) {
+        console.error("Error deleting candidates:", error);
+        res.status(500).json({ message: "Error deleting candidates." });
+    }
+});
+
 app.get('/settings.html', async (req, res) => {
     const userId = req.session.userId;
     if (!userId) {
@@ -708,9 +869,30 @@ app.post('/submit_settings', upload.single('resume'), async (req, res) => {
 app.post('/signup', async (req, res) => {
     const { first_name, last_name, username, email, password, confirm_password } = req.body;
 
-    // Validate passwords match
+    // Password validation function
+    function isValidPassword(password) {
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        return regex.test(password);
+    }
+
+     // Error message variables
+     let errorMessages = {
+        passwordError: '',
+        matchError: ''
+    };
+
+    // Check if passwords match
     if (password !== confirm_password) {
-        return res.status(400).send('Passwords do not match.');
+        errorMessages.matchError = 'Passwords do not match.';
+    }
+
+    // Validate password strength
+    if (!isValidPassword(password)) {
+        errorMessages.passwordError = 'Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.';
+    }
+
+    if (errorMessages.passwordError || errorMessages.matchError) {
+        return res.redirect(`/signup.html?passwordError=${encodeURIComponent(errorMessages.passwordError)}&matchError=${encodeURIComponent(errorMessages.matchError)}`);
     }
 
     try {
@@ -772,6 +954,32 @@ app.post('/api/request-reschedule', async (req, res) => {
     } catch (error) {
         console.error("Error processing reschedule request:", error);
         res.status(500).json({ error: "Internal server error." });
+    }
+});
+
+// Checking for previous password 
+app.post("/password/change", async (req, res) => {
+    const { userId, password } = req.body;
+
+    try {
+        // Fetch current password hash from database
+        const user = await db.getUserById(userId); // Assume getUserById fetches user data
+        const currentPasswordHash = user.passwordHash;
+
+        // Compare new password with current password
+        const isSamePassword = await bcrypt.compare(password, currentPasswordHash);
+        if (isSamePassword) {
+            return res.status(400).json({ success: false, error: "previous_password_used" });
+        }
+
+        // Hash new password and update it in the database
+        const newPasswordHash = await bcrypt.hash(password, 10);
+        await db.updatePassword(userId, newPasswordHash); // Assume updatePassword updates user password
+
+        return res.status(200).json({ success: true });
+    } catch (error) {
+        console.error("Error changing password:", error);
+        return res.status(500).json({ success: false, error: "server_error" });
     }
 });
 
