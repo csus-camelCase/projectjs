@@ -650,7 +650,7 @@ button {
 .admin-header {
     position: relative;
     width: 100%;
-    padding: 20px 0;
+    padding: 20px ;
     text-align: center;
 }
 
@@ -661,9 +661,8 @@ button {
 }
 
 .admin-header .dropdown {
-    position: absolute;        
-    right: -500px;
-    top: -300px;
-    display: block;
-    width: 10%;
+    position: absolute;
+    top: 20px;  
+    right: 20px; 
+    z-index: 10;
 }
