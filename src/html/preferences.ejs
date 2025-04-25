@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Selection</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<style>
+    .search-section {
+      width: 600px;
+      margin: 0 auto;
+    }
+
+    #searchResults {
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-top: 10px;
+      background: white;
+      z-index: 2;
+      position: relative;
+    }
+
+    .result-item {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .result-item:hover {
+      background: #f0f0f0;
+    }
+
+    .selected-tags {
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .tag {
+      background: #d9edf7;
+      color: #31708f;
+      padding: 6px 12px;
+      border-radius: 20px;
+      margin: 4px;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .tag .remove-btn {
+      margin-left: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .center {
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+<body>
+    <div class="wrapper search-section">
+        <h2 style="text-align:center;">Choose Your Preferences</h2>
+        <input type="text" id="searchInput" class="input-box input" placeholder="Search preferences...">
+    
+        <div class="selected-tags" id="selectedTags"></div>
+        <div id="searchResults"></div>
+    
+        <div class="center">
+          <button class="btn" id="saveBtn">Save Preferences</button>
+          <button class="btn" id="skipBtn">Skip</button>
+        </div>
+      </div>
+      <script>
+        let selectedPrefs = new Set();
+        const preloadedPreferences = <%- savedPreferences || '[]' %>;
+    
+        document.addEventListener('DOMContentLoaded', () => {
+          const searchInput = document.getElementById('searchInput');
+          const searchResults = document.getElementById('searchResults');
+          const selectedTags = document.getElementById('selectedTags');
+
+          preloadedPreferences.forEach(name => {
+            selectedPrefs.add(name);
+            });
+          renderSelectedTags();
+    
+          searchInput.addEventListener('input', async function () {
+            const query = this.value.trim().toLowerCase();
+            searchResults.innerHTML = '';
+    
+            if (!query) return;
+    
+            try {
+              const res = await fetch(`/api/preferences?search=${encodeURIComponent(query)}&limit=10&page=1`);
+              const data = await res.json();
+    
+              data.preferences.forEach(pref => {
+                if (selectedPrefs.has(pref.name)) return;
+    
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.textContent = pref.name;
+    
+                item.addEventListener('click', () => {
+                  selectedPrefs.add(pref.name);
+                  renderSelectedTags();
+                  searchResults.innerHTML = '';
+                  searchInput.value = '';
+                });
+    
+                searchResults.appendChild(item);
+              });
+            } catch (err) {
+              console.error('Error fetching preferences:', err);
+            }
+          });
+    
+          function renderSelectedTags() {
+            selectedTags.innerHTML = '';
+            selectedPrefs.forEach(name => {
+              const tag = document.createElement('div');
+              tag.className = 'tag';
+              tag.textContent = name;
+    
+              const removeBtn = document.createElement('span');
+              removeBtn.className = 'remove-btn';
+              removeBtn.textContent = '×';
+              removeBtn.addEventListener('click', () => {
+                selectedPrefs.delete(name);
+                renderSelectedTags();
+              });
+    
+              tag.appendChild(removeBtn);
+              selectedTags.appendChild(tag);
+            });
+          }
+    
+          document.getElementById('saveBtn').addEventListener('click', async () => {
+            const preferences = Array.from(selectedPrefs).map(name => ({ name }));
+    
+            const res = await fetch('/api/save-preferences', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ preferences })
+            });
+    
+            if (res.ok) {
+              alert('Preferences saved!');
+              window.location.href = '/user_dashboard.html';
+            } else {
+              alert('Failed to save preferences.');
+            }
+          });
+    
+          document.getElementById('skipBtn').addEventListener('click', () => {
+            window.location.href = '/user_dashboard.html';
+          });
+        });
+      </script>       
+</body>
+</html>

@@ -647,39 +647,53 @@ app.post('/api/schedule-event', async (req, res) => {
     }
 });
 
+app.get('/preferences', async (req, res) => {
+    if (!req.session.userId) {
+      return res.status(401).send('Unauthorized');
+    }
+  
+    try {
+      const profile = await Profile.findOne({ user_id: req.session.userId });
+      const savedPreferences = profile ? profile.preferences : [];
+  
+      res.render('preferences', {
+        savedPreferences: JSON.stringify(savedPreferences) // pass as JSON string
+      });
+    } catch (err) {
+      console.error('Error loading preferences:', err);
+      res.status(500).send('Server error');
+    }
+  });
+
 // Save preferences logic 
 app.post('/api/save-preferences', async (req, res) => {
     const userId = req.session.userId;
-    console.log('Session userId:', userId);
-
-    const { preferences } = req.body;  // Get preferences from request body
+    const { preferences } = req.body;
+  
     if (!userId) {
-        return res.status(401).send('Unauthorized');
+      return res.status(401).send('Unauthorized');
     }
-
+  
     try {
-        const profile = await Profile.findOne({ user_id: userId });
-        console.log('Profile fetched:', profile);
-
-        if (!profile) {
-            return res.status(404).send('User profile not found');
-        }
-
-        // Replace existing preferences with the new ones
-        profile.preferences = preferences.map(job => ({
-            title: job.title,
-            location: job.location,
-            job_type: job.job_type,
-        }));
-
-        await profile.save();  // Save the updated profile
-
-        res.status(200).send('Preferences saved successfully');
+      const profile = await Profile.findOne({ user_id: userId });
+  
+      if (!profile) {
+        return res.status(404).send('User profile not found');
+      }
+  
+      // Clean duplicates and extra spaces
+      const uniquePreferences = [...new Set(preferences.map(p => p.name.trim()))];
+  
+      profile.preferences = uniquePreferences;
+      await profile.save();
+  
+      res.status(200).send('Preferences saved successfully');
     } catch (error) {
-        console.error('Error saving preferences:', error);
-        res.status(500).send('An error occurred while saving preferences');
+      console.error('Error saving preferences:', error);
+      res.status(500).send('An error occurred while saving preferences');
     }
-});
+  });
+  
 
 // Handle /signup2 POST request
 app.post('/submit_setup', upload.single('resume'), async (req, res) => {
