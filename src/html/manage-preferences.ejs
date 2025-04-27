@@ -22,6 +22,7 @@
                 <tr>
                     <th>Select</th>
                     <th>Preference</th>
+                    <th>Selected By</th>
                     <th>Edit</th>
                 </tr>
             </thead>
@@ -83,6 +84,7 @@
                             <tr data-id="${pref._id}">
                                 <td><input type="checkbox" class="selectPref" value="${pref._id}"></td>
                                 <td class="pref-name">${pref.name}</td>
+                                <td>${pref.userCount || 0}</td>
                                 <td><button class="btn editBtn">Edit</button></td>
                             </tr>
                         `;

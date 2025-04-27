@@ -11,6 +11,9 @@ const multer = require('multer');
 const AWS = require('aws-sdk');
 const { title } = require('process');
 const moment = require('moment');
+const Preference = mongoose.model('Preference', new mongoose.Schema({
+    name: { type: String, required: true, unique: true },
+}), 'preferences');
 dotenv.config();
 
 
@@ -565,8 +568,10 @@ app.get('/manage-users.html', (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'html')));
 
+/*
 const preferenceRoutes = require('./route/preferences');
 app.use('/api/preferences', preferenceRoutes);
+*/
 
 // Use preference router for preference-related logic
 /*const preferenceRouter = require('./models/preference')({ User }); // Pass User model explicitly
@@ -661,6 +666,46 @@ app.post('/api/schedule-event', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+
+//manage_preference.ejs backend logic
+app.get('/api/preferences', async (req, res) => {
+    try {
+        const search = req.query.search || '';
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const preferences = await Preference.find({
+            name: { $regex: search, $options: 'i' }
+        }).skip(skip).limit(limit).lean();
+
+        const preferenceNames = preferences.map(pref => pref.name);
+
+        const userCounts = await Profile.aggregate([
+            { $unwind: "$preferences" },
+            { $match: { preferences: { $in: preferenceNames } } },
+            { $group: { _id: "$preferences", count: { $sum: 1 } } }
+        ]);
+
+        const countMap = {};
+        userCounts.forEach(entry => {
+            countMap[entry._id] = entry.count;
+        });
+
+        const preferencesWithCounts = preferences.map(pref => ({
+            ...pref,
+            userCount: countMap[pref.name] || 0
+        }));
+
+        res.json({ preferences: preferencesWithCounts });
+
+    } catch (error) {
+        console.error('Error fetching preferences:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 
 app.get('/preferences', async (req, res) => {
     if (!req.session.userId) {
