@@ -706,6 +706,85 @@ app.get('/api/preferences', async (req, res) => {
     }
 });
 
+// --- Preferences Routes (Moved from routes/preferences.js) ---
+
+// Create a new preference
+app.post('/api/preferences', async (req, res) => {
+    try {
+        const { name } = req.body;
+
+        const existing = await Preference.findOne({ name: name.trim() });
+        if (existing) {
+            return res.status(400).json({ message: 'Preference already exists' });
+        }
+
+        const preference = new Preference({ name: name.trim() });
+        await preference.save();
+        res.status(201).json(preference);
+    } catch (error) {
+        console.error('Error creating preference:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Update a preference by ID
+app.put('/api/preferences/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name } = req.body;
+
+        const existingPreference = await Preference.findById(id);
+        if (!existingPreference) {
+            return res.status(404).json({ message: 'Preference not found' });
+        }
+
+        const oldName = existingPreference.name; // Save the old name
+
+        // Update the Preference document
+        existingPreference.name = name.trim();
+        await existingPreference.save();
+
+        // Now update all user profiles that had the old preference
+        await Profile.updateMany(
+            { preferences: oldName },
+            { $set: { "preferences.$": name.trim() } }
+        );
+
+        res.json({ message: 'Preference updated and profiles cleaned.' });
+    } catch (error) {
+        console.error('Error updating preference:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+
+// Delete multiple preferences
+app.delete('/api/preferences', async (req, res) => {
+    try {
+        const { ids } = req.body; // expects: { ids: ["id1", "id2", ...] }
+
+        // Find the names of the preferences we are deleting
+        const preferencesToDelete = await Preference.find({ _id: { $in: ids } }).lean();
+        const namesToDelete = preferencesToDelete.map(pref => pref.name);
+
+        // Delete the preferences themselves
+        const result = await Preference.deleteMany({ _id: { $in: ids } });
+
+        // Now clean up user profiles: remove any deleted preferences from their preferences array
+        await Profile.updateMany(
+            {},
+            { $pull: { preferences: { $in: namesToDelete } } }
+        );
+
+        res.json({ message: `Deleted ${result.deletedCount} preferences and cleaned user profiles.` });
+    } catch (error) {
+        console.error('Error deleting preferences:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+
+
 
 app.get('/preferences', async (req, res) => {
     if (!req.session.userId) {
