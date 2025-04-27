@@ -273,13 +273,14 @@ app.get('/search', async (req, res) => {
     try {
         const profiles = await Profile.find({}, 'user_id');
         const userIds = profiles.map(profile => profile.user_id);
-        const users = await User.find({ _id: { $in: userIds } }, 'first_name last_name created_at last_login');
+        //const candidates = await User.find({ isAdmin: false });
+        const users = await User.find({ _id: { $in: userIds }, isAdmin: false }, 'first_name last_name created_at last_login');
         const filteredUsers = users.filter(user => !user.isAdmin); // Exclude admins
         users.forEach(user => {
             user.formattedCreatedAt = moment(user.created_at).format('MMMM YYYY');
             user.formattedLastLogin = moment(user.last_login).format('MMMM YYYY');
           });
-        res.render('search', { users: filteredUsers }); // Render the 'search.ejs' view and pass profiles
+        res.render('search', { users: users }); // Render the 'search.ejs' view and pass profiles
     } catch (error) { 
         console.error('Error fetching profiles:', error);
         res.status(500).send('Error fetching candidates');
@@ -296,17 +297,20 @@ app.get('/search-candidates', async (req, res) => {
     try {
         const profiles = await Profile.find({}, 'user_id');
         const userIds = profiles.map(profile => profile.user_id);
-        const users = await User.find({ _id: { $in: userIds },
+        const users = await User.find({ 
+            _id: { $in: userIds },
             $or: [
-                { first_name: { $regex: query, $options: 'i' } },  // Case-insensitive name search
+                { first_name: { $regex: query, $options: 'i' } },
                 { last_name: { $regex: query, $options: 'i' } }
             ]
         }).lean();
+
         const filteredUsers = users.filter(user => !user.isAdmin); // Exclude admins
-        users.forEach(user => {
+
+        filteredUsers.forEach(user => {
             user.formattedCreatedAt = moment(user.created_at).format('MMMM YYYY');
             user.formattedLastLogin = moment(user.last_login).format('MMMM YYYY');
-          });
+        });
 
         res.json(filteredUsers);
     } catch (error) {
@@ -314,33 +318,43 @@ app.get('/search-candidates', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+
 app.get('/search-admins', async (req, res) => {
     try {
         const searchTerm = req.query.query;
-        let results;
+        let admins;
+
         if (!searchTerm || searchTerm.trim() === "") {
-          // No query provided – fetch all admin users
-          results = await User.find({ isAdmin: true });  // returns all admins
+            // No query provided – fetch all admin users
+            admins = await User.find({ isAdmin: true }).lean();
         } else {
-          // Query provided – fetch admin users matching the search term
-          const term = searchTerm.trim();
-          const regex = new RegExp(term, "i");  // case-insensitive regex for matching
-          results = await User.find({ 
-            isAdmin: true,
-            $or: [ 
-              { username: regex }, 
-              { email: regex }, 
-              { name: regex } 
-            ] 
-          });
-          // ^ The fields used in $or should be those that make sense to search by.
+            // Query provided – fetch admin users matching the search term
+            const term = searchTerm.trim();
+            const regex = new RegExp(term, "i");  // case-insensitive regex for matching
+            admins = await User.find({ 
+                isAdmin: true,
+                $or: [ 
+                    { username: regex }, 
+                    { email: regex }, 
+                    { name: regex }, 
+                ]
+            }).lean();
         }
-        return res.json(results);
-      } catch (err) {
-        console.error("Error in /search-candidates:", err);
+
+        // Format created_at and last_login
+        admins.forEach(admin => {
+            admin.formattedCreatedAt = moment(admin.created_at).format('MMMM YYYY');
+            admin.formattedLastLogin = moment(admin.last_login).format('MMMM YYYY');
+        });
+
+        return res.json(admins);
+    } catch (err) {
+        console.error("Error in /search-admins:", err);
         res.status(500).json({ error: "Internal server error" });
-      }
+    }
 });
+
 
 app.get('/manage-preferences', (req, res) => {
     res.render('manage-preferences');
@@ -375,7 +389,7 @@ app.get('/api/users', async (req, res) => {
         res.status(500).send('Error fetching users');
     }
 });
-
+/*
 app.put('/api/users/:id/role', async (req, res) => {
     const userId = req.params.id;
     const { role } = req.body;
@@ -391,6 +405,7 @@ app.put('/api/users/:id/role', async (req, res) => {
         res.status(500).send('Error updating user role');
     }
 });
+*/
 
 
 // Deactivate a user
@@ -775,6 +790,25 @@ app.post('/delete_account', async (req, res) => {
     } catch (error) {
         console.error('Error deleting account:', error);
         res.status(500).send('An error occurred while deleting your account');
+    }
+});
+
+//admin role logic for search.ejs
+app.put('/api/users/:id/role', async (req, res) => {
+    const userId = req.params.id;
+    const { role, isAdmin } = req.body;
+
+    try {
+        const updatedUser = await User.findByIdAndUpdate(userId, { role, isAdmin }, { new: true });
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        res.status(200).json({ message: "User promoted successfully." });
+    } catch (error) {
+        console.error("Error promoting user:", error);
+        res.status(500).json({ message: "Error promoting user." });
     }
 });
 

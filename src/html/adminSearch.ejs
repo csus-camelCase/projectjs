@@ -55,16 +55,16 @@
             
             <!-- Button to navigate to send-emails.html -->
             <div style="margin-top: 20px;">
-                <button type="button" id="submitButton" class="btn">Send Emails to Candidates</button>
+                <button type="button" id="submitButton" class="btn">Send Emails to Admins</button>
             </div>
-            <div style="margin-top: 20px; text-align: center;">
+            <!--<div style="margin-top: 20px; text-align: center;">
                 <button class="btn" onclick="promptPromoteAdmin()">Promote User to Admin</button>
-            </div>
+            </div>-->
         </form>
 
         <!-- Additional buttons -->
         <div style="margin-top: 20px; text-align: center;">
-            <a href="/send-emails.html" class="btn" style="margin-right: 10px;">Compose Email</a>
+            <!-- <a href="/send-emails.html" class="btn" style="margin-right: 10px;">Compose Email</a> -->
             <a href="/admin_dashboard.html" class="btn" style="margin-left: 10px;">Back to Dashboard</a>
         </div>
     </div>
@@ -137,7 +137,7 @@
                 alert('No candidates selected. Please select at least one candidate.');
             }
         });
-        async function promptPromoteAdmin() {
+        /*async function promptPromoteAdmin() {
         const fullName = prompt("Enter the full name of the user to promote (e.g. John Doe):");
 
         if (!fullName || !fullName.includes(" ")) {
@@ -178,8 +178,8 @@
         } catch (error) {
             console.error("Error promoting user:", error);
             alert("Something went wrong.");
-        }
-    }
+            }
+        }*/
     window.addEventListener('DOMContentLoaded', () => {
     searchCandidates();
 });

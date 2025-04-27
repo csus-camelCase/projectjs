@@ -60,6 +60,12 @@
             <div style="margin-top: 20px;">
                 <button type="button" id="submitButton" class="btn">Send Emails to Candidates</button>
             </div>
+            <!-- Promote to Admin Button -->
+            <div style="margin-top: 20px;">
+                <button type="button" id="promoteButton" class="btn">
+                    Promote Selected to Admin
+                </button>
+            </div>        
             <!-- Delete Selected Accounts Button -->
             <div style="margin-top: 20px;">
                 <button type="button" id="deleteButton" class="btn">
@@ -70,7 +76,7 @@
 
         <!-- Additional buttons -->
         <div style="margin-top: 40px; text-align: center;">
-            <a href="/send-emails.html" class="btn" style="padding: 10px; margin-right: 10px;">Compose Email</a>
+            <!--<a href="/send-emails.html" class="btn" style="padding: 10px; margin-right: 10px;">Compose Email</a>-->
             <a href="/admin_dashboard.html" class="btn" style="padding: 10px; margin-left: 10px;">Back to Dashboard</a>
         </div>
     </div>
@@ -179,6 +185,77 @@
                 alert("An error occurred while trying to delete the selected accounts.");
             }
         });
+        // Handle Promotion
+        /*document.getElementById('promoteButton').addEventListener('click', async () => {
+        const checkboxes = document.querySelectorAll('input[name="selectedCandidates"]:checked');
+        const selectedCandidates = Array.from(checkboxes).map(cb => cb.value);
+
+        if (selectedCandidates.length === 0) {
+            alert("Please select at least one candidate to promote.");
+            return;
+        }
+
+        const confirmed = confirm("Are you sure you want to promote the selected account(s) to admin?");
+
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch('/promote-candidates', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ selectedCandidates })
+            });
+
+            if (response.ok) {
+                alert("Selected accounts promoted to admin successfully.");
+                location.reload();
+            } else {
+                alert("Failed to promote accounts.");
+            }
+        } catch (error) {
+            console.error('Error promoting candidates:', error);
+            alert("An error occurred while trying to promote the selected accounts.");
+        }
+
+        });*/
+        //Handle Promotion
+        document.getElementById('promoteButton').addEventListener('click', promoteSelectedAdmins);
+        async function promoteSelectedAdmins() {
+            const checkboxes = document.querySelectorAll('input[name="selectedCandidates"]:checked');
+            const selectedCandidateIds = Array.from(checkboxes).map(cb => cb.value);
+
+            if (selectedCandidateIds.length === 0) {
+                alert("Please select at least one candidate to promote.");
+                return;
+            }
+
+            const confirmed = confirm(`Are you sure you want to promote ${selectedCandidateIds.length} account(s) to admin?`);
+
+            if (!confirmed) return;
+
+            try {
+                for (const userId of selectedCandidateIds) {
+                    const updateResponse = await fetch(`/api/users/${userId}/role`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ role: 'admin', isAdmin: true })
+                    });
+
+                    if (!updateResponse.ok) {
+                        const error = await updateResponse.json();
+                        alert("Failed to promote a user: " + (error.message || 'Unknown error'));
+                        return;
+                    }
+                }
+
+                alert(`Successfully promoted ${selectedCandidateIds.length} account(s) to admin!`);
+                location.reload();
+
+            } catch (error) {
+                console.error("Error promoting candidates:", error);
+                alert("Something went wrong while promoting.");
+            }
+        }    
     </script>
 </body>
 
