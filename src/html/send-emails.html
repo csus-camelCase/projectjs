@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,21 +13,27 @@
             border-radius: 5px;
             padding: 10px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
-        th, td {
+
+        th,
+        td {
             padding: 8px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
+
         th {
             background-color: #f2f2f2;
         }
+
         tr:hover {
             background-color: #f5f5f5;
         }
+
         .search-icon {
             position: absolute;
             right: 10px;
@@ -34,11 +41,13 @@
             transform: translateY(-50%);
             color: #777;
         }
+
         .input-box {
             position: relative;
         }
     </style>
 </head>
+
 <body style="display: flex;">
     <div class="wrapper" style="width: 800px;">
         <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Send Email to Candidates</h2>
@@ -52,43 +61,47 @@
 
             <!-- Message Textarea -->
             <div class="message-container" style="display: flex; align-items: flex-start; gap: 10px;">
-                <textarea name="message" placeholder="Type your message here..." rows="5" style="width: 100%; border: 2px solid black; border-radius: 10px; padding: 10px;" required></textarea>
+                <textarea name="message" placeholder="Type your message here..." rows="5"
+                    style="width: 100%; border: 2px solid black; border-radius: 10px; padding: 10px;"
+                    required></textarea>
                 <!-- Send Button -->
                 <button type="submit" class="send btn" title="Are you sure">Send Email</button>
             </div>
         </form>
 
         <!-- Success Message -->
-        <div id="successMessage" style="display: none; text-align: center; margin-top: 20px; color: green; font-weight: bold;">
+        <div id="successMessage"
+            style="display: none; text-align: center; margin-top: 20px; color: green; font-weight: bold;">
             Email(s) sent!
         </div>
 
         <!-- Back to Dashboard Link -->
         <div class="sign-up">
-            <p><a href="/admin_dashboard.html" class="btn" style="padding: 10px; margin-left: 10px;">Back to Dashboard</a></p>
+            <p><a href="/admin_dashboard.html" class="btn" style="padding: 10px; margin-left: 10px;">Back to
+                    Dashboard</a></p>
         </div>
     </div>
 
     <!-- Preference Postings Search Box -->
     <div class="wrapper" style="width: 800px;">
         <h2 style="text-align: center; margin-bottom: 20px;">Search Preferences</h2>
-        
+
         <div class="input-box">
-            <input type="text" id="preferenceSearch" placeholder="Search job preferences...">
+            <input type="text" id="preferenceSearch" placeholder="Search preferences...">
             <i class='bx bx-search search-icon'></i>
         </div>
-    
+
         <div class="results-container" style="margin-top: 20px; max-height: 400px; overflow-y: auto;">
             <table id="preferenceResults" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th>Preferences</th>
-                        <th>Description</th>
-                        <th>Email</th>
+                        <th>Select</th>
+                        <th>Preference</th>
+                        <th>Selected By</th>
                     </tr>
                 </thead>
                 <tbody id="preferenceResultsBody">
-                    <!-- Results will appear here -->
+                    <!-- Dynamic rows go here -->
                 </tbody>
             </table>
             <div id="noPreferenceResults" style="text-align: center; padding: 20px; display: none;">
@@ -96,7 +109,6 @@
             </div>
         </div>
     </div>
-    
     <script>
         // DOM elements
         const preferenceSearch = document.getElementById('preferenceSearch');
@@ -104,103 +116,58 @@
         const noResults = document.getElementById('noPreferenceResults');
         let searchDebounce;
 
-        // Initialize search functionality
-        preferenceSearch.addEventListener('input', function() {
+        // Handle search input
+        preferenceSearch.addEventListener('input', function () {
             clearTimeout(searchDebounce);
             const term = this.value.trim();
-            
-            if (term.length < 2) {
-                resultsBody.innerHTML = '';
-                noResults.style.display = 'none';
-                return;
-            }
-            
+
             searchDebounce = setTimeout(() => {
-                searchPreferences(term);
+                fetchPreferences(term);
             }, 300);
         });
-        
 
-
-        // Search preferences function
-        async function searchPreferences(term) {
-            console.log('Searching for:', term);
+        // Fetch preferences from API
+        async function fetchPreferences(term = '') {
             try {
-                const response = await fetch(`/api/search-preferences?term=${encodeURIComponent(term)}`);
-                console.log('Response status:', response.status);
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('API error:', errorText);
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const results = await response.json();
-                console.log('API results:', results);
-                
+                const response = await fetch(`/api/preferences?search=${encodeURIComponent(term)}`);
+                const data = await response.json();
+
                 resultsBody.innerHTML = '';
-                
-                if (!results || results.length === 0) {
-                    console.log('No results found');
+
+                if (!data.preferences || data.preferences.length === 0) {
                     noResults.style.display = 'block';
                     return;
                 }
-                
+
                 noResults.style.display = 'none';
-                console.log(`Displaying ${results.length} results`);
-                
-                results.forEach(profile => {
+
+                data.preferences.forEach(pref => {
                     const row = document.createElement('tr');
-                    
-                    // Format preferences for display
-                    let prefsDisplay = 'No preferences';
-                    if (Array.isArray(profile.preferences)) {
-                        prefsDisplay = profile.preferences
-                            .map(pref => {
-                                if (typeof pref === 'string') return pref;
-                                try {
-                                    // Try to parse if it's a JSON string
-                                    const parsed = typeof pref === 'string' ? 
-                                        JSON.parse(pref) : 
-                                        pref;
-                                    if (typeof parsed === 'object') {
-                                        return Object.entries(parsed)
-                                            .map(([key, value]) => `${key}: ${value}`)
-                                            .join(', ');
-                                    }
-                                    return String(pref);
-                                } catch {
-                                    return String(pref);
-                                }
-                            })
-                            .join(', ');
-                    }
-                    
+
                     row.innerHTML = `
-                        <td>${profile.full_name || 'Anonymous'}</td>
-                        <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;">
-                            ${prefsDisplay}
-                        </td>
-                        <td>
-                            ${profile.email ? 
-                                `<a href="mailto:${profile.email}">${profile.email}</a>` : 
-                                'No email'}
-                        </td>
-                    `;
+                    <td><input type="checkbox" class="preferenceCheckbox" value="${pref.name}"></td>
+                    <td>${pref.name}</td>
+                    <td>${pref.userCount}</td>
+                `;
+
                     resultsBody.appendChild(row);
                 });
-                
+
             } catch (error) {
-                console.error('Search failed:', error);
+                console.error('Error fetching preferences:', error);
                 resultsBody.innerHTML = `
-                    <tr>
-                        <td colspan="3" style="color: red;">
-                            Error loading results. Please try again.
-                        </td>
-                    </tr>`;
+                <tr>
+                    <td colspan="3" style="color: red;">Error loading preferences.</td>
+                </tr>
+            `;
                 noResults.style.display = 'none';
             }
         }
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchPreferences();
+        });
 
         // Prepopulate the email field from the query string
         const params = new URLSearchParams(window.location.search);
@@ -208,15 +175,15 @@
         if (emails) {
             document.getElementById('recipient').value = emails;
         }
-    
+
         // Handle form submission
-        document.getElementById('emailForm').addEventListener('submit', function(event) {
+        document.getElementById('emailForm').addEventListener('submit', function (event) {
             event.preventDefault();
             document.getElementById('successMessage').style.display = 'block';
             setTimeout(() => {
                 document.getElementById('successMessage').style.display = 'none';
             }, 3000);
-            
+
             // Submit the form asynchronously
             fetch('/api/send-email', {
                 method: 'POST',
@@ -227,4 +194,5 @@
         });
     </script>
 </body>
+
 </html>
