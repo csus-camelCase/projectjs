@@ -1139,7 +1139,7 @@ app.post('/api/change-password', async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-        return res.status(400).json({ success: false, message: 'Email and password required.' });
+        return res.status(400).json({ success: false, message: 'Email and password are required.' });
     }
 
     try {
@@ -1148,15 +1148,17 @@ app.post('/api/change-password', async (req, res) => {
             return res.status(404).json({ success: false, message: 'User not found.' });
         }
 
-        // Compare new password with old password
-        const isSamePassword = await bcrypt.compare(password, user.password);
-        if (isSamePassword) {
-            return res.status(400).json({ success: false, error: "previous_password_used" });
+        // Optional: Check if resetCode is still set
+        if (user.resetCode) {
+            return res.status(400).json({ success: false, message: 'Reset code still active. Please validate it first.' });
         }
 
-        // Hash and save new password
+        // Hash new password
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
+
+        // Clear any lingering reset-related fields
+        user.resetCode = undefined; // Already cleared during verification, but just in case
         await user.save();
 
         return res.status(200).json({ success: true });
@@ -1216,7 +1218,7 @@ app.post('/api/verify-reset-code', async (req, res) => {
             return res.status(400).json({ success: false, message: 'No reset code found.' });
         }
 
-        if (user.resetCode !== code) {
+        if (String(user.resetCode) !== String(code)) {
             return res.status(400).json({ success: false, message: 'Invalid reset code.' });
         }
 

@@ -42,7 +42,7 @@
 
             const password = document.querySelectorAll(".input-box input")[0].value;
             const confirmPassword = document.querySelectorAll(".input-box input")[1].value;
-            const email = sessionStorage.getItem("resetEmail"); // ✅ Retrieve stored email
+            const email = sessionStorage.getItem("resetEmail"); 
 
             if (!email) {
                 alert("Session expired. Please start the password reset process again.");
@@ -64,7 +64,7 @@
                 const response = await changePassword(email, password);
                 if (response.success) {
                     alert("Your password has been changed successfully!");
-                    sessionStorage.clear(); // ✅ Clear session storage after successful change
+                    sessionStorage.clear(); 
                     window.location.href = "/index.html";
                 } else if (response.error === "previous_password_used") {
                     alert("You cannot reuse your previous password. Please try a different one.");

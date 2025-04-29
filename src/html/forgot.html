@@ -63,7 +63,6 @@
                     
                     if (data.message === 'Email sent successfully') {
                         console.log('Email sent successfully, preparing to redirect');
-                        sessionStorage.setItem('resetCode', code);
                         sessionStorage.setItem('resetEmail', email);
                         console.log('Code and email stored in session');
                         window.location.href = "/forgotValidation.html";
