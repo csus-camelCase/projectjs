@@ -60,6 +60,7 @@ const userSchema = new mongoose.Schema({
     isAdmin: { type: Boolean, default: false },
     created_at: { type: Date, default: Date.now },
     last_login: Date,
+    resetCode: String, 
 });
 
 userSchema.pre('save', async function (next) {
@@ -95,6 +96,7 @@ const eventSchema = new mongoose.Schema({
     time: { type: String, required: true },
     location: { type: String, required: true },
     calendarLink: { type: String }, // Optional: link to Google Calendar or similar
+    resetCode: { type: String },
 });
 
 const Event = mongoose.model('Event', eventSchema, 'events');
@@ -212,7 +214,7 @@ app.get('/api/search-preferences', async (req, res) => {
 app.post('/api/send-email', async (req, res) => {
     const { recipient, subject, message } = req.body;
 
-    const API_URL = "https://du55u2rij4.execute-api.us-west-2.amazonaws.com/dev/send-email";
+    const API_URL = "https://api.camelcase-preprod.com/email/send";
     const API_KEY = "rlFQMGqpw72w4NnytZBapaLsFnc2WaQH1mrTZ0un";
 
     const requestData = {
@@ -221,25 +223,28 @@ app.post('/api/send-email', async (req, res) => {
         body: message
     };
 
-    async function sendEmail() {
-        try {
-            const response = await fetch(API_URL, {
-                method: "POST",
-                headers: {
-                    "x-api-key": API_KEY,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(requestData)
-            });
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "x-api-key": API_KEY,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestData)
+        });
 
-            const data = await response.json();
-            console.log("Response:", data);
-        } catch (error) {
-            console.error("Error:", error.message);
+        const data = await response.json();
+        console.log("Response from external API:", data);
+
+        if (response.ok) {
+            res.json({ message: 'Email sent successfully' });
+        } else {
+            res.status(500).json({ message: 'Failed to send email' });
         }
+    } catch (error) {
+        console.error("Error sending email:", error.message);
+        res.status(500).json({ message: 'Failed to send email' });
     }
-
-    sendEmail();
 });
 
 app.post('/process-selections', async (req, res) => {
@@ -1129,29 +1134,35 @@ app.post('/api/request-reschedule', async (req, res) => {
     }
 });
 
-// Checking for previous password 
-app.post("/password/change", async (req, res) => {
-    const { userId, password } = req.body;
+// Change password (FORGOT FLOW)
+app.post('/api/change-password', async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ success: false, message: 'Email and password required.' });
+    }
 
     try {
-        // Fetch current password hash from database
-        const user = await db.getUserById(userId); // Assume getUserById fetches user data
-        const currentPasswordHash = user.passwordHash;
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
 
-        // Compare new password with current password
-        const isSamePassword = await bcrypt.compare(password, currentPasswordHash);
+        // Compare new password with old password
+        const isSamePassword = await bcrypt.compare(password, user.password);
         if (isSamePassword) {
             return res.status(400).json({ success: false, error: "previous_password_used" });
         }
 
-        // Hash new password and update it in the database
-        const newPasswordHash = await bcrypt.hash(password, 10);
-        await db.updatePassword(userId, newPasswordHash); // Assume updatePassword updates user password
+        // Hash and save new password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+        await user.save();
 
         return res.status(200).json({ success: true });
     } catch (error) {
-        console.error("Error changing password:", error);
-        return res.status(500).json({ success: false, error: "server_error" });
+        console.error('Error changing password:', error);
+        return res.status(500).json({ success: false, message: 'Server error.' });
     }
 });
 
@@ -1162,3 +1173,60 @@ app.listen(PORT, () => {
 
 module.exports = { User, Job, Profile };
 
+
+
+// Assign reset code to a user
+app.post('/api/reset-code', async (req, res) => {
+    const { email, resetCode } = req.body;
+
+    if (!email || !resetCode) {
+        return res.status(400).json({ message: 'Email and reset code are required.' });
+    }
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        user.resetCode = resetCode; // Save the reset code
+        await user.save();
+
+        res.status(200).json({ message: 'Reset code assigned successfully.' });
+    } catch (error) {
+        console.error('Error assigning reset code:', error);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+
+// Verify the reset code
+app.post('/api/verify-reset-code', async (req, res) => {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+        return res.status(400).json({ success: false, message: 'Email and code are required.' });
+    }
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (!user || !user.resetCode) {
+            return res.status(400).json({ success: false, message: 'No reset code found.' });
+        }
+
+        if (user.resetCode !== code) {
+            return res.status(400).json({ success: false, message: 'Invalid reset code.' });
+        }
+
+        // Reset code matches — clear it now
+        user.resetCode = undefined;
+        await user.save();
+
+        return res.status(200).json({ success: true, message: 'Code verified successfully.' });
+    } catch (error) {
+        console.error('Error verifying reset code:', error);
+        return res.status(500).json({ success: false, message: 'Server error.' });
+    }
+});

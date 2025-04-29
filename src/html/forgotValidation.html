@@ -1,103 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Forgot Password</title>
-        <link rel="stylesheet" href="style.css">
-    </head>
-    <body>
-        <div class = "wrapper" style="height: 500px; width: 700px">
-            <form>
-                <a href="index.html" style="text-align: center;">
-                    <img src="images/companylogo.png" alt="logo">
-                </a>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgot Password</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="wrapper" style="height: 500px; width: 700px">
+        <form id="code-form">
+            <a href="index.html" style="text-align: center;">
+                <img src="images/companylogo.png" alt="logo">
+            </a>
 
-                <p style="text-align: center; padding: 0.5em;">Please input your 6-digit confirmation code to continue.</p>
-                <div class = "number-fields">
-                    <input type="number" autocomplete="off" class="numField" pattern="[0-9]*" min="0" max="9" maxlength="1" value="" inputtype="numeric" id="otc-1" required>
-                    <input type="number" autocomplete="off" class="numField" pattern="[0-9]*" min="0" max="9" maxlength="1" value="" inputtype="numeric" id="otc-2" required>
-                    <input type="number" autocomplete="off" class="numField" pattern="[0-9]*" min="0" max="9" maxlength="1" value="" inputtype="numeric" id="otc-3" required>
-                    <input type="number" autocomplete="off" class="numField" pattern="[0-9]*" min="0" max="9" maxlength="1" value="" inputtype="numeric" id="otc-4" required>
-                    <input type="number" autocomplete="off" class="numField" pattern="[0-9]*" min="0" max="9" maxlength="1" value="" inputtype="numeric" id="otc-5" required>
-                    <input type="number" autocomplete="off" class="numField" pattern="[0-9]*" min="0" max="9" maxlength="1" value="" inputtype="numeric" id="otc-6" required>
-                </div>
+            <p style="text-align: center; padding: 0.5em;">Please input your 6-digit confirmation code to continue.</p>
+            <div class="number-fields">
+                <input type="number" autocomplete="off" class="numField" pattern="[0-9]*" min="0" max="9" maxlength="1" id="otc-1" required>
+                <input type="number" autocomplete="off" class="numField" pattern="[0-9]*" min="0" max="9" maxlength="1" id="otc-2" required>
+                <input type="number" autocomplete="off" class="numField" pattern="[0-9]*" min="0" max="9" maxlength="1" id="otc-3" required>
+                <input type="number" autocomplete="off" class="numField" pattern="[0-9]*" min="0" max="9" maxlength="1" id="otc-4" required>
+                <input type="number" autocomplete="off" class="numField" pattern="[0-9]*" min="0" max="9" maxlength="1" id="otc-5" required>
+                <input type="number" autocomplete="off" class="numField" pattern="[0-9]*" min="0" max="9" maxlength="1" id="otc-6" required>
+            </div>
 
-                <button type="submit" class="btn">Confirm</button>
-            </form>
-        </div>
-        <script> // script for controlling 6-digit code input
-            const numFields = document.querySelectorAll('.numField');
-            var digitRegExp = new RegExp('\\d');
+            <button type="submit" class="btn">Confirm</button>
+        </form>
+    </div>
 
-            numFields.forEach((field, index) => {
-                field.addEventListener('focus', () => {
-                    if (index > 0 && !numFields[index-1].value) { // focus on the next empty field
-                        numFields[index-1].focus();
-                    }
-                });
+    <script>
+        const numFields = document.querySelectorAll('.numField');
+        const email = sessionStorage.getItem('email'); // get email from session storage
+        var digitRegExp = new RegExp('\\d');
 
-                field.addEventListener('input', (event) => {
-                    if (field.value && index < numFields.length - 1) { // move to next field if the current one is filled
-                        numFields[index + 1].focus();
-                    }
-                });
-
-                field.addEventListener('keydown', (event) => {
-                    if (event.key === 'Backspace' && !field.value && index > 0) { // move to previous field when pressing backspace on an empty one
-                        numFields[index - 1].focus();
-                    }
-                    else if (event.key === 'Backspace') { // allows backspaces to be inputted without getting blocked by the following lines
-                        return;
-                    }
-
-                    if (field.value && index < numFields.length - 1) { // move to next field if the current one is filled
-                        numFields[index + 1].focus();
-                    }
-
-                    if(!digitRegExp.test(event.key) || field.value) { // prevent non-numerical inputs
-                        event.preventDefault();
-                    }
-                });
+        numFields.forEach((field, index) => {
+            field.addEventListener('input', (event) => {
+                if (field.value && index < numFields.length - 1) {
+                    numFields[index + 1].focus();
+                }
             });
-            async function handleCodeSubmission(event) {
-                event.preventDefault(); // Prevent form submission
 
-                const code = Array.from(numFields).map(field => field.value).join(''); // Combine the input values into a single code
-
-                try {
-                    const response = await verifyCode(email, code); // Call the API to verify the code
-                    if (response.success) {
-                        // Redirect to the reset password page
-                        window.location.href = "forgot2.html";
-                    } else {
-                        alert("Invalid code. Please try again.");
-                    }
-                } catch (error) {
-                    console.error("Error:", error);
-                    alert("An error occurred. Please try again.");
+            field.addEventListener('keydown', (event) => {
+                if (event.key === 'Backspace' && !field.value && index > 0) {
+                    numFields[index - 1].focus();
+                } else if (!digitRegExp.test(event.key) && event.key !== 'Backspace') {
+                    event.preventDefault();
                 }
+            });
+        });
 
-                return false;
+        document.getElementById('code-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const code = Array.from(numFields).map(f => f.value).join('');
+
+            if (code.length !== 6) {
+                alert('Please enter all 6 digits.');
+                return;
             }
 
-            async function verifyCode(email, code) {
-                try {
-                    const response = await fetch("https://api.camelcase-preprod.com/code/verify", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ email, code }),
-                    });
-                    return { success: response.ok };
-                } catch (error) {
-                    console.error("Error:", error);
-                    return { success: false };
+            try {
+                const response = await fetch('/api/verify-reset-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    console.log('Code verified successfully.');
+                    window.location.href = '/forgot2.html'; // Redirect to password reset page
+                } else {
+                    alert('Invalid or expired code. Please try again.');
                 }
+            } catch (error) {
+                console.error('Error verifying code:', error);
+                alert('Something went wrong. Please try again.');
             }
-            document.querySelector("form").addEventListener("submit", handleCodeSubmission);
-        </script> 
-    </body>
+        });
+    </script>
+</body>
 </html>
