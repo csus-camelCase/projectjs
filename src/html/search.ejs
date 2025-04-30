@@ -27,6 +27,7 @@
                         <th>Select</th>
                         <th>First Name</th>
                         <th>Last Name</th>
+                        <th>Email</th>
                         <th>First Login</th>
                         <th>Last Login</th>
                     </tr>
@@ -44,6 +45,9 @@
                             </td>
                             <td>
                                 <%= user.last_name %>
+                            </td>
+                            <td>
+                                <%= user.email %>
                             </td>
                             <td>
                                 <%= user.formattedCreatedAt %>
@@ -119,6 +123,7 @@
             <td><input type="checkbox" name="selectedCandidates" value="${user._id}"></td>
             <td>${user.first_name}</td>
             <td>${user.last_name}</td>
+            <td>${user.email}</td>
             <td>${user.formattedCreatedAt}</td>
             <td>${user.formattedLastLogin}</td>
         `;

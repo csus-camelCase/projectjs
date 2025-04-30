@@ -302,9 +302,9 @@ footer {
 
 /* Ensure the wrapper for the search form and table is wide enough */
 .wrapper.job-search {
-    width: 95%; /* Wider container */
+    width: 90%; /* Wider container */
     max-width: 1200px;
-    padding: 40px; /* Add padding for spacing */
+    padding: 20px; /* Add padding for spacing */
     overflow: hidden; /* Prevent overflow issues */
     margin: 0 auto;
 }
@@ -671,4 +671,35 @@ button {
     top: 20px;  
     right: 20px; 
     z-index: 10;
+}
+/*preference search style*/
+td {
+    vertical-align: top;
+}
+
+td::-webkit-scrollbar {
+    height: 6px;
+}
+
+td::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  td::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+  }
+  
+  td::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+  }
+  #candidatesTable {
+    max-height: 400px;
+    overflow-y: auto;
+    display: block;
+}
+
+#candidatesTable th, #candidatesTable td {
+    width: 200px;
+    text-align: center;
 }

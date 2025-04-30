@@ -282,7 +282,7 @@ app.get('/search', async (req, res) => {
         const profiles = await Profile.find({}, 'user_id');
         const userIds = profiles.map(profile => profile.user_id);
         //const candidates = await User.find({ isAdmin: false });
-        const users = await User.find({ _id: { $in: userIds }, isAdmin: false }, 'first_name last_name created_at last_login');
+        const users = await User.find({ _id: { $in: userIds }, isAdmin: false }, 'first_name last_name email created_at last_login');
         const filteredUsers = users.filter(user => !user.isAdmin); // Exclude admins
         users.forEach(user => {
             user.formattedCreatedAt = moment(user.created_at).format('MMMM YYYY');
