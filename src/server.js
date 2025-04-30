@@ -674,40 +674,55 @@ app.post('/api/schedule-event', async (req, res) => {
 
 
 //manage_preference.ejs backend logic
+// Enhanced preferences route with emails
 app.get('/api/preferences', async (req, res) => {
     try {
         const search = req.query.search || '';
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const skip = (page - 1) * limit;
 
+        // Step 1: Find all preference names matching the search
         const preferences = await Preference.find({
             name: { $regex: search, $options: 'i' }
-        }).skip(skip).limit(limit).lean();
+        }).lean();
 
-        const preferenceNames = preferences.map(pref => pref.name);
+        const preferenceNames = preferences.map(p => p.name);
 
-        const userCounts = await Profile.aggregate([
+        // Step 2: Aggregate user counts and emails from profiles
+        const results = await Profile.aggregate([
+            { $match: { preferences: { $in: preferenceNames } } },
             { $unwind: "$preferences" },
             { $match: { preferences: { $in: preferenceNames } } },
-            { $group: { _id: "$preferences", count: { $sum: 1 } } }
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "user_id",
+                    foreignField: "_id",
+                    as: "user"
+                }
+            },
+            { $unwind: "$user" },
+            {
+                $group: {
+                    _id: "$preferences",
+                    userCount: { $sum: 1 },
+                    emails: { $addToSet: "$user.email" }
+                }
+            }
         ]);
 
-        const countMap = {};
-        userCounts.forEach(entry => {
-            countMap[entry._id] = entry.count;
+        // Step 3: Merge counts + emails back into preference objects
+        const data = preferences.map(pref => {
+            const match = results.find(r => r._id === pref.name);
+            return {
+                name: pref.name,
+                userCount: match?.userCount || 0,
+                emails: match?.emails || [] // use first email if multiple
+            };
         });
 
-        const preferencesWithCounts = preferences.map(pref => ({
-            ...pref,
-            userCount: countMap[pref.name] || 0
-        }));
-
-        res.json({ preferences: preferencesWithCounts });
-
+        res.json({ preferences: data });
     } catch (error) {
-        console.error('Error fetching preferences:', error);
-        res.status(500).json({ error: 'Server error' });
+        console.error("Error fetching preferences with emails:", error);
+        res.status(500).json({ error: "Server error" });
     }
 });
 

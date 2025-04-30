@@ -1,198 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Send Email</title>
-    <link rel="stylesheet" href="style.css">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <style>
-        .results-container {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Outreach Dashboard</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .prototype-section input,
+    .prototype-section textarea {
+      padding: 14px 20px;
+      font-size: 16px;
+      border-radius: 30px;
+      border: var(--black-border);
+      width: 100%;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
 
-        th,
-        td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
+    .dropdown-wrapper {
+      position: relative;
+      margin-top: 20px;
+    }
 
-        th {
-            background-color: #f2f2f2;
-        }
+    .dropdown-toggle {
+      background: white;
+      border: var(--black-border);
+      padding: 12px 20px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: 600;
+      text-align: left;
+      position: relative;
+    }
 
-        tr:hover {
-            background-color: #f5f5f5;
-        }
+    .dropdown-toggle::after {
+      content: '▾';
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
 
-        .search-icon {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #777;
-        }
+    .dropdown-menu {
+      position: absolute;
+      top: 110%;
+      left: 0;
+      width: 100%;
+      background: white;
+      border: var(--black-border);
+      border-radius: 10px;
+      padding: 10px;
+      display: none;
+      z-index: 100;
+      max-height: 200px;
+      overflow-y: auto;
+    }
 
-        .input-box {
-            position: relative;
-        }
-    </style>
+    .dropdown-menu.show {
+      display: block;
+    }
+
+    .dropdown-menu label {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      padding: 8px 12px;
+      font-size: 15px;
+      cursor: pointer;
+      text-align: left;
+      white-space: nowrap;
+      line-height: 1.2;
+    }
+
+    .dropdown-menu input[type="checkbox"] {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      margin: 0;
+    }
+
+    .email-pill {
+      display: inline-block;
+      background-color: #eee;
+      padding: 6px 12px;
+      border-radius: 20px;
+      margin: 4px;
+    }
+
+    .email-pill span {
+      margin-left: 8px;
+      color: red;
+      cursor: pointer;
+    }
+
+    #searchResults div {
+      padding: 6px;
+      margin-bottom: 6px;
+      background: #f0f0f0;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #searchResults div:hover {
+      background: #e4e4e4;
+    }
+
+    #successMessage {
+      display: none;
+      text-align: center;
+      color: green;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 
-<body style="display: flex;">
-    <div class="wrapper" style="width: 800px;">
-        <h2 style="text-align: center; color: #000000; margin-bottom: 20px;">Send Email to Candidates</h2>
-        <form id="emailForm" action="/api/send-email" method="POST">
-
-            <!-- Subject Input -->
-            <div class="input-box">
-                <input type="text" name="subject" placeholder="Subject" required>
-                <i class="bx bx-heading"></i>
-            </div>
-
-            <!-- Message Textarea -->
-            <div class="message-container" style="display: flex; align-items: flex-start; gap: 10px;">
-                <textarea name="message" placeholder="Type your message here..." rows="5"
-                    style="width: 100%; border: 2px solid black; border-radius: 10px; padding: 10px;"
-                    required></textarea>
-                <!-- Send Button -->
-                <button type="submit" class="send btn" title="Are you sure">Send Email</button>
-            </div>
-        </form>
-
-        <!-- Success Message -->
-        <div id="successMessage"
-            style="display: none; text-align: center; margin-top: 20px; color: green; font-weight: bold;">
-            Email(s) sent!
+<body>
+  <div class="dashboard-wrapper">
+    <!-- Header -->
+    <header class="admin-header">
+      <img src="images/companylogo.png" alt="System1Search Logo" class="center-logo">
+      <div class="dropdown">
+        <button>Menu</button>
+        <div class="dropdown-content">
+          <a href="https://calendar.google.com/">Google Calendar</a>
+          <a href="/settings.html">Settings</a>
+          <a href="/index.html">Logout</a>
         </div>
+      </div>
+    </header>
 
-        <!-- Back to Dashboard Link -->
-        <div class="sign-up">
-            <p><a href="/admin_dashboard.html" class="btn" style="padding: 10px; margin-left: 10px;">Back to
-                    Dashboard</a></p>
+    <!-- Main Content -->
+    <div class="admin-dash">
+      <!-- Search + Filter -->
+      <div class="prototype-section">
+        <h2>Search Users</h2>
+        <p>Search by name or preference.</p>
+        <div class="input-group">
+          <input type="text" id="searchInput" placeholder="Search by name or email..." />
+          <button class="dashboard-button" onclick="searchUsers()">Search</button>
         </div>
+        <div id="searchResults"></div>
+
+        <h2>Filter by Preference</h2>
+        <div class="dropdown-wrapper">
+          <div id="dropdownToggle" class="dropdown-toggle">Select Preferences</div>
+          <div id="preferenceMenu" class="dropdown-menu"></div>
+        </div>
+      </div>
+
+      <!-- Compose Message -->
+      <div class="prototype-section">
+        <h2>Compose Message</h2>
+        <p>Send emails to selected users.</p>
+        <div class="recipient-group">
+          <div id="recipientList"></div>
+          <input type="text" id="manualEmail" placeholder="Type email and press Enter" />
+        </div>
+        <input type="text" id="subject" placeholder="Subject" />
+        <textarea id="message" placeholder="Your message..."></textarea>
+        <button class="dashboard-button" onclick="sendEmail()">Send Email</button>
+        <div id="successMessage">Email(s) sent!</div>
+      </div>
     </div>
 
-    <!-- Preference Postings Search Box -->
-    <div class="wrapper" style="width: 800px;">
-        <h2 style="text-align: center; margin-bottom: 20px;">Search Preferences</h2>
+    <!-- Footer -->
+    <footer>
+      <p>© 2024 System1Search. All rights reserved.</p>
+    </footer>
+  </div>
 
-        <div class="input-box">
-            <input type="text" id="preferenceSearch" placeholder="Search preferences...">
-            <i class='bx bx-search search-icon'></i>
-        </div>
+  <script>
+    const recipientSet = new Set();
+    const prefEmailMap = {};
 
-        <div class="results-container" style="margin-top: 20px; max-height: 400px; overflow-y: auto;">
-            <table id="preferenceResults" style="width: 100%;">
-                <thead>
-                    <tr>
-                        <th>Select</th>
-                        <th>Preference</th>
-                        <th>Selected By</th>
-                    </tr>
-                </thead>
-                <tbody id="preferenceResultsBody">
-                    <!-- Dynamic rows go here -->
-                </tbody>
-            </table>
-            <div id="noPreferenceResults" style="text-align: center; padding: 20px; display: none;">
-                No matching preferences found. Try a different search term.
-            </div>
-        </div>
-    </div>
-    <script>
-        // DOM elements
-        const preferenceSearch = document.getElementById('preferenceSearch');
-        const resultsBody = document.getElementById('preferenceResultsBody');
-        const noResults = document.getElementById('noPreferenceResults');
-        let searchDebounce;
+    document.getElementById('manualEmail').addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addRecipient(e.target.value);
+        e.target.value = '';
+      }
+    });
 
-        // Handle search input
-        preferenceSearch.addEventListener('input', function () {
-            clearTimeout(searchDebounce);
-            const term = this.value.trim();
+    function addRecipient(email) {
+      email = email.trim();
+      if (email && !recipientSet.has(email)) {
+        recipientSet.add(email);
+        updateRecipientList();
+      }
+    }
 
-            searchDebounce = setTimeout(() => {
-                fetchPreferences(term);
-            }, 300);
-        });
+    function removeRecipient(email) {
+      recipientSet.delete(email);
+      updateRecipientList();
+    }
 
-        // Fetch preferences from API
-        async function fetchPreferences(term = '') {
-            try {
-                const response = await fetch(`/api/preferences?search=${encodeURIComponent(term)}`);
-                const data = await response.json();
+    function updateRecipientList() {
+      const container = document.getElementById('recipientList');
+      container.innerHTML = '';
+      recipientSet.forEach(email => {
+        const pill = document.createElement('div');
+        pill.className = 'email-pill';
+        pill.innerHTML = `${email} <span onclick="removeRecipient('${email}')">&times;</span>`;
+        container.appendChild(pill);
+      });
+    }
 
-                resultsBody.innerHTML = '';
+    async function searchUsers() {
+      const input = document.getElementById('searchInput').value.trim();
+      const res = await fetch(`/search-candidates?query=${encodeURIComponent(input)}`);
+      const users = await res.json();
+      const container = document.getElementById('searchResults');
+      container.innerHTML = '';
 
-                if (!data.preferences || data.preferences.length === 0) {
-                    noResults.style.display = 'block';
-                    return;
-                }
+      users.forEach(user => {
+        const div = document.createElement('div');
+        div.textContent = `${user.first_name} ${user.last_name} (${user.email})`;
+        div.onclick = () => addRecipient(user.email);
+        container.appendChild(div);
+      });
+    }
 
-                noResults.style.display = 'none';
+    async function loadPreferences() {
+      const res = await fetch('/api/preferences');
+      const data = await res.json();
+      const menu = document.getElementById('preferenceMenu');
+      menu.innerHTML = '';
 
-                data.preferences.forEach(pref => {
-                    const row = document.createElement('tr');
+      for (const pref of data.preferences) {
+        const label = document.createElement('label');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = pref.name;
+        checkbox.onchange = () => togglePreference(pref.name, checkbox.checked);
+        label.appendChild(checkbox);
+        label.append(` ${pref.name} (${pref.userCount})`);
+        menu.appendChild(label);
+      }
+    }
 
-                    row.innerHTML = `
-                    <td><input type="checkbox" class="preferenceCheckbox" value="${pref.name}"></td>
-                    <td>${pref.name}</td>
-                    <td>${pref.userCount}</td>
-                `;
-
-                    resultsBody.appendChild(row);
-                });
-
-            } catch (error) {
-                console.error('Error fetching preferences:', error);
-                resultsBody.innerHTML = `
-                <tr>
-                    <td colspan="3" style="color: red;">Error loading preferences.</td>
-                </tr>
-            `;
-                noResults.style.display = 'none';
-            }
+    async function togglePreference(prefName, isChecked) {
+      if (isChecked) {
+        const res = await fetch(`/api/preferences?search=${prefName}`);
+        const data = await res.json();
+        const pref = data.preferences.find(p => p.name === prefName);
+        if (pref?.emails) {
+          prefEmailMap[prefName] = pref.emails;
+          pref.emails.forEach(email => addRecipient(email));
         }
+      } else {
+        const emails = prefEmailMap[prefName] || [];
+        emails.forEach(email => recipientSet.delete(email));
+        updateRecipientList();
+        delete prefEmailMap[prefName];
+      }
+    }
 
-        // Initial load
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchPreferences();
-        });
+    async function sendEmail() {
+      const recipient = [...recipientSet].join(', ');
+      const subject = document.getElementById('subject').value.trim();
+      const message = document.getElementById('message').value.trim();
 
-        // Prepopulate the email field from the query string
-        const params = new URLSearchParams(window.location.search);
-        const emails = params.get('emails');
-        if (emails) {
-            document.getElementById('recipient').value = emails;
-        }
+      if (!recipient || !subject || !message) {
+        alert('All fields are required.');
+        return;
+      }
 
-        // Handle form submission
-        document.getElementById('emailForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-            document.getElementById('successMessage').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('successMessage').style.display = 'none';
-            }, 3000);
+      const res = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient, subject, message })
+      });
 
-            // Submit the form asynchronously
-            fetch('/api/send-email', {
-                method: 'POST',
-                body: new FormData(this)
-            }).catch(error => {
-                console.error('Error sending email:', error);
-            });
-        });
-    </script>
+      const result = await res.json();
+      if (res.ok) {
+        document.getElementById('successMessage').style.display = 'block';
+        setTimeout(() => {
+          document.getElementById('successMessage').style.display = 'none';
+        }, 3000);
+      } else {
+        alert(result.message || 'Failed to send email.');
+      }
+    }
+
+    document.getElementById('dropdownToggle').addEventListener('click', () => {
+      document.getElementById('preferenceMenu').classList.toggle('show');
+    });
+
+    document.addEventListener('click', (e) => {
+      const toggle = document.getElementById('dropdownToggle');
+      const menu = document.getElementById('preferenceMenu');
+      if (!toggle.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.remove('show');
+      }
+    });
+
+    loadPreferences();
+  </script>
 </body>
-
 </html>
