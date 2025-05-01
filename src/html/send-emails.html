@@ -228,7 +228,7 @@
     }
 
     async function loadPreferences() {
-      const res = await fetch('/api/preferences');
+      const res = await fetch('/api/email-preferences');
       const data = await res.json();
       const menu = document.getElementById('preferenceMenu');
       menu.innerHTML = '';
@@ -247,7 +247,7 @@
 
     async function togglePreference(prefName, isChecked) {
       if (isChecked) {
-        const res = await fetch(`/api/preferences?search=${prefName}`);
+        const res = await fetch(`/api/email-preferences?search=${prefName}`);
         const data = await res.json();
         const pref = data.preferences.find(p => p.name === prefName);
         if (pref?.emails) {
