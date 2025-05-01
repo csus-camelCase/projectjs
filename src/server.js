@@ -295,33 +295,57 @@ app.get('/search', async (req, res) => {
     }
 });
 
-//candidate seach modification
+
 app.get('/search-candidates', async (req, res) => {
     const query = req.query.query;
     if (!query) {
-        return res.json([]); // Return an empty array if no query is provided
+        return res.json([]);
     }
 
     try {
         const profiles = await Profile.find({}, 'user_id');
         const userIds = profiles.map(profile => profile.user_id);
-        const users = await User.find({ 
-            _id: { $in: userIds },
-            $or: [
-                { first_name: { $regex: query, $options: 'i' } },
-                { last_name: { $regex: query, $options: 'i' } },
-                { email: { $regex: query, $options: 'i' } }
-            ]
-        }).lean();
 
-        const filteredUsers = users.filter(user => !user.isAdmin); // Exclude admins
+        const users = await User.aggregate([
+            { $match: { _id: { $in: userIds } } },
+            {
+                $addFields: {
+                    full_name: { $concat: ["$first_name", " ", "$last_name"] }
+                }
+            },
+            {
+                $match: {
+                    $and: [
+                        { isAdmin: { $ne: true } },
+                        {
+                            $or: [
+                                { full_name: { $regex: query, $options: 'i' } },
+                                { email: { $regex: query, $options: 'i' } },
+                                { first_name: { $regex: query, $options: 'i' } },
+                                { last_name: { $regex: query, $options: 'i' } }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                $project: {
+                    first_name: 1,
+                    last_name: 1,
+                    email: 1,
+                    created_at: 1,
+                    last_login: 1
+                }
+            }
+        ]);
 
-        filteredUsers.forEach(user => {
+        // Add formatted dates in JS
+        users.forEach(user => {
             user.formattedCreatedAt = moment(user.created_at).format('MMMM YYYY');
             user.formattedLastLogin = moment(user.last_login).format('MMMM YYYY');
         });
 
-        res.json(filteredUsers);
+        res.json(users);
     } catch (error) {
         console.error('Error searching candidates:', error);
         res.status(500).json({ error: 'Internal Server Error' });
