@@ -51,8 +51,8 @@ const jobSchema = new mongoose.Schema({
 const Job = mongoose.model('Job', jobSchema, 'jobs');
 
 const userSchema = new mongoose.Schema({
-    email: { type: String, unique: true },
-    username: { type: String, unique: true, required: true },
+    email: { type: String, unique: true, required: true},
+    username: { type: String },
     password: String,
     first_name: String,
     last_name: String,
@@ -359,23 +359,40 @@ app.get('/search-admins', async (req, res) => {
         let admins;
 
         if (!searchTerm || searchTerm.trim() === "") {
-            // No query provided – fetch all admin users
             admins = await User.find({ isAdmin: true }).lean();
         } else {
-            // Query provided – fetch admin users matching the search term
             const term = searchTerm.trim();
-            const regex = new RegExp(term, "i");  // case-insensitive regex for matching
-            admins = await User.find({ 
-                isAdmin: true,
-                $or: [ 
-                    { first_name: regex }, 
-                    { email: regex }, 
-                    { last_name: regex }, 
-                ]
-            }).lean();
+            const regex = new RegExp(term, "i");
+
+            admins = await User.aggregate([
+                { $match: { isAdmin: true } },
+                {
+                    $addFields: {
+                        full_name: { $concat: ["$first_name", " ", "$last_name"] }
+                    }
+                },
+                {
+                    $match: {
+                        $or: [
+                            { first_name: regex },
+                            { last_name: regex },
+                            { email: regex },
+                            { full_name: regex }
+                        ]
+                    }
+                },
+                {
+                    $project: {
+                        first_name: 1,
+                        last_name: 1,
+                        email: 1,
+                        created_at: 1,
+                        last_login: 1
+                    }
+                }
+            ]);
         }
 
-        // Format created_at and last_login
         admins.forEach(admin => {
             admin.formattedCreatedAt = moment(admin.created_at).format('MMMM YYYY');
             admin.formattedLastLogin = moment(admin.last_login).format('MMMM YYYY');

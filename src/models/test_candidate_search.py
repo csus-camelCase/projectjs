@@ -5,7 +5,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 
-tester = "Tom"
+
+testers = ["Zachary","Estelita","rammerha1mmer@sbcglobal.net","Zachary Bestelita","Zacharyfail","Estelitafail",
+           "rammerha1mmerfail@sbcglobal.net", "Zachary Zestelita","Tom","Bolyard","Tomboylard05@gmail.com","Tom Bolyard"]
 
 driver = webdriver.Chrome()
 
@@ -31,22 +33,25 @@ try:
 
     # Type in the search bar
     name_input = driver.find_element(By.ID, "searchInput")
-    name_input.send_keys(tester)
 
-    time.sleep(2)
+    a = 0 #first name of user cause that is what the selenium is looking for in the visablity check
+    b = 0 #incriment number so that first name is changed each time
+    for tester in testers:
+        name_input.send_keys(tester)
+        time.sleep(.5)
+        try:
+            WebDriverWait(driver, 2).until(EC.visibility_of_element_located( (By.XPATH, f"//td[contains(text(), '{tester[a]}')]")))
+            result = driver.find_element(By.XPATH, f"//td[contains(text(), '{testers[a]}')]")
+            print(f"Test passed: {tester} found in search results")
+        except:
+            print(f"Test failed: {tester} not found in search results")
 
-    try:
-        # Wait until the result is visible and contains the text "Jonny"
-        WebDriverWait(driver, 10).until(EC.visibility_of_element_located(
-            (By.XPATH, f"//td[contains(text(), '{tester}')]")
-        ))
-
-        # Find the result
-        result = driver.find_element(By.XPATH, f"//td[contains(text(), '{tester}')]")
-        print(f"Test passed: {tester} found in search results")
-
-    except:
-        print(f"Test failed: {tester} not found in search results")
+        name_input.clear()
+        b + 1
+        if b == 4: 
+            a + 4
+            b = 0
+        
 
 finally:
     # Close the browser
