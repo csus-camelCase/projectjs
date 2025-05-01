@@ -11,13 +11,12 @@
         <button>Menu</button>
         <div class="dropdown-content" style="top: 53px; left: 98px;">
             <a href="https://calendar.google.com/">Google Calendar</a>
-            <!--<a href="/signup2.html">Edit Candidate Profile</a>  axed due to repeating data from settings setup.html -->
             <a href="/settings.html">Settings</a>
             <a href="/index.html">Logout</a>
         </div>
     </div>
 
-    <!--THe Dashboard-->
+    <!-- The Dashboard -->
     <div class="wrapper" style="width: 900px">
         <!-- Header Section -->
         <header>
@@ -66,15 +65,34 @@
                             const eventDiv = document.createElement("div");
                             eventDiv.classList.add("event");
 
+                            // Format date and time for Google Calendar
+                            const startDate = new Date(`${event.date}T${event.time}`);
+                            const endDate = new Date(startDate.getTime() + (60 * 60 * 1000)); // Default 1 hour duration
+                            
+                            // Format dates to YYYYMMDDTHHmmssZ (Google Calendar format)
+                            const formatDateForGoogle = (date) => {
+                                return date.toISOString()
+                                    .replace(/[-:]/g, '')
+                                    .replace('.000', '')
+                                    .slice(0, 15) + 'Z';
+                            };
+
+                            const startStr = formatDateForGoogle(startDate);
+                            const endStr = formatDateForGoogle(endDate);
+
+                            // Create Google Calendar link with pre-filled details
+                            const googleCalendarLink = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${startStr}/${endStr}&details=${encodeURIComponent(event.description || 'Event')}&location=${encodeURIComponent(event.location || '')}`;
+
                             eventDiv.innerHTML = `
                                 <div class="event-details">
                                     <p><strong>${event.title}</strong></p>
                                     <p>${event.date} | ${event.time}</p>
                                     <p>Location: ${event.location}</p>
-                                    <a href="${event.calendarLink || 'https://calendar.google.com/calendar/'}" target="_blank" rel="noopener noreferrer">View in Google Calendar</a>
+                                    <p>Description: ${event.description || 'No description provided'}</p>
+                                    <a href="${googleCalendarLink}" target="_blank" rel="noopener noreferrer" class="add-to-calendar-btn">Add to Google Calendar</a>
                                 </div>
                                 <button class="reschedule-btn" onclick="requestReschedule(this, '${event.id}')">Request Reschedule</button>
-                            `;                        
+                            `;
 
                             eventsContainer.appendChild(eventDiv);
                         });
@@ -85,7 +103,7 @@
                                 const eventId = e.target.getAttribute("data-event-id");
                                 requestReschedule(eventId);
                             });
-                        });                        
+                        });
                     }
                 })
                 .catch(error => console.error('Error fetching events:', error));
@@ -131,7 +149,6 @@
                 button.disabled = false; // Re-enable the button so the user can try again
             });
         }
-
     </script>
 </body>
 </html>
