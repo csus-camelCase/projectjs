@@ -60,29 +60,12 @@
                 </tbody>
             </table>
 
-            <!-- Button to navigate to send-emails.html -->
-            <div style="margin-top: 20px;">
-                <button type="button" id="submitButton" class="btn">Send Emails to Candidates</button>
+            <div style="display: flex; justify-content: center; gap: 10px; text-align: center; margin-top: 20px;">
+                <button type="button" id="submitButton" class="btn" style="padding: 10px;">Send Emails to Candidates</button>
+                <button type="button" id="promoteButton" class="btn" style="padding: 10px;">Promote Selected to Admin</button>
+                <button type="button" id="deleteButton" class="btn" style="padding: 10px;">Delete Selected Accounts</button>
+                <a href="/admin_dashboard.html" class="btn" style="padding: 10px;">Back to Dashboard</a>
             </div>
-            <!-- Promote to Admin Button -->
-            <div style="margin-top: 20px;">
-                <button type="button" id="promoteButton" class="btn">
-                    Promote Selected to Admin
-                </button>
-            </div>        
-            <!-- Delete Selected Accounts Button -->
-            <div style="margin-top: 20px;">
-                <button type="button" id="deleteButton" class="btn">
-                    Delete Selected Accounts
-                </button>
-            </div>
-        </form>
-
-        <!-- Additional buttons -->
-        <div style="margin-top: 40px; text-align: center;">
-            <!--<a href="/send-emails.html" class="btn" style="padding: 10px; margin-right: 10px;">Compose Email</a>-->
-            <a href="/admin_dashboard.html" class="btn" style="padding: 10px; margin-left: 10px;">Back to Dashboard</a>
-        </div>
     </div>
 
     <script>

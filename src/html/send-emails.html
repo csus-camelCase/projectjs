@@ -203,6 +203,22 @@
       font-weight: bold;
       margin-top: 20px;
     }
+
+    .btn {
+      width: 100%;
+      height: 45px;
+      background: var(--default-dark-red);
+      background: var(--red-gradient);
+      border: none;
+      outline: none;
+      border: var(--black-border);
+      border-radius: 40px;
+      cursor: pointer;
+      font-size: 16px;
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+    }
   </style>
 </head>
 
@@ -210,8 +226,9 @@
   <div class="dashboard-wrapper">
     <!-- Header -->
     <header class="admin-header">
-      <img src="images/companylogo.png" alt="System1Search Logo" class="center-logo">
-      
+      <a href="/admin_dashboard.html">
+        <img src="images/companylogo.png" alt="logo" class="center-logo">
+      </a>
     </header>
 
     <!-- Main Content -->
@@ -247,7 +264,10 @@
         <input type="text" id="manualEmail" placeholder="Type email and press Enter" />
         <input type="text" id="subject" placeholder="Subject" />
         <textarea id="message" placeholder="Your message..."></textarea>
-        <button class="dashboard-button" onclick="sendEmail()">Send Email</button>
+        <div style="display: flex; flex-direction:column; justify-content: center; gap: 10px; text-align: center; margin-top: 20px;">
+          <button class="btn" onclick="sendEmail()">Send Email</button>
+          <a href="/admin_dashboard.html" class="btn" style="padding: 10px;">Back to Dashboard</a>
+        </div>
         <div id="successMessage">Email(s) sent!</div>
       </div>
     </div>
