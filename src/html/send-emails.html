@@ -6,6 +6,71 @@
   <title>Outreach Dashboard</title>
   <link rel="stylesheet" href="style.css"/>
   <style>
+    .admin-dash {
+      max-height: calc(100vh - 200px); 
+      overflow-y: auto;
+    }
+   
+    .dashboard-wrapper {
+      width: 2000px;         
+      height: 1000px;        
+      overflow: hidden;     
+      margin: 0 auto;        
+      position: relative;
+    }
+    .input-group.search-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .input-group.search-bar input {
+      flex: 1 1 100%;
+      min-width: 0;
+    }
+
+    .input-group.search-bar button {
+      flex: 1;
+      min-width: 120px;
+    }
+
+
+    .prototype-section {
+      max-width: 100%;
+      overflow-x: hidden;
+
+    }
+
+    .pill-container {
+      width: 100%;             
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;      
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 8px;
+      box-sizing: border-box;
+    }
+    .recipient-group {
+      width: 860px;         
+      height: 160px; 
+      overflow-y: auto;
+      overflow-x: hidden;
+      border: var(--black-border);
+      border-radius: 12px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      margin-bottom: 10px;
+
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 8px;
+      box-sizing: border-box;
+                 
+    }
+
     .prototype-section input,
     .prototype-section textarea {
       padding: 14px 20px;
@@ -86,12 +151,20 @@
     }
 
     .email-pill {
-      display: inline-block;
-      background-color: #eee;
+      background-color: #ccc;
+      color: #333;
       padding: 6px 12px;
       border-radius: 20px;
       margin: 4px;
+
+      white-space: nowrap;   
+      max-width: calc(100% - 16px);  
+      box-sizing: border-box;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+
+    
 
     .email-pill span {
       margin-left: 8px;
@@ -99,8 +172,19 @@
       cursor: pointer;
     }
 
+    #searchResults {
+      display: none;
+      max-height: 250px; /* Approx height for 5 users at ~50px each */
+      overflow-y: auto;
+      border: var(--black-border);
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 10px;
+      background-color: #f9f9f9;
+    }
+
     #searchResults div {
-      padding: 6px;
+      padding: 10px;
       margin-bottom: 6px;
       background: #f0f0f0;
       border-radius: 6px;
@@ -110,6 +194,7 @@
     #searchResults div:hover {
       background: #e4e4e4;
     }
+
 
     #successMessage {
       display: none;
@@ -126,14 +211,7 @@
     <!-- Header -->
     <header class="admin-header">
       <img src="images/companylogo.png" alt="System1Search Logo" class="center-logo">
-      <div class="dropdown">
-        <button>Menu</button>
-        <div class="dropdown-content">
-          <a href="https://calendar.google.com/">Google Calendar</a>
-          <a href="/settings.html">Settings</a>
-          <a href="/index.html">Logout</a>
-        </div>
-      </div>
+      
     </header>
 
     <!-- Main Content -->
@@ -142,27 +220,31 @@
       <div class="prototype-section">
         <h2>Search Users</h2>
         <p>Search by name or preference.</p>
-        <div class="input-group">
+        <div class="input-group search-bar">
           <input type="text" id="searchInput" placeholder="Search by name or email..." />
           <button class="dashboard-button" onclick="searchUsers()">Search</button>
+          <button class="dashboard-button" id="clearSearchButton">Clear Search</button>
         </div>
-        <div id="searchResults"></div>
+        <div id="searchContainer">
+          <div id="searchResults" class="search-results-box"></div>
+        </div>
 
         <h2>Filter by Preference</h2>
         <div class="dropdown-wrapper">
           <div id="dropdownToggle" class="dropdown-toggle">Select Preferences</div>
           <div id="preferenceMenu" class="dropdown-menu"></div>
+          <button id="clearAllButton" class="dashboard-button" style="margin-top: 10px;">Clear All</button>
         </div>
       </div>
 
       <!-- Compose Message -->
       <div class="prototype-section">
         <h2>Compose Message</h2>
-        <p>Send emails to selected users.</p>
+        <p>Send emails to selected users. <span id="recipientCount">(0 selected)</span></p>
         <div class="recipient-group">
-          <div id="recipientList"></div>
-          <input type="text" id="manualEmail" placeholder="Type email and press Enter" />
+          <div id="recipientList" class="pill-container"></div>
         </div>
+        <input type="text" id="manualEmail" placeholder="Type email and press Enter" />
         <input type="text" id="subject" placeholder="Subject" />
         <textarea id="message" placeholder="Your message..."></textarea>
         <button class="dashboard-button" onclick="sendEmail()">Send Email</button>
@@ -177,8 +259,32 @@
   </div>
 
   <script>
+    const emailToPrefs = {};
     const recipientSet = new Set();
     const prefEmailMap = {};
+
+    document.getElementById('clearAllButton').addEventListener('click', () => {
+      // Clear recipient set
+      recipientSet.clear();
+      updateRecipientList();
+
+      // Clear prefEmailMap
+      for (const key in prefEmailMap) {
+        delete prefEmailMap[key];
+      }
+
+      // Clear emailToPrefs
+      for (const key in emailToPrefs) {
+        delete emailToPrefs[key];
+      }
+
+      // Uncheck all checkboxes in the preference menu
+      document.querySelectorAll('#preferenceMenu input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = false;
+      });
+    });
+
+
 
     document.getElementById('manualEmail').addEventListener('keydown', e => {
       if (e.key === 'Enter') {
@@ -210,6 +316,7 @@
         pill.innerHTML = `${email} <span onclick="removeRecipient('${email}')">&times;</span>`;
         container.appendChild(pill);
       });
+      document.getElementById('recipientCount').textContent = `(${recipientSet.size} selected)`;
     }
 
     async function searchUsers() {
@@ -222,9 +329,16 @@
       users.forEach(user => {
         const div = document.createElement('div');
         div.textContent = `${user.first_name} ${user.last_name} (${user.email})`;
-        div.onclick = () => addRecipient(user.email);
+        div.onclick = () => {
+          if (recipientSet.has(user.email)) {
+            removeRecipient(user.email);
+          } else {
+            addRecipient(user.email);
+          }
+        };
         container.appendChild(div);
       });
+      document.getElementById('searchResults').style.display = 'block';
     }
 
     async function loadPreferences() {
@@ -240,10 +354,14 @@
         checkbox.value = pref.name;
         checkbox.onchange = () => togglePreference(pref.name, checkbox.checked);
         label.appendChild(checkbox);
-        label.append(` ${pref.name} (${pref.userCount})`);
+        label.append(`${pref.name} (${pref.userCount})`);
         menu.appendChild(label);
       }
     }
+    document.getElementById('clearSearchButton').addEventListener('click', () => {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('searchResults').innerHTML = '';
+    });
 
     async function togglePreference(prefName, isChecked) {
       if (isChecked) {
@@ -252,11 +370,23 @@
         const pref = data.preferences.find(p => p.name === prefName);
         if (pref?.emails) {
           prefEmailMap[prefName] = pref.emails;
-          pref.emails.forEach(email => addRecipient(email));
+          pref.emails.forEach(email => {
+            if (!emailToPrefs[email]) emailToPrefs[email] = new Set();
+            emailToPrefs[email].add(prefName);
+            addRecipient(email);
+          });
         }
       } else {
         const emails = prefEmailMap[prefName] || [];
-        emails.forEach(email => recipientSet.delete(email));
+        emails.forEach(email => {
+          if (emailToPrefs[email]) {
+            emailToPrefs[email].delete(prefName);
+            if (emailToPrefs[email].size === 0) {
+              delete emailToPrefs[email];
+              recipientSet.delete(email);
+            }
+          }
+        });
         updateRecipientList();
         delete prefEmailMap[prefName];
       }
@@ -300,6 +430,15 @@
         menu.classList.remove('show');
       }
     });
+    document.addEventListener('click', (e) => {
+      const searchBox = document.getElementById('searchResults');
+      const searchInput = document.getElementById('searchInput');
+
+      if (!searchBox.contains(e.target) && !searchInput.contains(e.target)) {
+        searchBox.style.display = 'none';
+      }
+    });
+    
 
     loadPreferences();
   </script>
