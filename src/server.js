@@ -309,7 +309,8 @@ app.get('/search-candidates', async (req, res) => {
             _id: { $in: userIds },
             $or: [
                 { first_name: { $regex: query, $options: 'i' } },
-                { last_name: { $regex: query, $options: 'i' } }
+                { last_name: { $regex: query, $options: 'i' } },
+                { email: { $regex: query, $options: 'i' } }
             ]
         }).lean();
 
@@ -343,9 +344,9 @@ app.get('/search-admins', async (req, res) => {
             admins = await User.find({ 
                 isAdmin: true,
                 $or: [ 
-                    { username: regex }, 
+                    { first_name: regex }, 
                     { email: regex }, 
-                    { name: regex }, 
+                    { last_name: regex }, 
                 ]
             }).lean();
         }
