@@ -9,10 +9,10 @@ import time
 driver = webdriver.Chrome()
 
 try:
-    # Step 1: Open login page
+    # Open login page
     driver.get("http://localhost:3001")
 
-    # Step 2: Log in
+    # Log in
     email_input = driver.find_element(By.NAME, "email")
     password_input = driver.find_element(By.NAME, "password")
     
@@ -22,7 +22,7 @@ try:
 
     time.sleep(2)
 
-    # Step 3: Wait for dashboard to load and click Edit Account Preferences
+    # Wait for dashboard to load and click Edit Account Preferences
     wait = WebDriverWait(driver, 10)
     edit_button = wait.until(EC.element_to_be_clickable(
         (By.XPATH, "//button[contains(text(), 'Edit Account Preferences')]")))
@@ -30,7 +30,7 @@ try:
 
     time.sleep(2)
 
-    # Step 4: Wait for preferences page
+    # Wait for preferences page
     search_input = wait.until(EC.presence_of_element_located((By.ID, "searchInput")))
 
     # Valid input test
@@ -62,19 +62,19 @@ try:
 
     time.sleep(2)
 
-    # Step 6: Wait for redirection to dashboard
+    # Wait for redirection to dashboard
     wait.until(EC.url_contains("user_dashboard.html"))
 
     time.sleep(2)
 
-    # Step 7: Click "Edit Account Preferences" again
+    # Click "Edit Account Preferences" again
     edit_button = wait.until(EC.element_to_be_clickable(
         (By.XPATH, "//button[contains(text(), 'Edit Account Preferences')]")))
     edit_button.click()
 
     time.sleep(2)
 
-    # Step 8: Verify the preference appears in the selected tags
+    # Verify the preference appears in the selected tags
     wait.until(EC.presence_of_element_located((By.ID, "selectedTags")))
     selected_tags = driver.find_elements(By.CLASS_NAME, "tag")
 
@@ -114,8 +114,30 @@ try:
     alert = WebDriverWait(driver, 5).until(EC.alert_is_present())
     alert.accept()  # Press the "OK" button
     
+    time.sleep(2)
+
+    # Click "Edit Account Preferences" again
+    edit_button = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//button[contains(text(), 'Edit Account Preferences')]")))
+    edit_button.click()
 
     time.sleep(2)
+
+    # Skip button test
+    skip_button = WebDriverWait(driver, 5).until(
+        EC.element_to_be_clickable((By.ID, "skipBtn"))
+    )
+    skip_button.click()
+    print("Clicked 'Skip' button.")
+
+    time.sleep(2)
+
+    # Verify redirect to dashboard
+    try:
+        WebDriverWait(driver, 5).until(EC.url_contains("user_dashboard.html"))
+        print("Successfully redirected to user dashboard after skipping.")
+    except:
+       print("Did not redirect to dashboard after skipping.")    
 
 finally:
     time.sleep(3)
