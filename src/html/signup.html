@@ -29,6 +29,7 @@
                 <div class="input-box">
                     <input type="email" name="email" placeholder="Email" id="email" required>
                     <i class='bx bxs-envelope'></i>
+                    <span class="error-message" id="userExistsError"></span>
                 </div>
                 <div class="input-box">
                     <input type="password" name="password" id="password" placeholder="Password" required>
@@ -54,6 +55,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const passwordError = urlParams.get('passwordError');
             const matchError = urlParams.get('matchError');
+            const userExistsError = urlParams.get('userExistsError');
 
             // Show error messages if available
             if (passwordError) {
@@ -61,6 +63,9 @@
             }
             if (matchError) {
                 document.getElementById('matchError').textContent = matchError;
+            }
+            if (userExistsError) {
+                document.getElementById('userExistsError').textContent = userExistsError;
             }
         };
         </script>        

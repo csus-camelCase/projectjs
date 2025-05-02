@@ -1156,7 +1156,8 @@ app.post('/signup', async (req, res) => {
      // Error message variables
      let errorMessages = {
         passwordError: '',
-        matchError: ''
+        matchError: '',
+        userExistsError: ''
     };
 
     // Check if passwords match
@@ -1169,16 +1170,17 @@ app.post('/signup', async (req, res) => {
         errorMessages.passwordError = 'Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.';
     }
 
-    if (errorMessages.passwordError || errorMessages.matchError) {
-        return res.redirect(`/signup.html?passwordError=${encodeURIComponent(errorMessages.passwordError)}&matchError=${encodeURIComponent(errorMessages.matchError)}`);
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+        errorMessages.userExistsError = 'User with this email already exists.';
+    }
+
+    if (errorMessages.passwordError || errorMessages.matchError || errorMessages.userExistsError) {
+        return res.redirect(`/signup.html?passwordError=${encodeURIComponent(errorMessages.passwordError)}&matchError=${encodeURIComponent(errorMessages.matchError)}&userExistsError=${encodeURIComponent(errorMessages.userExistsError)}`);
     }
 
     try {
-        // Check if the user already exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).send('User with this email already exists.');
-        }
 
         // Create a new user
         const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
