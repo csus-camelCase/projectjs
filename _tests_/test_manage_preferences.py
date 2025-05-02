@@ -149,14 +149,14 @@ def test_delete_preference(preference_name):
 
 # Running all tests
 def run_tests():
-    #print("\nTesting Search Functionality:")
-    #test_search_functionality('Work From Home') 
+    print("\nTesting Search Functionality:")
+    test_search_functionality('Work From Home') 
 
-    #print("\nTesting Create Preference:")
-    #test_create_preference('New Preference')
+    print("\nTesting Create Preference:")
+    test_create_preference('New Preference')
 
-    #print("\nTesting Edit Preference:")
-    #test_edit_preference('New Preference', 'Updated Preference')
+    print("\nTesting Edit Preference:")
+    test_edit_preference('New Preference', 'Updated Preference')
 
     print("\nTesting Delete Preference:")
     test_delete_preference('Updated Preference')
