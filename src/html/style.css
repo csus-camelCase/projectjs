@@ -248,6 +248,17 @@ img {
     color: black;
 }
 
+.prototype-section input,
+.prototype-section textarea {
+    padding: 14px 20px;
+    font-size: 16px;
+    border-radius: 30px;
+    border: var(--black-border);
+    width: 100%;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
 /* Footer Section */
 footer {
     margin-top: 20px;
@@ -256,14 +267,12 @@ footer {
     color: #333;
 }
 
-.wide-card.job-search {
+ .wide-card.job-search {
     margin-top: 20px;
     padding: 30px;
     text-align: center;
     background: rgba(255, 255, 255, 0.2);
-    /*border: 1px solid rgba(0, 0, 0, 0.1);*/
     border-radius: 10px;
-    /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);*/
 }
 
 .wide-card.job-search h2 {
@@ -278,7 +287,7 @@ footer {
     margin-bottom: 20px;
 }
 
-.wide-card.job-search button {                                                   /*copies wrapper button, replace later*/
+/*.wide-card.job-search button {          
     width: 100%;
     height: 45px;
     background: var(--default-dark-red);
@@ -294,18 +303,17 @@ footer {
     text-decoration: none;
 }
 
-.wide-card.job-search button:hover {                                            /*replace later*/
+.wide-card.job-search button:hover { 
     background: #ffcccb;
     color: black;
-}
-
+}*/
 
 /* Ensure the wrapper for the search form and table is wide enough */
 .wrapper.job-search {
-    width: 90%; /* Wider container */
+    width: 90%;
     max-width: 1200px;
-    padding: 20px; /* Add padding for spacing */
-    overflow: hidden; /* Prevent overflow issues */
+    padding: 20px;
+    overflow: hidden; 
     margin: 0 auto;
 }
 
@@ -405,7 +413,7 @@ button {
 .dropdown:hover .dropdown button {
     background-color: #d9363e;
 }
-/* Container for job cards */
+/* 
 .job-listings {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -413,7 +421,7 @@ button {
     padding: 20px;
 }
 
-/* Job card styles */
+
 .job-card {
     border: var(--black-border);
     border-radius: 10px;
@@ -428,19 +436,19 @@ button {
     transform: translateY(-5px);
 }
 
-/* Job title */
+
 .job-title {
     font-size: 1.5em;
     color: #333;
     margin-bottom: 10px;
 }
 
-/* Job description */
+
 .job-description {
     font-size: 1em;
     color: #555;
     margin-bottom: 15px;
-}
+}*/
 
 /* Apply Now button */
 .apply-button {
@@ -474,7 +482,7 @@ button {
     min-width: 200px;
 }
 
-.reschedule-btn {                                                                       /*copies wrapper btn rule, replace later*/
+/* .reschedule-btn {                                                                       //copies wrapper btn rule, replace later
     width: 100%;
     height: 45px;
     background: var(--default-dark-red);
@@ -488,11 +496,11 @@ button {
     color: white;
     font-weight: 600;
     text-decoration: none;
-}
+} */
 
-.reschedule-btn:hover {
+/*.reschedule-btn:hover {
     background-color: #cc3b3b;
-}
+}*/
 
 .error-message {
     font-size: 0.6rem;   /* Smaller text size */
@@ -623,21 +631,14 @@ button {
 }
 
 /* Modal Box */
-.modal-content {
+.modal .wrapper {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.3);
 }
 
-.modal-content input {
+.wrapper #preferenceInput {
     width: 100%;
     padding: 12px;
     font-size: 16px;
