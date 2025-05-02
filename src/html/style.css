@@ -593,6 +593,7 @@ button {
     cursor: pointer;
     font-weight: bold;
     transition: background 0.3s ease;
+    white-space: nowrap;
 }
 
 /* Input box layout wrapper */
