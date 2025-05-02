@@ -6,9 +6,9 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 
-testers = ["Zachary","Estelita","rammerha1mmer@sbcglobal.net","Zachary Estelita"
-           ,"Zacharyfail","Estelitafail","rammerha1mmerfail@sbcglobal.net", "Zachary EstelitaFail"
-           ,"Tom","Bolyard","Tombolyard05@gmail.com","Tom Bolyard"]
+testers = ["Tom","Bolyard","Tombolyard05@gmail.com","Tom Bolyard"
+           ,"Tomfail","Bolyardfail","Tombolyard05fail@gmail.com", "Tom BolyardFail"
+           ,"Zachary","Estelita","rammerha1mmer@sbcglobal.net","Zachary Estelita"]
 
 driver = webdriver.Chrome()
 
@@ -27,7 +27,7 @@ try:
     time.sleep(2)  
 
     # Navigate to candidate search button
-    search_button = driver.find_element(By.NAME, "candidate")
+    search_button = driver.find_element(By.NAME, "admin")
     search_button.click()
 
     time.sleep(2)
@@ -41,8 +41,9 @@ try:
         name_input.send_keys(tester)
         time.sleep(.5)
         try:
-            WebDriverWait(driver, 2).until(EC.visibility_of_element_located( (By.XPATH, f"//td[contains(text(), '{tester[a]}')]")))
-            result = driver.find_element(By.XPATH, f"//td[contains(text(), '{testers[a]}')]")
+            
+            WebDriverWait(driver, 2).until(EC.visibility_of_element_located( (By.XPATH, f"//tr[td[contains(text(), '{tester[a]}')]]")))
+            result = driver.find_element(By.XPATH, f"//tr[td[contains(text(), '{tester[a]}')]]")
             print(f"Test passed: {tester} found in search results")
         except:
             print(f"Test failed: {tester} not found in search results")
