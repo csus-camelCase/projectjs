@@ -6,49 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Information</title>
     <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="wrapper" style="height: 700px; width: 1000px;">
-        <form action="/submit_settings" method="post" enctype="multipart/form-data">
-            <h1 style="margin-bottom: 30px;">Edit Account Information</h1>
-            <label for="first_name">First Name:</label>
-            <input type="text" id="first_name" name="first_name" value="<%= first_name %>" required><br><br>
-
-            <label for="last_name">Last Name:</label>
-            <input type="text" id="last_name" name="last_name" value="<%= last_name %>" required><br><br>
-
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="<%= email %>" required><br><br>
-
-            <label for="resume">Resume (Optional):</label>
-            <input type="file" id="resume" name="resume"><br><br>
-
-            <label for="zipcode">Zipcode:</label>
-            <input type="text" id="zipcode" name="zipcode" value="<%= zipcode %>"><br><br>
-
-            <div class="input-box dropdown-box" style="margin-top: 5px;">
-                <select name="degree" required>
-                    <option value="" disabled selected>Select Degree Level</option>
-                    <option value="high_school">High School</option>
-                    <option value="associate">Associate Degree</option>
-                    <option value="bachelor">Bachelor's Degree</option>
-                    <option value="master">Master's Degree</option>
-                    <option value="phd">Doctorate</option>
-                </select>
-                <i class='bx bxs-graduation'></i>
-            </div>
-            <a href="user_dashboard.html">
-            <button type="button" style="margin-top: 50px;" class="btn">Save and Continue</button>
-        </form>
-
-        <form action="/delete_account" method="post" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
-            <button type="submit" class="btn delete-btn">Delete Account</button>
-        </form>
-        <a href="user_dashboard.html">
-            <button type="button" class="btn">Continue Without Saving</button>
-        </a>
-    </div>
-
     <style>
         /* Add styling for delete button */
         .delete-btn {
@@ -67,7 +24,68 @@
         .delete-btn:hover {
             background-color: #d9363e;
         }
-
+        
+        /* Resume upload status styling */
+        .resume-status {
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .resume-uploaded {
+            color: green;
+            font-weight: bold;
+        }
     </style>
+</head>
+<body>
+    <div class="wrapper" style="height: 700px; width: 1000px;">
+        <form action="/submit_settings" method="post" enctype="multipart/form-data">
+            <h1 style="margin-bottom: 30px;">Edit Account Information</h1>
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" name="first_name" value="<%= first_name %>" required><br><br>
+
+            <label for="last_name">Last Name:</label>
+            <input type="text" id="last_name" name="last_name" value="<%= last_name %>" required><br><br>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="<%= email %>" required><br><br>
+
+            <label for="resume">Resume (Optional):</label>
+            <input type="file" id="resume" name="resume"><br>
+            <div class="resume-status">
+                <% if (resume_url) { %>
+                    <span class="resume-uploaded">✓ Resume uploaded</span>
+                <% } else { %>
+                    No resume uploaded yet
+                <% } %>
+            </div>
+            <br>
+
+            <label for="zipcode">Zipcode:</label>
+            <input type="text" id="zipcode" name="zipcode" value="<%= zipcode %>"><br><br>
+
+            <div class="input-box dropdown-box" style="margin-top: 5px;">
+                <select name="degree" required>
+                    <option value="" disabled>Select Degree Level</option>
+                    <option value="high_school" <%= degree === 'high_school' ? 'selected' : '' %>>High School</option>
+                    <option value="associate" <%= degree === 'associate' ? 'selected' : '' %>>Associate Degree</option>
+                    <option value="bachelor" <%= degree === 'bachelor' ? 'selected' : '' %>>Bachelor's Degree</option>
+                    <option value="master" <%= degree === 'master' ? 'selected' : '' %>>Master's Degree</option>
+                    <option value="phd" <%= degree === 'phd' ? 'selected' : '' %>>Doctorate</option>
+                </select>
+                <i class='bx bxs-graduation'></i>
+            </div>
+            
+            <button type="submit" style="margin-top: 50px;" class="btn">Save and Continue</button>
+        </form>
+
+        <form action="/delete_account" method="post" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+            <button type="submit" class="btn delete-btn">Delete Account</button>
+        </form>
+        <a href="user_dashboard.html">
+            <button type="button" class="btn">Continue Without Saving</button>
+        </a>
+    </div>
 </body>
 </html>

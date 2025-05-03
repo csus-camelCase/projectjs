@@ -1062,7 +1062,7 @@ app.post('/delete-candidates', async (req, res) => {
 app.get('/settings.html', async (req, res) => {
     const userId = req.session.userId;
     if (!userId) {
-        return res.redirect('/index.html'); // Redirect to login if not logged in
+        return res.redirect('/index.html');
     }
 
     try {
@@ -1073,56 +1073,57 @@ app.get('/settings.html', async (req, res) => {
             return res.status(404).send('User or profile not found');
         }
 
-        // Pass the current user's data to the settings page
         res.render('settings', {
             first_name: user.first_name,
             last_name: user.last_name,
             email: user.email,
-            degree: profile.education.length > 0 ? profile.education[0].degree : '', // Check if degree exists
-            resume_url: profile.resume_url, // Show current resume URL if available
-            zipcode: profile.zipcode || '', // Include the current zipcode
+            degree: profile.education.length > 0 ? profile.education[0].degree : '',
+            resume_url: profile.resume_url,
+            zipcode: profile.zipcode || ''
         });
     } catch (error) {
-        console.error('Error fetching user or profile:', error);
-        res.status(500).send('Error fetching profile');
+        console.error('Error:', error);
+        res.status(500).send('Error loading settings');
     }
 });
 
 // Handle /settings.html POST request
 app.post('/submit_settings', upload.single('resume'), async (req, res) => {
-    const userId = req.session.userId; // Ensure the user is logged in
-    const { first_name, last_name, email, zipcode, degree } = req.body; // Extract inputs from the form
-    const file = req.file; // Get the uploaded resume file
+    const userId = req.session.userId;
+    const { first_name, last_name, email, zipcode, degree } = req.body;
+    const file = req.file;
 
     if (!userId) {
         return res.status(401).send('Unauthorized');
     }
 
     try {
-        // Update user information in the database
+        // Update user information
         const updatedUser = await User.findByIdAndUpdate(
             userId,
             { first_name, last_name, email },
-            { new: true } // Return the updated document
+            { new: true }
         );
 
         if (!updatedUser) {
             return res.status(404).send('User not found');
         }
 
-        // Find the associated profile
+        // Update profile information
         const profile = await Profile.findOne({ user_id: userId });
-
         if (!profile) {
-            return res.status(404).send('User profile not found');
+            return res.status(404).send('Profile not found');
         }
 
-        // Update the profile fields
         profile.full_name = `${first_name} ${last_name}`;
-        profile.education = [{ degree }];
-        profile.zipcode = zipcode; // Assuming you want to save zipcode in the profile as well
+        profile.zipcode = zipcode;
+        
+        // Update education if degree is provided
+        if (degree) {
+            profile.education = [{ degree }];
+        }
 
-        // If a resume is uploaded, upload it to S3 and update the profile
+        // Handle resume upload if file exists
         if (file) {
             const s3Params = {
                 Bucket: process.env.S3_BUCKET_NAME,
@@ -1130,17 +1131,17 @@ app.post('/submit_settings', upload.single('resume'), async (req, res) => {
                 Body: file.buffer,
                 ContentType: file.mimetype,
             };
-
             const s3Response = await s3.upload(s3Params).promise();
-            profile.resume_url = s3Response.Location; // Update the resume URL in the profile
+            profile.resume_url = s3Response.Location;
         }
 
-        await profile.save(); // Save the updated profile
+        await profile.save();
 
-        res.redirect('/preferences.html'); // Redirect back to preferences page
+        // Redirect to dashboard after successful update
+        res.redirect('/user_dashboard.html');
     } catch (error) {
-        console.error('Error updating user or profile information:', error);
-        res.status(500).send('An error occurred while updating your information');
+        console.error('Error updating settings:', error);
+        res.status(500).send('Error updating settings');
     }
 });
 
