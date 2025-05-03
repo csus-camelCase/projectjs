@@ -1,0 +1,60 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+# --- configuration -----------------------------------------------------------
+BASE_URL       = "http://localhost:3001"
+ADMIN_EMAIL    = "rhalili@csus.com"
+ADMIN_PASSWORD = "1"
+PREFERENCE     = "Work From Home"          
+WAIT_TIME      = 10                        
+# -----------------------------------------------------------------------------
+
+
+driver = webdriver.Chrome()                
+wait   = WebDriverWait(driver, WAIT_TIME)
+
+try:
+    driver.get(BASE_URL)
+    wait.until(EC.visibility_of_element_located((By.NAME, "email"))).send_keys(ADMIN_EMAIL)
+    pw = driver.find_element(By.NAME, "password")
+    pw.send_keys(ADMIN_PASSWORD)
+    pw.send_keys(Keys.RETURN)
+
+    wait.until(EC.url_contains("admin_dashboard"))
+
+    send_emails_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Send Emails']"))
+    )
+    send_emails_btn.click()
+    wait.until(EC.url_contains("send-emails"))
+
+    dropdown_toggle = wait.until(EC.element_to_be_clickable((By.ID, "dropdownToggle")))
+    dropdown_toggle.click()
+
+    pref_checkbox = wait.until(
+        EC.element_to_be_clickable((
+            By.XPATH,
+            f"//div[@id='preferenceMenu']//label[contains(normalize-space(), '{PREFERENCE}')]/input[@type='checkbox']"
+        ))
+    )
+    if not pref_checkbox.is_selected():
+        pref_checkbox.click()
+
+    wait.until(EC.visibility_of_element_located((By.ID, "subject"))).send_keys("test")
+    driver.find_element(By.ID, "message").send_keys("test")
+
+    driver.find_element(By.XPATH, "//button[normalize-space()='Send Email']").click()
+
+    wait.until(EC.visibility_of_element_located((By.ID, "successMessage")))
+    print("✅  Email‑sending workflow completed successfully.")
+
+except Exception as e:
+    print(f"❌  Test failed: {e}")
+
+finally:
+    time.sleep(3)
+    driver.quit()
