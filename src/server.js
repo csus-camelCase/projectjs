@@ -1069,17 +1069,14 @@ app.get('/settings.html', async (req, res) => {
         const user = await User.findById(userId);
         const profile = await Profile.findOne({ user_id: userId });
 
-        if (!user || !profile) {
-            return res.status(404).send('User or profile not found');
-        }
-
         res.render('settings', {
             first_name: user.first_name,
             last_name: user.last_name,
             email: user.email,
-            degree: profile.education.length > 0 ? profile.education[0].degree : '',
-            resume_url: profile.resume_url,
-            zipcode: profile.zipcode || ''
+            zipcode: profile?.zipcode || '',
+            degree: profile?.education?.[0]?.degree || '',
+            resume_url: profile?.resume_url,
+            isAdmin: user.isAdmin 
         });
     } catch (error) {
         console.error('Error:', error);
@@ -1138,7 +1135,13 @@ app.post('/submit_settings', upload.single('resume'), async (req, res) => {
         await profile.save();
 
         // Redirect to dashboard after successful update
-        res.redirect('/user_dashboard.html');
+       // Check if user is admin
+       const user = await User.findById(userId);
+       if (user.isAdmin) {
+           return res.redirect('/admin_dashboard.html');
+       } else {
+           return res.redirect('/user_dashboard.html');
+       }
     } catch (error) {
         console.error('Error updating settings:', error);
         res.status(500).send('Error updating settings');
