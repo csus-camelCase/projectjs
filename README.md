@@ -54,18 +54,28 @@ This project is being developed for **System 1 Search**, a NorCal-based recruitm
 - `aws-sdk`: AWS SDK for interacting with S3.
 
 ### Database Schemas
-![image](https://github.com/user-attachments/assets/7c3fa599-8365-4028-ac74-c1a040fdd007)
+![image](https://github.com/user-attachments/assets/78262c1f-3667-4915-9e2a-f9317223a061)
 
-1. **Admin**
-   - Stores admin credentials and account details.
-3. **Candidate/User**
-   - Stores user credentials and account details.
-4. **Profile Management**
+1. **Admin Actions**
+   - Stores admin actions.
+2. **Password Reset Tokens**
+   - Stores reset tokens for password reset functionality.
+3. **Profiles**
+   - Stores user's full names, UID, phones, ZIP code, activity information.
+4. **Email Logs**
+   - Stores user/admin email log information.
+5. **Users**
+   - Stores users/admin ids, roles, and emails.
+6. **Profile Management**
    - Contains information relevant to profile management.
-5. **Job List**
+7. **Jobs**
    - Represents active job postings.
-6. **Event Manager**
+8. **Events**
    - Stores user-scheduled events like interviews or meetings.
+9. **Preferences**
+   - Stores user's selected preferences.
+10. **Applications**
+   - Stores user application data.
 
 ---
 
