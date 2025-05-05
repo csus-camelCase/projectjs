@@ -54,7 +54,7 @@ This project is being developed for **System 1 Search**, a NorCal-based recruitm
 - `aws-sdk`: AWS SDK for interacting with S3.
 
 ### Database Schemas
-![image](https://github.com/user-attachments/assets/7c3fa599-8365-4028-ac74-c1a040fdd007)
+![image](https://github.com/user-attachments/assets/78262c1f-3667-4915-9e2a-f9317223a061)
 
 1. **Admin**
    - Stores admin credentials and account details.
