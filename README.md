@@ -30,7 +30,8 @@ This project is being developed for **System 1 Search**, a NorCal-based recruitm
 - **Admin Dashboard**
   - Allows recruiters at System 1 to manage users, job postings, and events.
 
-![image](https://github.com/user-attachments/assets/53a3ed22-a363-4115-988d-3e3149b86e31) ![image](https://github.com/user-attachments/assets/cf779f6e-a396-438a-a518-f8459eb6e439)
+![image](https://github.com/user-attachments/assets/53a3ed22-a363-4115-988d-3e3149b86e31) ![image](https://github.com/user-attachments/assets/875291dd-61f6-4cbe-b421-cbde6dcae2fb)
+
 
 
 ---
