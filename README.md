@@ -118,12 +118,16 @@ This project is being developed for **System 1 Search**, a NorCal-based recruitm
 --- 
 
 ## Testing
-- place holder to do in CSC 191
+- Testing scripts can be found in the _tests_ folder.
+- Automated testing scripts were created using the Selenium module for Python.
   
 ---
 
 ## Deployment
-- place holder to do in CSC 191 
+- The application is currently deployed on our web server hosted on AWS EC2.
+- Upon push to the "main" branch, a GitHub action is kicked off, which will auto-deploy the code to the web server.
+- The web server is linked to the Route53 domain camelcase-preprod.com
+- Maintenance to the web server can be done via SSH or directly connecting from the AWS EC2 dashboard.
 
 ---
 
@@ -167,3 +171,4 @@ Jira Timeline for CSC 191 (dates subject to change)
 - **Z Wiese**
 - **Kenny Ahn**
 - **Oluwatamilore Kuti**
+- **Andy Pham**
