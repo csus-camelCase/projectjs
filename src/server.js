@@ -279,17 +279,26 @@ app.post('/process-selections', async (req, res) => {
 
 app.get('/search', async (req, res) => {
     try {
-        const profiles = await Profile.find({}, 'user_id');
+        const profiles = await Profile.find({}, 'user_id preferences');
         const userIds = profiles.map(profile => profile.user_id);
-        //const candidates = await User.find({ isAdmin: false });
-        const users = await User.find({ _id: { $in: userIds }, isAdmin: false }, 'first_name last_name email created_at last_login');
-        const filteredUsers = users.filter(user => !user.isAdmin); // Exclude admins
+
+        // Create a map from user_id to preferences
+        const preferenceMap = {};
+        profiles.forEach(profile => {
+            preferenceMap[profile.user_id.toString()] = profile.preferences || [];
+        });
+
+        const users = await User.find({ _id: { $in: userIds }, isAdmin: false }).lean();
+
         users.forEach(user => {
+            const idStr = user._id.toString();
+            user.preferences = preferenceMap[idStr] || [];
             user.formattedCreatedAt = moment(user.created_at).format('MMMM YYYY');
             user.formattedLastLogin = moment(user.last_login).format('MMMM YYYY');
-          });
-        res.render('search', { users: users }); // Render the 'search.ejs' view and pass profiles
-    } catch (error) { 
+        });
+
+        res.render('search', { users });
+    } catch (error) {
         console.error('Error fetching profiles:', error);
         res.status(500).send('Error fetching candidates');
     }
@@ -297,50 +306,44 @@ app.get('/search', async (req, res) => {
 
 
 app.get('/search-candidates', async (req, res) => {
-    const query = req.query.query;
-    if (!query) {
-        return res.json([]);
-    }
+    const query = req.query.query?.toLowerCase();
+    if (!query) return res.json([]);
 
     try {
-        const profiles = await Profile.find({}, 'user_id');
-        const userIds = profiles.map(profile => profile.user_id);
+        const profiles = await Profile.find({}, 'user_id preferences');
+        const userIdToPreferences = {};
+        const userIds = [];
 
-        const users = await User.aggregate([
-            { $match: { _id: { $in: userIds } } },
-            {
-                $addFields: {
-                    full_name: { $concat: ["$first_name", " ", "$last_name"] }
-                }
-            },
-            {
-                $match: {
-                    $and: [
-                        { isAdmin: { $ne: true } },
-                        {
-                            $or: [
-                                { full_name: { $regex: query, $options: 'i' } },
-                                { email: { $regex: query, $options: 'i' } },
-                                { first_name: { $regex: query, $options: 'i' } },
-                                { last_name: { $regex: query, $options: 'i' } }
-                            ]
-                        }
-                    ]
-                }
-            },
-            {
-                $project: {
-                    first_name: 1,
-                    last_name: 1,
-                    email: 1,
-                    created_at: 1,
-                    last_login: 1
-                }
-            }
-        ]);
+        profiles.forEach(profile => {
+            const idStr = profile.user_id.toString();
+            userIdToPreferences[idStr] = profile.preferences || [];
+            userIds.push(profile.user_id);
+        });
 
-        // Add formatted dates in JS
+        let users = await User.find({
+            _id: { $in: userIds },
+            isAdmin: false
+        }).lean();
+
+        // Filter by name or preference
+        users = users.filter(user => {
+            const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
+            const prefs = userIdToPreferences[user._id.toString()] || [];
+            return (
+                fullName.includes(query) ||
+                user.email?.toLowerCase().includes(query) ||
+                prefs.some(p =>
+                    typeof p === 'string'
+                        ? p.toLowerCase().includes(query)
+                        : typeof p.name === 'string' && p.name.toLowerCase().includes(query)
+                )
+            );
+        });
+
+        // Format data for frontend
         users.forEach(user => {
+            const idStr = user._id.toString();
+            user.preferences = userIdToPreferences[idStr] || [];
             user.formattedCreatedAt = moment(user.created_at).format('MMMM YYYY');
             user.formattedLastLogin = moment(user.last_login).format('MMMM YYYY');
         });
